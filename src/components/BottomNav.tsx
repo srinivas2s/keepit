@@ -58,7 +58,7 @@ export default function BottomNav() {
               {isActive && (
                 <motion.div
                   layoutId="activeNav"
-                  className="absolute inset-0 bg-blue-50 dark:bg-blue-900/20 rounded-2xl -z-10"
+                  className="absolute inset-0 bg-[#BAE6FD] dark:bg-blue-900/20 rounded-2xl -z-10"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                 />
               )}
