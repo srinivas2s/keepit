@@ -86,17 +86,6 @@ export default function LoginPage() {
     router.push('/dashboard');
   };
 
-  const handleNameSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setError('Please enter your name');
-      return;
-    }
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
-    login('+91' + phone, name.trim());
-    router.push('/dashboard');
-  };
 
   useEffect(() => {
     if (otp.every(d => d !== '') && step === 'otp') {
