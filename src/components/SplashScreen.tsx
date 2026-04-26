@@ -51,7 +51,7 @@ export default function SplashScreen() {
               initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.95 }}
               animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
               transition={{ delay: 0.5, duration: 1.2, ease: 'easeOut' }}
-              className="text-slate-600 font-medium tracking-wide mb-8"
+              className="text-slate-800 font-bold tracking-tight mb-8"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
               Receipts Fade. KeepIt Doesn&apos;t.
