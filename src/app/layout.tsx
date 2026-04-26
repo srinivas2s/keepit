@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import Navbar from "@/components/Navbar";
+import SplashScreen from "@/components/SplashScreen";
 
 export const metadata: Metadata = {
   title: "KeepIt — Receipts Fade. KeepIt Doesn't.",
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
+        <SplashScreen />
         <AppProvider>
           <Navbar />
           <main className="flex-1 pb-20 md:pb-0">

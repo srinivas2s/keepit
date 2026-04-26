@@ -85,7 +85,7 @@ export default function LandingPage() {
               alt="KeepIt" 
               width={100} 
               height={28} 
-              className="h-7 w-auto object-contain"
+              className="h-7 w-auto object-contain mix-blend-multiply dark:mix-blend-normal dark:filter dark:brightness-200"
               priority
             />
           </div>

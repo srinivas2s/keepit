@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { LayoutDashboard, PlusCircle, Bell, User, Sun, Moon } from 'lucide-react';
+import Logo from './Logo';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -37,14 +37,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 group">
-              <Image 
-                src="/logo.png" 
-                alt="KeepIt" 
-                width={120} 
-                height={32} 
-                className="h-8 w-auto object-contain brightness-100 dark:brightness-110"
-                priority
-              />
+              <Logo size="small" />
             </Link>
 
             {/* Desktop Links */}

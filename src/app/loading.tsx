@@ -30,7 +30,7 @@ export default function Loading() {
             alt="KeepIt" 
             width={180} 
             height={48} 
-            className="h-12 w-auto object-contain mx-auto"
+            className="h-12 w-auto object-contain mx-auto mix-blend-multiply dark:mix-blend-normal dark:filter dark:brightness-200"
             priority
           />
         </motion.div>
