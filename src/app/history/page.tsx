@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { History, PlusCircle, ArrowRightLeft, AlertCircle, CheckCircle2, Search, Filter } from 'lucide-react';
 import { useState } from 'react';
 import { formatDate } from '@/lib/supabase';
@@ -115,7 +115,7 @@ export default function HistoryPage() {
                       {item.title}
                     </h3>
                     <span className="text-[10px] font-black uppercase tracking-widest text-text-muted dark:text-dark-text-secondary">
-                      {formatDate(item.date)}
+                      {formatDate(item.date.toISOString())}
                     </span>
                   </div>
                   <p className="text-sm text-text-secondary dark:text-dark-text-secondary leading-relaxed">

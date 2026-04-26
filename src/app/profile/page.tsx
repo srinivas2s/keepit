@@ -168,7 +168,7 @@ export default function ProfilePage() {
                   rotate: isDarkMode ? 360 : 0
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="w-8 h-8 rounded-xl bg-white dark:bg-[#1565C0] shadow-md flex items-center justify-center relative z-10"
+                className="w-8 h-8 rounded-xl bg-[#1565C0] shadow-md flex items-center justify-center relative z-10"
               >
                 {isDarkMode ? (
                   <motion.div
