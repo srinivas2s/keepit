@@ -99,17 +99,6 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-primary/3 to-accent/3 rounded-full blur-3xl" />
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              Smart Warranty Management
-            </span>
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -117,9 +106,10 @@ export default function LandingPage() {
             className="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight mb-6"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
-            <span className="text-text dark:text-dark-text">Receipts Fade.</span>
-            <br />
-            <span className="gradient-text">KeepIt Doesn&apos;t.</span>
+            <span className="gradient-text leading-tight">
+              Receipts Fade.<br />
+              KeepIt Doesn&apos;t.
+            </span>
           </motion.h1>
 
           <motion.p
