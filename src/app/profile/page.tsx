@@ -153,20 +153,44 @@ export default function ProfilePage() {
           </h3>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-text dark:text-dark-text">Dark Mode</p>
-              <p className="text-xs text-text-muted dark:text-dark-text-secondary">Switch between light and dark theme</p>
+              <p className="text-sm font-black text-text dark:text-dark-text uppercase tracking-widest">Theme Mode</p>
+              <p className="text-xs font-bold text-text-muted dark:text-dark-text-secondary mt-1">
+                {isDarkMode ? 'Pure Black' : 'Pure White'}
+              </p>
             </div>
             <button
               onClick={toggleDarkMode}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                isDarkMode ? 'bg-primary' : 'bg-border dark:bg-dark-border'
-              }`}
+              className="relative w-20 h-10 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center p-1 group overflow-hidden"
             >
               <motion.div
-                animate={{ x: isDarkMode ? 20 : 2 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="absolute top-1 w-4 h-4 bg-white rounded-full shadow"
-              />
+                animate={{ 
+                  x: isDarkMode ? 40 : 0,
+                  rotate: isDarkMode ? 360 : 0
+                }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="w-8 h-8 rounded-xl bg-white dark:bg-[#1565C0] shadow-md flex items-center justify-center relative z-10"
+              >
+                {isDarkMode ? (
+                  <motion.div
+                    initial={{ scale: 0, rotate: -90 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                  >
+                    <Moon size={18} className="text-white" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ scale: 0, rotate: 90 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                  >
+                    <Sun size={18} className="text-blue-600" />
+                  </motion.div>
+                )}
+              </motion.div>
+              
+              <div className="absolute inset-0 flex items-center justify-around pointer-events-none opacity-20 dark:opacity-40">
+                <Sun size={14} className="text-blue-400" />
+                <Moon size={14} className="text-slate-400" />
+              </div>
             </button>
           </div>
         </motion.div>

@@ -166,18 +166,24 @@ export default function DashboardPage() {
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.08 }}
-              className="bg-surface dark:bg-dark-surface rounded-2xl p-4 sm:p-5 border border-border dark:border-dark-border card-hover cursor-default"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ y: -5, scale: 1.02 }}
+              transition={{ 
+                delay: 0.2 + i * 0.08,
+                type: 'spring',
+                stiffness: 260,
+                damping: 20
+              }}
+              className="bg-surface dark:bg-dark-surface rounded-2xl p-4 sm:p-5 border border-border dark:border-dark-border shadow-sm hover:shadow-xl transition-shadow cursor-default"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-text-secondary dark:text-dark-text-secondary">{stat.icon}</div>
-                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg shadow-blue-500/20`}>
                   <span className="text-white text-sm font-bold">{stat.value}</span>
                 </div>
               </div>
-              <p className="text-xs font-medium text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider">
+              <p className="text-xs font-black text-text-secondary dark:text-dark-text-secondary uppercase tracking-widest">
                 {stat.label}
               </p>
             </motion.div>
@@ -254,71 +260,89 @@ export default function DashboardPage() {
             )}
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {filteredProducts.map((product, i) => {
-              const days = daysRemaining(product.expiry_date);
-              return (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  whileHover={{ y: -4 }}
-                >
-                  <Link
-                    href={`/product/${product.id}`}
-                    className="block bg-surface dark:bg-dark-surface rounded-2xl p-5 border border-border dark:border-dark-border hover:shadow-xl hover:shadow-primary/5 transition-all group"
+          <motion.div 
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredProducts.map((product, i) => {
+                const days = daysRemaining(product.expiry_date);
+                return (
+                  <motion.div
+                    key={product.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    whileHover={{ y: -8, scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ 
+                      type: 'spring',
+                      stiffness: 260,
+                      damping: 20,
+                      delay: i * 0.03
+                    }}
                   >
-                    {/* Top row */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center group-hover:scale-110 transition-transform text-primary">
-                        {product.brand === 'Apple' ? <Smartphone size={24} /> :
-                         product.brand === 'Samsung' ? <Smartphone size={24} /> :
-                         product.brand === 'Sony' ? <Smartphone size={24} /> :
-                         product.brand === 'LG' ? <Tv size={24} /> :
-                         product.brand === 'Dyson' ? <Home size={24} /> : <Package size={24} />}
-                      </div>
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full badge-${product.status}`}>
-                        {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
-                      </span>
-                    </div>
+                    <Link
+                      href={`/product/${product.id}`}
+                      className="block bg-surface dark:bg-dark-surface rounded-[28px] p-6 border border-border dark:border-dark-border hover:shadow-2xl hover:shadow-primary/10 transition-all group relative overflow-hidden"
+                    >
+                      {/* Subtle Background Glow on Hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                    {/* Product Info */}
-                    <h3 className="font-bold text-text dark:text-dark-text text-base mb-1 group-hover:text-primary transition-colors" style={{ fontFamily: 'var(--font-heading)' }}>
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-text-secondary dark:text-dark-text-secondary">
-                      {product.brand} • {product.retailer}
-                    </p>
+                      {/* Top row */}
+                      <div className="flex items-start justify-between mb-6 relative z-10">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform text-primary border border-slate-100 dark:border-white/10">
+                          {product.brand === 'Apple' ? <Smartphone size={28} /> :
+                           product.brand === 'Samsung' ? <Smartphone size={28} /> :
+                           product.brand === 'Sony' ? <Smartphone size={28} /> :
+                           product.brand === 'LG' ? <Tv size={28} /> :
+                           product.brand === 'Dyson' ? <Home size={28} /> : <Package size={28} />}
+                        </div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full badge-${product.status}`}>
+                          {product.status}
+                        </span>
+                      </div>
 
-                    {/* Bottom row */}
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-border dark:border-dark-border">
-                      <div>
-                        <p className="text-xs text-text-muted dark:text-dark-text-secondary">Paid</p>
-                        <p className="text-sm font-bold text-text dark:text-dark-text">
-                          {formatCurrency(product.amount_paid)}
+                      {/* Product Info */}
+                      <div className="relative z-10">
+                        <h3 className="font-black text-text dark:text-dark-text text-xl mb-1 group-hover:text-primary transition-colors leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+                          {product.name}
+                        </h3>
+                        <p className="text-sm font-bold text-text-muted dark:text-dark-text-secondary">
+                          {product.brand} • {product.retailer}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-text-muted dark:text-dark-text-secondary">
-                          {product.status === 'expired' ? 'Expired' : 'Expires'}
-                        </p>
-                        <p className={`text-sm font-bold ${
-                          product.status === 'active' ? 'text-success' :
-                          product.status === 'expiring' ? 'text-warning' : 'text-danger'
-                        }`}>
-                          {product.status === 'expired'
-                            ? formatDate(product.expiry_date)
-                            : `${days} days left`
-                          }
-                        </p>
+
+                      {/* Bottom row */}
+                      <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-50 dark:border-white/5 relative z-10">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-text-muted dark:text-dark-text-secondary mb-1">Paid</p>
+                          <p className="text-base font-black text-text dark:text-dark-text">
+                            {formatCurrency(product.amount_paid)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-text-muted dark:text-dark-text-secondary mb-1">
+                            {product.status === 'expired' ? 'Expired' : 'Expires'}
+                          </p>
+                          <p className={`text-base font-black ${
+                            product.status === 'active' ? 'text-success' :
+                            product.status === 'expiring' ? 'text-warning' : 'text-danger'
+                          }`}>
+                            {product.status === 'expired'
+                              ? formatDate(product.expiry_date)
+                              : `${days} days`
+                            }
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
     </div>

@@ -71,6 +71,17 @@ const steps = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg overflow-hidden">
+      
+      {/* Landing Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 flex items-center justify-between max-w-7xl mx-auto">
+        <Logo size="normal" />
+        <Link 
+          href="/login" 
+          className="px-6 py-2.5 bg-white dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl font-black text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-white/10 transition-all shadow-sm"
+        >
+          Login
+        </Link>
+      </header>
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
