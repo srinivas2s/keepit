@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import Link from 'next/link';
 import { Bell, BellOff, ChevronRight, Info, AlertTriangle, AlertCircle, CalendarX } from 'lucide-react';
+import { AlertItemSkeleton } from '@/components/Skeleton';
+import Skeleton from '@/components/Skeleton';
 
 const alertConfig: Record<string, { icon: React.ReactNode; color: string; label: string; dotColor: string }> = {
   '90day': { icon: <Info size={16} />, color: 'text-success', label: '90-Day Warning', dotColor: 'bg-success' },
@@ -23,7 +25,23 @@ export default function AlertsPage() {
   }
 
   const getProduct = (productId: string) => products.find(p => p.id === productId);
-  const unreadCount = alerts.filter(a => !a.is_read).length;
+  if (appLoading) {
+    return (
+      <div className="min-h-screen bg-background dark:bg-dark-bg">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <Skeleton variant="text" className="w-32 h-8 mb-2" />
+              <Skeleton variant="text" className="w-48" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map(i => <AlertItemSkeleton key={i} />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const sortedAlerts = [...alerts].sort((a, b) => {
     // Unread first, then by date
