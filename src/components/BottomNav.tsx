@@ -20,12 +20,12 @@ export default function BottomNav() {
   if (pathname === '/' || pathname === '/login') return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 pt-2 pointer-events-none lg:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-8 pt-2 pointer-events-none flex justify-center">
       <motion.nav
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-        className="mx-auto max-w-md w-full bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-between p-2 pointer-events-auto"
+        className="mx-auto max-w-3xl w-full bg-white dark:bg-black/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_40px_80px_rgba(0,0,0,0.5)] flex items-center justify-between p-2 pointer-events-auto"
       >
         {navItems.map((item) => {
           const isActive = pathname === item.href;

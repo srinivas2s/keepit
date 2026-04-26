@@ -35,75 +35,31 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 relative">
-            {/* Desktop Links (Left) */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.slice(0, 2).map((link) => {
-                const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-primary/10 text-primary dark:bg-primary/20'
-                        : 'text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover'
-                    }`}
-                  >
-                    <span>{link.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Centered Logo */}
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+            {/* Brand Logo (Left on desktop, Center on mobile) */}
+            <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center gap-2 group">
                 <Logo size="small" />
               </Link>
             </div>
 
-            {/* Right Side Links & Actions */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.slice(2).map((link) => {
-                const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-primary/10 text-primary dark:bg-primary/20'
-                        : 'text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover'
-                    }`}
-                  >
-                    <span>{link.label}</span>
-                    {link.badge ? (
-                      <span className="w-5 h-5 bg-danger text-white text-[10px] rounded-full flex items-center justify-center font-bold">
-                        {link.badge}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
-              
-              <div className="w-px h-6 bg-border dark:bg-dark-border mx-2" />
-              
+            {/* Right Side Actions */}
+            <div className="flex items-center gap-3">
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-xl hover:bg-surface-hover dark:hover:bg-dark-surface-hover transition-colors"
+                className="p-2.5 rounded-2xl hover:bg-surface-hover dark:hover:bg-dark-surface-hover transition-all border border-transparent hover:border-border dark:hover:border-dark-border"
                 aria-label="Toggle dark mode"
               >
-                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                {isDarkMode ? <Sun size={20} className="text-primary" /> : <Moon size={20} className="text-slate-400" />}
               </button>
 
               {/* User Avatar */}
               {user && (
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 ml-2"
+                  className="flex items-center gap-2 pl-2"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
+                  <div className="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center text-white font-black text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 </Link>

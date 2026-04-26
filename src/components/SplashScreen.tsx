@@ -5,14 +5,20 @@ import { useEffect, useState } from 'react';
 import Logo from './Logo';
 
 export default function SplashScreen() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 3000); // Slightly longer for the premium animation to breathe
-
-    return () => clearTimeout(timer);
+    // Only show splash screen once per session
+    const hasShown = sessionStorage.getItem('keepit_splash_shown');
+    
+    if (!hasShown) {
+      setIsVisible(true);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        sessionStorage.setItem('keepit_splash_shown', 'true');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   return (
