@@ -6,11 +6,13 @@ export default function Logo({ className = "", size = "normal", forceLight = fal
   const { isDarkMode: appDarkMode } = useApp();
   const isDarkMode = forceLight ? false : appDarkMode;
 
-  const dimensions = {
+  const sizeConfig = {
     small: { w: 120, h: 32, iconSize: 24 },
     normal: { w: 160, h: 48, iconSize: 36 },
     large: { w: 240, h: 64, iconSize: 52 }
-  }[size];
+  };
+
+  const dimensions = sizeConfig[size as keyof typeof sizeConfig] || sizeConfig.normal;
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
