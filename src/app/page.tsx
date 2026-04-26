@@ -138,17 +138,14 @@ export default function LandingPage() {
           >
             <Link
               href="/login"
-              className="group relative px-10 py-5 bg-primary text-white rounded-2xl font-black text-xl shadow-[0_20px_50px_rgba(21,101,192,0.3)] hover:scale-105 active:scale-95 transition-all overflow-hidden"
+              className="px-10 py-5 bg-white/5 backdrop-blur-xl text-white rounded-2xl font-black text-xl hover:bg-white/10 transition-all border border-white/10 text-center min-w-[240px]"
             >
-              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform" />
-              <span className="relative z-10 flex items-center gap-3">
-                Start Tracking Free <Rocket size={24} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </span>
+              Start Tracking Free
             </Link>
 
             <Link
               href="#features"
-              className="px-10 py-5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl font-black text-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
+              className="px-10 py-5 bg-white/5 backdrop-blur-xl text-white rounded-2xl font-black text-xl hover:bg-white/10 transition-all border border-white/10 text-center min-w-[240px]"
             >
               Learn More
             </Link>
@@ -202,35 +199,6 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            className="text-center mb-16"
-          >
-            <motion.span
-              variants={fadeUp}
-              custom={0}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent-dark dark:text-accent-light text-sm font-semibold mb-4"
-            >
-              <Sparkles size={16} className="text-accent-dark dark:text-accent-light" /> Features
-            </motion.span>
-            <motion.h2
-              variants={fadeUp}
-              custom={1}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold text-text dark:text-dark-text mb-4"
-              style={{ fontFamily: 'var(--font-heading)' }}
-            >
-              <Logo size="large" className="mx-auto" />
-            </motion.h2>
-            <motion.p
-              variants={fadeUp}
-              custom={2}
-              className="text-lg text-text-secondary dark:text-dark-text-secondary max-w-2xl mx-auto"
-            >
-              From scanning receipts to verifying at service centres — KeepIt handles it all.
-            </motion.p>
-          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, i) => (
@@ -258,56 +226,60 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-surface dark:bg-dark-surface">
-        <div className="max-w-5xl mx-auto">
+      {/* How It Works */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-500/5 rounded-full blur-[120px] pointer-events-none" />
+        
+        <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-24"
           >
-            <motion.span
-              variants={fadeUp}
-              custom={0}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4"
-            >
-              <Rocket size={16} className="text-primary" /> How It Works
-            </motion.span>
             <motion.h2
               variants={fadeUp}
               custom={1}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold text-text dark:text-dark-text mb-4"
+              className="text-4xl sm:text-6xl font-black text-white mb-6 tracking-tight"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
               Three Simple Steps
             </motion.h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Connecting line */}
-            <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-primary via-accent to-primary" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            {/* Luminous Connecting line */}
+            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-sky-400/50 to-transparent shadow-[0_0_20px_rgba(56,189,248,0.5)]" />
 
             {steps.map((step, i) => (
               <motion.div
                 key={step.number}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.2, duration: 0.5 }}
-                className="text-center relative"
+                transition={{ delay: i * 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className="text-center group relative"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-light text-white text-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/20 relative z-10">
-                  {step.icon}
+                {/* Step Icon with Glow */}
+                <div className="relative w-24 h-24 mx-auto mb-10">
+                  <div className="absolute inset-0 bg-sky-400/20 blur-2xl rounded-3xl scale-75 group-hover:scale-110 transition-transform duration-500" />
+                  <div className="relative w-full h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl flex items-center justify-center text-sky-400 shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-sky-400/30 group-hover:shadow-sky-500/20">
+                    {step.icon}
+                  </div>
                 </div>
-                <span className="text-5xl font-extrabold text-primary/10 dark:text-primary/20 absolute -top-4 left-1/2 -translate-x-1/2" style={{ fontFamily: 'var(--font-heading)' }}>
-                  {step.number}
-                </span>
-                <h3 className="text-xl font-bold text-text dark:text-dark-text mb-3" style={{ fontFamily: 'var(--font-heading)' }}>
-                  {step.title}
-                </h3>
-                <p className="text-sm text-text-secondary dark:text-dark-text-secondary leading-relaxed max-w-xs mx-auto">
-                  {step.description}
-                </p>
+
+                <div className="relative">
+                  <span className="text-8xl font-black text-white/5 absolute -top-16 left-1/2 -translate-x-1/2 select-none" style={{ fontFamily: 'var(--font-heading)' }}>
+                    {step.number}
+                  </span>
+                  <h3 className="text-2xl font-black text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
+                    {step.title}
+                  </h3>
+                  <p className="text-slate-400 font-medium leading-relaxed max-w-[280px] mx-auto">
+                    {step.description}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -315,31 +287,35 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto bg-gradient-to-br from-primary to-primary-dark rounded-3xl p-10 sm:p-16 text-center relative overflow-hidden"
-        >
-          {/* Decorative circles */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-60 h-60 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* CTA Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-sky-500/10 rounded-full blur-[150px] pointer-events-none" />
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="max-w-5xl mx-auto bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 rounded-[3rem] p-12 sm:p-20 text-center relative overflow-hidden shadow-[0_40px_100px_rgba(14,165,233,0.3)]"
+        >
+          {/* Luminous accents */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-400/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+
+          <h2 className="text-4xl sm:text-6xl font-black text-white mb-8 relative z-10 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
             Ready to Protect Your Purchases?
           </h2>
-          <p className="text-lg text-white/80 mb-8 max-w-xl mx-auto relative z-10">
-            Join thousands of smart shoppers who never miss a warranty claim.
+          <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto relative z-10 font-medium leading-relaxed">
+            Join thousands of smart shoppers who never miss a warranty claim. Get started with your first scan in seconds.
           </p>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-2xl text-lg font-bold hover:bg-white/90 transition-all shadow-xl hover:-translate-y-0.5 relative z-10"
-          >
-            Get Started — It&apos;s Free
-            <ArrowRight size={24} />
-          </Link>
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-6">
+            <Link
+              href="/login"
+              className="px-12 py-5 bg-white text-blue-600 rounded-2xl text-xl font-black hover:bg-white/90 transition-all shadow-2xl hover:-translate-y-1 active:scale-95"
+            >
+              Get Started — It&apos;s Free
+            </Link>
+          </div>
         </motion.div>
       </section>
 
