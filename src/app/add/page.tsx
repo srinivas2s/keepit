@@ -223,7 +223,7 @@ export default function AddProductPage() {
                     Scanning receipt with AI...
                   </motion.p>
                   <p className="text-xs text-text-muted dark:text-dark-text-secondary mt-2">
-                    Extracting product details using Google Cloud Vision
+                    Extracting product details using Open Source OCR (Tesseract)
                   </p>
                 </div>
               ) : (
