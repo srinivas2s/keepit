@@ -2,8 +2,9 @@
 
 import { useApp } from '@/context/AppContext';
 
-export default function Logo({ className = "", size = "normal" }: { className?: string, size?: "small" | "normal" | "large" }) {
-  const { isDarkMode } = useApp();
+export default function Logo({ className = "", size = "normal", forceLight = false }: { className?: string, size?: "small" | "normal" | "large", forceLight?: boolean }) {
+  const { isDarkMode: appDarkMode } = useApp();
+  const isDarkMode = forceLight ? false : appDarkMode;
 
   const dimensions = {
     small: { w: 120, h: 32, iconSize: 24 },

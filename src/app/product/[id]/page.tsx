@@ -7,6 +7,7 @@ import { formatCurrency, formatDate, daysRemaining } from '@/lib/supabase';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, Search, Smartphone, Tv, Home, Package, Clock, XCircle, CreditCard, ShieldCheck, Calendar, LayoutDashboard, Store, QrCode, Trash2, ArrowRightLeft } from 'lucide-react';
+import Skeleton from '@/components/Skeleton';
 
 function CountdownDigit({ value, label }: { value: number; label: string }) {
   return (
@@ -58,6 +59,29 @@ export default function ProductDetailPage() {
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [product]);
+
+  if (appLoading) {
+    return (
+      <div className="min-h-screen bg-background dark:bg-dark-bg">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <Skeleton variant="text" className="w-20 h-4 mb-6" />
+          <div className="bg-surface dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-border dark:border-dark-border mb-6">
+            <div className="flex items-center gap-4 mb-8">
+              <Skeleton variant="rect" className="w-16 h-16 rounded-2xl" />
+              <div className="flex-1">
+                <Skeleton variant="text" className="w-1/2 h-6 mb-2" />
+                <Skeleton variant="text" className="w-1/3" />
+              </div>
+            </div>
+            <Skeleton variant="rect" className="w-full h-32 rounded-2xl mb-8" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} variant="rect" className="h-20 rounded-xl" />)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!appLoading && !isAuthenticated) {
     router.push('/login');

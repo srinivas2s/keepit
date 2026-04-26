@@ -22,7 +22,7 @@ export default function SplashScreen() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[9999] bg-background dark:bg-dark-bg flex flex-col items-center justify-center p-6"
+          className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -43,42 +43,18 @@ export default function SplashScreen() {
               }}
               className="mb-6"
             >
-              <Logo size="large" className="mx-auto" />
+            <Logo size="large" className="mx-auto" forceLight={true} />
             </motion.div>
 
-            {/* Tagline */}
+            {/* Tagline with 'Getting Clear' animation */}
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-text-secondary dark:text-dark-text-secondary font-medium tracking-wide mb-8"
+              initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.95 }}
+              animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+              transition={{ delay: 0.5, duration: 1.2, ease: 'easeOut' }}
+              className="text-slate-600 font-medium tracking-wide mb-8"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
               Receipts Fade. KeepIt Doesn&apos;t.
-            </motion.p>
-
-            {/* Loading Progress Bar */}
-            <div className="w-48 h-1 bg-surface dark:bg-dark-surface rounded-full overflow-hidden mx-auto relative">
-              <motion.div
-                initial={{ left: "-100%" }}
-                animate={{ left: "100%" }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 1.5, 
-                  ease: "easeInOut" 
-                }}
-                className="absolute top-0 bottom-0 w-1/2 bg-primary rounded-full"
-              />
-            </div>
-
-            {/* Subtle Status Text */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ repeat: Infinity, duration: 2, times: [0, 0.5, 1] }}
-              className="text-[10px] text-text-muted dark:text-dark-text-secondary uppercase tracking-[0.2em] mt-4"
-            >
-              Securing your warranties
             </motion.p>
           </motion.div>
           
