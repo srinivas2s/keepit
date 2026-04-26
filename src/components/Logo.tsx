@@ -2,10 +2,9 @@
 
 import { useApp } from '@/context/AppContext';
 
-export default function Logo({ className = "", size = "normal", forceLight = false }: { className?: string, size?: "small" | "normal" | "large", forceLight?: boolean }) {
-  const { isDarkMode: appDarkMode } = useApp();
-  const isDarkMode = forceLight ? false : appDarkMode;
-
+export default function Logo({ className = "", size = "normal", variant = "default" }: { className?: string, size?: "small" | "normal" | "large", variant?: "default" | "white" | "light" }) {
+  const { isDarkMode } = useApp();
+  
   const sizeConfig = {
     small: { w: 120, h: 32, iconSize: 24 },
     normal: { w: 160, h: 48, iconSize: 36 },
@@ -13,6 +12,24 @@ export default function Logo({ className = "", size = "normal", forceLight = fal
   };
 
   const dimensions = sizeConfig[size as keyof typeof sizeConfig] || sizeConfig.normal;
+
+  const colors = {
+    default: {
+      shield: isDarkMode ? '#FFFFFF' : '#1565C0',
+      tick: isDarkMode ? '#1565C0' : '#FFFFFF',
+      text: isDarkMode ? '#FFFFFF' : '#0F172A'
+    },
+    white: {
+      shield: '#FFFFFF',
+      tick: '#1565C0',
+      text: '#FFFFFF'
+    },
+    light: {
+      shield: '#1565C0',
+      tick: '#FFFFFF',
+      text: '#0F172A'
+    }
+  }[variant];
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
@@ -24,15 +41,15 @@ export default function Logo({ className = "", size = "normal", forceLight = fal
         xmlns="http://www.w3.org/2000/svg"
         className="flex-shrink-0"
       >
-        {/* Shield Shape */}
+        {/* Solid Bold Shield */}
         <path
           d="M50 5L15 20V50C15 72.5 50 95 50 95C50 95 85 72.5 85 50V20L50 5Z"
-          fill="#1565C0"
+          fill={colors.shield}
         />
-        {/* Checkmark */}
+        {/* Verified Tick Mark */}
         <path
           d="M35 50L45 60L65 40"
-          stroke="white"
+          stroke={colors.tick}
           strokeWidth="10"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -43,7 +60,7 @@ export default function Logo({ className = "", size = "normal", forceLight = fal
         style={{ 
           fontFamily: 'var(--font-heading)',
           fontSize: size === 'small' ? '1.3rem' : size === 'normal' ? '1.8rem' : '2.8rem',
-          color: isDarkMode ? '#FFFFFF' : '#0F172A',
+          color: colors.text,
           letterSpacing: '-0.02em'
         }}
       >

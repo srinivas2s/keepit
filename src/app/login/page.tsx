@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
+import { Phone, Mail, User, ShieldCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [step, setStep] = useState<'phone' | 'otp' | 'name'>('phone');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -109,7 +111,7 @@ export default function LoginPage() {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center"
           >
-            <Logo size="large" forceLight className="mb-12 brightness-0 invert" />
+            <Logo size="large" forceLight className="mb-12" />
             <h2 className="text-4xl font-black mb-6 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
               {isSignUp ? 'Welcome Back!' : 'Join the Revolution'}
             </h2>
@@ -122,7 +124,7 @@ export default function LoginPage() {
               onClick={toggleMode}
               className="px-10 py-4 border-2 border-white/30 rounded-2xl font-bold hover:bg-white hover:text-primary transition-all active:scale-95 bg-white/10 backdrop-blur-sm"
             >
-              {isSignUp ? 'Sign In Instead' : 'Create Account'}
+              {isSignUp ? 'Login Instead' : 'Create Account'}
             </button>
           </motion.div>
         </motion.div>
@@ -142,12 +144,12 @@ export default function LoginPage() {
                animate={{ opacity: 1, y: 0 }}
             >
               <h1 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
-                {isSignUp ? 'Sign Up' : 'Sign In'}
+                {isSignUp ? 'Sign Up' : 'Login'}
               </h1>
               <p className="text-slate-500 mb-8 text-base lg:text-lg">
-                {step === 'phone' && 'Access your warranty vault.'}
+                {step === 'phone' && (isSignUp ? 'Create your secure account.' : 'Access your warranty vault.')}
                 {step === 'otp' && 'Check your messages for a code.'}
-                {step === 'name' && 'Welcome! What’s your name?'}
+                {step === 'name' && 'Finalizing your profile...'}
               </p>
             </motion.div>
 
@@ -159,30 +161,76 @@ export default function LoginPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   onSubmit={handleSendOtp}
-                  className="space-y-6 lg:space-y-8"
+                  className="space-y-5"
                 >
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Phone Number</label>
-                    <div className="flex gap-3">
-                      <div className="px-4 py-4 bg-slate-50 rounded-2xl border border-slate-100 text-slate-600 font-black text-lg">+91</div>
+                  {isSignUp && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Full Name</label>
+                      <div className="relative flex items-center group">
+                        <div className="absolute left-5 flex items-center gap-3 pointer-events-none">
+                          <div className="p-2 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                            <User size={18} />
+                          </div>
+                        </div>
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full pl-14 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-base !text-black placeholder:text-slate-400 shadow-sm"
+                          placeholder="Your Name"
+                          required={isSignUp}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Email Address</label>
+                    <div className="relative flex items-center group">
+                      <div className="absolute left-5 flex items-center gap-3 pointer-events-none">
+                        <div className="p-2 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                          <Mail size={18} />
+                        </div>
+                      </div>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full pl-14 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-base !text-black placeholder:text-slate-400 shadow-sm"
+                        placeholder="email@example.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Phone Number</label>
+                    <div className="relative flex items-center group">
+                      <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
+                        <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                          <Phone size={16} />
+                        </div>
+                        <span className="font-black text-slate-900 text-lg border-r-2 border-slate-100 pr-3 leading-none">+91</span>
+                      </div>
                       <input
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        className="flex-1 px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all font-black tracking-[0.2em] text-xl text-slate-800"
+                        className="w-full pl-28 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-lg !text-black placeholder:text-slate-400 shadow-sm"
                         placeholder="000 000 0000"
-                        autoFocus
+                        required
                       />
                     </div>
                   </div>
+
                   <button
                     disabled={isLoading || phone.length < 10}
-                    className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-[0_20px_40px_-12px_rgba(21,101,192,0.3)] hover:translate-y-[-2px] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                    className="w-full py-4 bg-[#1565C0] text-white rounded-xl font-black text-lg shadow-lg shadow-blue-900/10 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3 mt-2"
                   >
                     {isLoading ? (
                       <span className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      'Sign In'
+                      isSignUp ? 'Create Account' : 'Login'
                     )}
                   </button>
                 </motion.form>
@@ -206,7 +254,7 @@ export default function LoginPage() {
                         value={digit}
                         onChange={(e) => handleOtpChange(i, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                        className="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl text-center text-3xl font-black text-primary focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all"
+                        className="w-full h-16 !bg-white border-2 border-slate-100 rounded-2xl text-center text-3xl font-black !text-black focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all"
                         maxLength={1}
                         autoFocus={i === 0}
                       />
@@ -270,9 +318,9 @@ export default function LoginPage() {
             
             <button
               onClick={toggleMode}
-              className="mt-10 w-full lg:hidden text-primary font-black text-sm uppercase tracking-widest"
+              className="mt-10 w-full lg:hidden text-[#1565C0] font-black text-sm uppercase tracking-widest"
             >
-              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Create one'}
+              {isSignUp ? 'Already have an account? Login' : 'Need an account? Create one'}
             </button>
           </div>
         </div>
