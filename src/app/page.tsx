@@ -105,7 +105,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg sm:text-2xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto mb-12 font-medium leading-relaxed"
+            className="text-lg sm:text-2xl text-text-secondary dark:text-dark-text-secondary max-w-3xl mx-auto mb-12 font-medium leading-relaxed"
           >
             Never lose a warranty again. Scan receipts, track expiry dates, and verify coverage — all from your phone.
           </motion.p>
@@ -217,7 +217,7 @@ export default function LandingPage() {
             <motion.h2
               variants={fadeUp}
               custom={1}
-              className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight"
+              className="text-4xl sm:text-6xl font-black text-text dark:text-white mb-6 tracking-tight"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
               Three Simple Steps
@@ -234,20 +234,21 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="text-center group relative"
+                className="text-center group relative p-8 rounded-[40px] hover:bg-surface/50 transition-all duration-500"
               >
                 {/* Step Icon with Glow */}
                 <div className="relative w-24 h-24 mx-auto mb-10">
-                  <div className="relative w-full h-full bg-slate-50 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-3xl flex items-center justify-center text-[#1565C0] transition-all duration-500 group-hover:-translate-y-2 group-hover:border-[#1565C0]/30">
+                  <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  <div className="relative w-full h-full bg-blue-100 dark:bg-primary/20 backdrop-blur-xl border-2 border-blue-200 dark:border-primary/30 rounded-3xl flex items-center justify-center text-primary shadow-lg shadow-blue-900/5 transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-110 group-hover:shadow-primary/20">
                     {step.icon}
                   </div>
                 </div>
 
                 <div className="relative">
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
+                  <h3 className="text-2xl font-black text-text dark:text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
                     {step.title}
                   </h3>
-                  <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-[280px] mx-auto">
+                  <p className="text-text-secondary dark:text-dark-text-secondary font-medium leading-relaxed max-w-[280px] mx-auto">
                     {step.description}
                   </p>
                 </div>
@@ -293,11 +294,11 @@ export default function LandingPage() {
               <div className="flex items-center gap-3 mb-6">
                 <Logo size="normal" />
               </div>
-              <p className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tight leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+              <p className="text-2xl font-black text-text dark:text-white mb-4 tracking-tight leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                 Receipts Fade.<br />
                 KeepIt Doesn&apos;t.
               </p>
-              <p className="text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
+              <p className="text-text-secondary dark:text-dark-text-secondary max-w-sm leading-relaxed">
                 The world&apos;s most reliable way to manage warranties and protect your purchases. Never lose a receipt again.
               </p>
             </div>
