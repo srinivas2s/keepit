@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
-import { Phone, Mail, User, ShieldCheck } from 'lucide-react';
+import { Phone, Mail, User, ShieldCheck, Lock } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [step, setStep] = useState<'phone' | 'otp' | 'name'>('phone');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,8 +25,23 @@ export default function LoginPage() {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (phone.length < 10) {
-      setError('Please enter a valid 10-digit mobile number');
+    
+    if (!isSignUp) {
+      // Direct Login Logic
+      if (!email || !password) {
+        setError('Please enter your email and password');
+        return;
+      }
+      setIsLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      login(email, 'User');
+      router.push('/dashboard');
+      return;
+    }
+
+    // Sign Up Logic -> Trigger OTP
+    if (!name || !email || !phone || !password) {
+      setError('Please fill in all details');
       return;
     }
     setIsLoading(true);
@@ -64,7 +80,10 @@ export default function LoginPage() {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
-    setStep('name');
+    
+    // Direct login after OTP verification
+    login(email || ('+91' + phone), name || 'User');
+    router.push('/dashboard');
   };
 
   const handleNameSubmit = async (e: React.FormEvent) => {
@@ -96,22 +115,24 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white lg:bg-slate-50 flex items-center justify-center p-0 sm:p-4 lg:p-8 overflow-hidden font-sans">
-      <div className="w-full h-full sm:h-auto lg:max-w-5xl lg:h-[650px] bg-white sm:rounded-[40px] shadow-none sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex relative border-none lg:border lg:border-white">
+      <div 
+        className={`w-full h-full sm:h-auto lg:max-w-5xl lg:h-[650px] bg-white sm:rounded-[40px] shadow-none sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex relative border-none lg:border lg:border-white transition-all duration-700 ease-in-out ${isSignUp ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
+      >
         
         {/* Desktop Sliding Overlay (Hidden on Mobile) */}
         <motion.div
           animate={{ x: isSignUp ? '0%' : '100%' }}
-          transition={{ type: 'spring', stiffness: 100, damping: 22 }}
-          className="absolute top-0 left-0 w-1/2 h-full bg-primary z-30 hidden lg:flex flex-col items-center justify-center p-12 text-white text-center"
+          transition={{ type: 'spring', stiffness: 80, damping: 20 }}
+          className="absolute top-0 left-0 w-1/2 h-full bg-[#1565C0] z-30 hidden lg:flex flex-col items-center justify-center p-12 text-white text-center"
         >
           <motion.div
             key={isSignUp ? 'signup-msg' : 'signin-msg'}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.9, x: isSignUp ? 20 : -20 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex flex-col items-center"
           >
-            <Logo size="large" forceLight className="mb-12" />
+            <Logo size="large" variant="white" className="mb-12" />
             <h2 className="text-4xl font-black mb-6 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
               {isSignUp ? 'Welcome Back!' : 'Join the Revolution'}
             </h2>
@@ -122,7 +143,7 @@ export default function LoginPage() {
             </p>
             <button
               onClick={toggleMode}
-              className="px-10 py-4 border-2 border-white/30 rounded-2xl font-bold hover:bg-white hover:text-primary transition-all active:scale-95 bg-white/10 backdrop-blur-sm"
+              className="px-10 py-4 border-2 border-white/30 rounded-2xl font-bold hover:bg-white hover:text-[#1565C0] transition-all active:scale-95 bg-white/10 backdrop-blur-sm"
             >
               {isSignUp ? 'Login Instead' : 'Create Account'}
             </button>
@@ -130,7 +151,7 @@ export default function LoginPage() {
         </motion.div>
 
         {/* Form Panel (Full screen on mobile, Half screen on desktop) */}
-        <div className="w-full lg:w-1/2 h-full flex flex-col justify-center p-6 sm:p-12 lg:p-20 z-20">
+        <div className="w-full lg:w-1/2 h-full flex flex-col justify-center p-6 sm:p-12 lg:p-20 z-20 bg-white">
           <div className="max-w-sm mx-auto w-full">
             {/* Mobile Logo Section */}
             <div className="lg:hidden mb-10 flex flex-col items-center">
@@ -157,19 +178,19 @@ export default function LoginPage() {
               {step === 'phone' && (
                 <motion.form
                   key="phone"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
                   onSubmit={handleSendOtp}
-                  className="space-y-5"
+                  className="space-y-4"
                 >
                   {isSignUp && (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Full Name</label>
                       <div className="relative flex items-center group">
-                        <div className="absolute left-5 flex items-center gap-3 pointer-events-none">
-                          <div className="p-2 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                            <User size={18} />
+                        <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
+                          <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                            <User size={16} />
                           </div>
                         </div>
                         <input
@@ -184,12 +205,12 @@ export default function LoginPage() {
                     </div>
                   )}
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Email Address</label>
                     <div className="relative flex items-center group">
-                      <div className="absolute left-5 flex items-center gap-3 pointer-events-none">
-                        <div className="p-2 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                          <Mail size={18} />
+                      <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
+                        <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                          <Mail size={16} />
                         </div>
                       </div>
                       <input
@@ -203,34 +224,55 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Phone Number</label>
+                  {isSignUp && (
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Phone Number</label>
+                      <div className="relative flex items-center group">
+                        <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
+                          <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                            <Phone size={16} />
+                          </div>
+                          <span className="font-black text-slate-900 text-lg border-r-2 border-slate-100 pr-3 leading-none">+91</span>
+                        </div>
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full pl-28 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-lg !text-black placeholder:text-slate-400 shadow-sm"
+                          placeholder="000 000 0000"
+                          required={isSignUp}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Password</label>
                     <div className="relative flex items-center group">
                       <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
                         <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                          <Phone size={16} />
+                          <Lock size={16} />
                         </div>
-                        <span className="font-black text-slate-900 text-lg border-r-2 border-slate-100 pr-3 leading-none">+91</span>
                       </div>
                       <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        className="w-full pl-28 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-lg !text-black placeholder:text-slate-400 shadow-sm"
-                        placeholder="000 000 0000"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full pl-14 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-base !text-black placeholder:text-slate-400 shadow-sm"
+                        placeholder="••••••••"
                         required
                       />
                     </div>
                   </div>
 
                   <button
-                    disabled={isLoading || phone.length < 10}
+                    disabled={isLoading}
                     className="w-full py-4 bg-[#1565C0] text-white rounded-xl font-black text-lg shadow-lg shadow-blue-900/10 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3 mt-2"
                   >
                     {isLoading ? (
                       <span className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      isSignUp ? 'Create Account' : 'Login'
+                      isSignUp ? 'Continue to Verify' : 'Login'
                     )}
                   </button>
                 </motion.form>
@@ -276,34 +318,6 @@ export default function LoginPage() {
                 </motion.form>
               )}
 
-              {step === 'name' && (
-                <motion.form
-                  key="name"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  onSubmit={handleNameSubmit}
-                  className="space-y-8"
-                >
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Full Name</label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full px-5 py-5 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all font-black text-xl text-slate-800"
-                      placeholder="Enter your name"
-                      autoFocus
-                    />
-                  </div>
-                  <button
-                    disabled={isLoading || !name.trim()}
-                    className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-blue-200 transition-all"
-                  >
-                    {isLoading ? 'Wait a moment...' : 'Get My Dashboard 🚀'}
-                  </button>
-                </motion.form>
-              )}
             </AnimatePresence>
 
             {error && (

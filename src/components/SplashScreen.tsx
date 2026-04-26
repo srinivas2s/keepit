@@ -70,7 +70,7 @@ export default function SplashScreen() {
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 className="relative z-10"
               >
-                <Logo size="large" forceLight={true} />
+                <Logo size="large" variant="light" />
               </motion.div>
             </motion.div>
           </div>
