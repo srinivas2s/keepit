@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useApp();
+  const [isSignUp, setIsSignUp] = useState(false);
   const [step, setStep] = useState<'phone' | 'otp' | 'name'>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -25,7 +27,6 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
-    // Simulate OTP sending
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
     setStep('otp');
@@ -61,7 +62,6 @@ export default function LoginPage() {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
-    // Accept any OTP for demo
     setStep('name');
   };
 
@@ -77,259 +77,213 @@ export default function LoginPage() {
     router.push('/dashboard');
   };
 
-  // Auto-verify when all OTP digits are entered
   useEffect(() => {
     if (otp.every(d => d !== '') && step === 'otp') {
       handleVerifyOtp(new Event('submit') as unknown as React.FormEvent);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [otp]);
+  }, [otp, step]);
+
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setStep('phone');
+    setPhone('');
+    setOtp(['', '', '', '']);
+    setName('');
+    setError('');
+  };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-dark-bg flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-20 -left-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 -right-20 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo */}
+    <div className="min-h-screen bg-white lg:bg-slate-50 flex items-center justify-center p-0 sm:p-4 lg:p-8 overflow-hidden font-sans">
+      <div className="w-full h-full sm:h-auto lg:max-w-5xl lg:h-[650px] bg-white sm:rounded-[40px] shadow-none sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex relative border-none lg:border lg:border-white">
+        
+        {/* Desktop Sliding Overlay (Hidden on Mobile) */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          animate={{ x: isSignUp ? '0%' : '100%' }}
+          transition={{ type: 'spring', stiffness: 100, damping: 22 }}
+          className="absolute top-0 left-0 w-1/2 h-full bg-primary z-30 hidden lg:flex flex-col items-center justify-center p-12 text-white text-center"
         >
-          <Link href="/" className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-white font-bold text-xl" style={{ fontFamily: 'var(--font-heading)' }}>K</span>
-            </div>
-            <span className="text-3xl font-bold text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-              KeepIt
-            </span>
-          </Link>
-          <p className="text-text-secondary dark:text-dark-text-secondary">
-            {step === 'phone' && 'Enter your mobile number to get started'}
-            {step === 'otp' && `We sent a code to +91 ${phone}`}
-            {step === 'name' && 'Almost there! What should we call you?'}
-          </p>
+          <motion.div
+            key={isSignUp ? 'signup-msg' : 'signin-msg'}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center"
+          >
+            <Logo size="large" forceLight className="mb-12 brightness-0 invert" />
+            <h2 className="text-4xl font-black mb-6 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+              {isSignUp ? 'Welcome Back!' : 'Join the Revolution'}
+            </h2>
+            <p className="text-blue-100 mb-10 max-w-xs text-lg opacity-80 leading-relaxed">
+              {isSignUp 
+                ? 'Sign in to keep your warranties secured and never miss an expiry again.' 
+                : 'Start protecting your products today. KeepIt makes warranty management simple.'}
+            </p>
+            <button
+              onClick={toggleMode}
+              className="px-10 py-4 border-2 border-white/30 rounded-2xl font-bold hover:bg-white hover:text-primary transition-all active:scale-95 bg-white/10 backdrop-blur-sm"
+            >
+              {isSignUp ? 'Sign In Instead' : 'Create Account'}
+            </button>
+          </motion.div>
         </motion.div>
 
-        {/* Form Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-surface dark:bg-dark-surface rounded-3xl p-8 shadow-xl border border-border dark:border-dark-border"
-        >
-          <AnimatePresence mode="wait">
-            {/* Phone Step */}
-            {step === 'phone' && (
-              <motion.form
-                key="phone"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                onSubmit={handleSendOtp}
-                className="space-y-6"
-              >
-                <div>
-                  <label className="block text-sm font-semibold text-text dark:text-dark-text mb-2">
-                    Mobile Number
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1 px-3 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-sm font-medium text-text-secondary dark:text-dark-text-secondary">
-                      🇮🇳 +91
-                    </span>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder="9876543210"
-                      className="flex-1 px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-text dark:text-dark-text text-lg font-medium tracking-wider placeholder:text-text-muted"
-                      autoFocus
-                    />
-                  </div>
-                </div>
+        {/* Form Panel (Full screen on mobile, Half screen on desktop) */}
+        <div className="w-full lg:w-1/2 h-full flex flex-col justify-center p-6 sm:p-12 lg:p-20 z-20">
+          <div className="max-w-sm mx-auto w-full">
+            {/* Mobile Logo Section */}
+            <div className="lg:hidden mb-10 flex flex-col items-center">
+              <Logo size="normal" className="mb-2" />
+              <div className="h-1 w-12 bg-primary/10 rounded-full mt-4" />
+            </div>
+            
+            <motion.div
+               key={isSignUp ? 'signup-head' : 'signin-head'}
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+            >
+              <h1 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
+                {isSignUp ? 'Sign Up' : 'Sign In'}
+              </h1>
+              <p className="text-slate-500 mb-8 text-base lg:text-lg">
+                {step === 'phone' && 'Access your warranty vault.'}
+                {step === 'otp' && 'Check your messages for a code.'}
+                {step === 'name' && 'Welcome! What’s your name?'}
+              </p>
+            </motion.div>
 
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-danger text-sm"
-                  >
-                    {error}
-                  </motion.p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading || phone.length < 10}
-                  className="w-full py-3.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            <AnimatePresence mode="wait">
+              {step === 'phone' && (
+                <motion.form
+                  key="phone"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  onSubmit={handleSendOtp}
+                  className="space-y-6 lg:space-y-8"
                 >
-                  {isLoading ? (
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                    />
-                  ) : (
-                    <>Send OTP</>
-                  )}
-                </button>
-              </motion.form>
-            )}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Phone Number</label>
+                    <div className="flex gap-3">
+                      <div className="px-4 py-4 bg-slate-50 rounded-2xl border border-slate-100 text-slate-600 font-black text-lg">+91</div>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        className="flex-1 px-5 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all font-black tracking-[0.2em] text-xl text-slate-800"
+                        placeholder="000 000 0000"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  <button
+                    disabled={isLoading || phone.length < 10}
+                    className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-[0_20px_40px_-12px_rgba(21,101,192,0.3)] hover:translate-y-[-2px] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                  >
+                    {isLoading ? (
+                      <span className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      'Sign In'
+                    )}
+                  </button>
+                </motion.form>
+              )}
 
-            {/* OTP Step */}
-            {step === 'otp' && (
-              <motion.form
-                key="otp"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                onSubmit={handleVerifyOtp}
-                className="space-y-6"
-              >
-                <div>
-                  <label className="block text-sm font-semibold text-text dark:text-dark-text mb-4">
-                    Enter Verification Code
-                  </label>
-                  <div className="flex items-center justify-center gap-3">
+              {step === 'otp' && (
+                <motion.form
+                  key="otp"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  onSubmit={handleVerifyOtp}
+                  className="space-y-8"
+                >
+                  <div className="flex justify-between gap-3">
                     {otp.map((digit, i) => (
-                      <motion.input
+                      <input
                         key={i}
                         ref={(el) => { otpRefs.current[i] = el; }}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
                         type="text"
-                        inputMode="numeric"
                         value={digit}
                         onChange={(e) => handleOtpChange(i, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                        className="w-14 h-14 text-center text-2xl font-bold bg-background dark:bg-dark-bg rounded-xl border-2 border-border dark:border-dark-border text-text dark:text-dark-text focus:border-primary transition-colors"
+                        className="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl text-center text-3xl font-black text-primary focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all"
                         maxLength={1}
                         autoFocus={i === 0}
                       />
                     ))}
                   </div>
-                </div>
-
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-danger text-sm text-center"
-                  >
-                    {error}
-                  </motion.p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center"
-                >
-                  {isLoading ? (
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                    />
-                  ) : (
-                    'Verify'
-                  )}
-                </button>
-
-                <div className="text-center">
                   <button
-                    type="button"
-                    onClick={() => setStep('phone')}
-                    className="text-sm text-primary font-medium hover:underline"
+                    disabled={isLoading}
+                    className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-blue-200 transition-all"
                   >
-                    ← Change Number
+                    Verify & Continue
                   </button>
-                </div>
-              </motion.form>
-            )}
-
-            {/* Name Step */}
-            {step === 'name' && (
-              <motion.form
-                key="name"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                onSubmit={handleNameSubmit}
-                className="space-y-6"
-              >
-                <div>
-                  <label className="block text-sm font-semibold text-text dark:text-dark-text mb-2">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="w-full px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-text dark:text-dark-text text-lg placeholder:text-text-muted"
-                    autoFocus
-                  />
-                </div>
-
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-danger text-sm"
+                  <button 
+                    type="button" 
+                    onClick={() => setStep('phone')}
+                    className="w-full text-center text-sm font-bold text-slate-400 hover:text-primary transition-colors"
                   >
-                    {error}
-                  </motion.p>
-                )}
+                    Back to edit phone number
+                  </button>
+                </motion.form>
+              )}
 
-                <button
-                  type="submit"
-                  disabled={isLoading || !name.trim()}
-                  className="w-full py-3.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 disabled:opacity-50 flex items-center justify-center gap-2"
+              {step === 'name' && (
+                <motion.form
+                  key="name"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  onSubmit={handleNameSubmit}
+                  className="space-y-8"
                 >
-                  {isLoading ? (
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Full Name</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-5 py-5 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all font-black text-xl text-slate-800"
+                      placeholder="Enter your name"
+                      autoFocus
                     />
-                  ) : (
-                    <>Let&apos;s Go 🚀</>
-                  )}
-                </button>
-              </motion.form>
+                  </div>
+                  <button
+                    disabled={isLoading || !name.trim()}
+                    className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-blue-200 transition-all"
+                  >
+                    {isLoading ? 'Wait a moment...' : 'Get My Dashboard 🚀'}
+                  </button>
+                </motion.form>
+              )}
+            </AnimatePresence>
+
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 p-4 bg-red-50 rounded-xl border border-red-100 text-red-600 font-bold text-sm text-center"
+              >
+                {error}
+              </motion.div>
             )}
-          </AnimatePresence>
-
-          {/* Step Indicator */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            {['phone', 'otp', 'name'].map((s, i) => (
-              <div
-                key={s}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  s === step ? 'w-8 bg-primary' : 'w-2 bg-border dark:bg-dark-border'
-                }`}
-              />
-            ))}
+            
+            <button
+              onClick={toggleMode}
+              className="mt-10 w-full lg:hidden text-primary font-black text-sm uppercase tracking-widest"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Create one'}
+            </button>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Demo hint */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center text-xs text-text-muted dark:text-dark-text-secondary mt-6"
-        >
-          💡 Demo mode: Any phone number and OTP will work
-        </motion.p>
+        {/* Empty Spacer Panel (Hidden by Sliding Overlay on desktop) */}
+        <div className="hidden lg:block w-1/2 bg-slate-50/30"></div>
       </div>
+      
+      {/* Background Subtle Decal */}
+      <div className="fixed -bottom-20 -left-20 w-96 h-96 bg-blue-50/50 rounded-full blur-[100px] -z-10" />
+      <div className="fixed -top-20 -right-20 w-[500px] h-[500px] bg-blue-50/30 rounded-full blur-[120px] -z-10" />
     </div>
   );
 }
