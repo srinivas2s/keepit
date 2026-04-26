@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { formatDate } from '@/lib/supabase';
 import { useState } from 'react';
+import { Bell, Palette, Star, Info, LogOut, Shield, ChevronRight } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -99,8 +100,8 @@ export default function ProfilePage() {
           transition={{ delay: 0.1 }}
           className="bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border mb-6"
         >
-          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
-            🔔 Notification Preferences
+          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
+            <Bell size={18} className="text-primary" /> Notification Preferences
           </h3>
           <div className="space-y-3">
             {[
@@ -147,8 +148,8 @@ export default function ProfilePage() {
           transition={{ delay: 0.15 }}
           className="bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border mb-6"
         >
-          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
-            🎨 Appearance
+          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
+            <Palette size={18} className="text-primary" /> Appearance
           </h3>
           <div className="flex items-center justify-between">
             <div>
@@ -180,7 +181,7 @@ export default function ProfilePage() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">⭐</span>
+              <Star size={20} className="fill-white/20" />
               <span className="text-xs font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
                 Premium
               </span>
@@ -204,8 +205,8 @@ export default function ProfilePage() {
           transition={{ delay: 0.25 }}
           className="bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border mb-6"
         >
-          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4" style={{ fontFamily: 'var(--font-heading)' }}>
-            ℹ️ Account
+          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
+            <Info size={18} className="text-primary" /> Account
           </h3>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
@@ -233,7 +234,7 @@ export default function ProfilePage() {
           onClick={handleLogout}
           className="w-full py-3.5 bg-danger/10 text-danger rounded-xl font-semibold text-sm hover:bg-danger/20 transition-colors"
         >
-          Logout
+          <LogOut size={18} className="inline mr-2" /> Logout
         </motion.button>
       </div>
     </div>

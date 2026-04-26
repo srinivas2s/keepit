@@ -6,6 +6,7 @@ import { useApp } from '@/context/AppContext';
 import { formatCurrency, formatDate, daysRemaining } from '@/lib/supabase';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { ChevronLeft, Search, Smartphone, Tv, Home, Package, Clock, XCircle, CreditCard, ShieldCheck, Calendar, LayoutDashboard, Store, QrCode, Trash2, ArrowRightLeft } from 'lucide-react';
 
 function CountdownDigit({ value, label }: { value: number; label: string }) {
   return (
@@ -67,10 +68,10 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <span className="text-6xl block mb-4">🔍</span>
+          <Search className="mx-auto mb-4 text-text-muted" size={48} />
           <h2 className="text-xl font-bold text-text dark:text-dark-text mb-2">Product not found</h2>
           <Link href="/dashboard" className="text-primary font-medium hover:underline">
-            ← Back to Dashboard
+            <ChevronLeft className="inline mr-1" size={16} /> Back to Dashboard
           </Link>
         </div>
       </div>
@@ -97,7 +98,7 @@ export default function ProductDetailPage() {
           onClick={() => router.back()}
           className="flex items-center gap-2 text-sm text-text-secondary dark:text-dark-text-secondary hover:text-primary transition-colors mb-6"
         >
-          ← Back
+          <ChevronLeft size={16} /> Back
         </motion.button>
 
         {/* Product Header Card */}
@@ -108,13 +109,13 @@ export default function ProductDetailPage() {
         >
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-3xl">
-                {product.brand === 'Apple' ? '🍎' :
-                 product.brand === 'Samsung' ? '📱' :
-                 product.brand === 'Sony' ? '🎧' :
-                 product.brand === 'LG' ? '📺' :
-                 product.brand === 'Dyson' ? '🏠' : '📦'}
-              </div>
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-primary">
+                  {product.brand === 'Apple' ? <Smartphone size={32} /> :
+                   product.brand === 'Samsung' ? <Smartphone size={32} /> :
+                   product.brand === 'Sony' ? <Smartphone size={32} /> :
+                   product.brand === 'LG' ? <Tv size={32} /> :
+                   product.brand === 'Dyson' ? <Home size={32} /> : <Package size={32} />}
+                </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-text dark:text-dark-text" style={{ fontFamily: 'var(--font-heading)' }}>
                   {product.name}
@@ -147,7 +148,7 @@ export default function ProductDetailPage() {
             </div>
           ) : (
             <div className="mb-8 text-center p-6 bg-danger/5 rounded-2xl">
-              <span className="text-4xl block mb-2">❌</span>
+              <XCircle className="mx-auto mb-2 text-danger" size={48} />
               <p className="font-bold text-danger text-lg" style={{ fontFamily: 'var(--font-heading)' }}>
                 Warranty Expired
               </p>
@@ -182,12 +183,12 @@ export default function ProductDetailPage() {
           {/* Details Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {[
-              { label: 'Amount Paid', value: formatCurrency(product.amount_paid), icon: '💰' },
-              { label: 'Warranty', value: `${product.warranty_months} Months`, icon: '🛡️' },
-              { label: 'Purchase Date', value: formatDate(product.purchase_date), icon: '📅' },
-              { label: 'Expiry Date', value: formatDate(product.expiry_date), icon: '⏰' },
-              { label: 'Days Remaining', value: `${days} days`, icon: '📊' },
-              { label: 'Retailer', value: product.retailer, icon: '🏪' },
+              { label: 'Amount Paid', value: formatCurrency(product.amount_paid), icon: <CreditCard size={14} /> },
+              { label: 'Warranty', value: `${product.warranty_months} Months`, icon: <ShieldCheck size={14} /> },
+              { label: 'Purchase Date', value: formatDate(product.purchase_date), icon: <Calendar size={14} /> },
+              { label: 'Expiry Date', value: formatDate(product.expiry_date), icon: <Clock size={14} /> },
+              { label: 'Days Remaining', value: `${days} days`, icon: <LayoutDashboard size={14} /> },
+              { label: 'Retailer', value: product.retailer, icon: <Store size={14} /> },
             ].map((detail, i) => (
               <motion.div
                 key={detail.label}
@@ -197,7 +198,7 @@ export default function ProductDetailPage() {
                 className="bg-background dark:bg-dark-bg rounded-xl p-3 sm:p-4"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm">{detail.icon}</span>
+                  <span className="text-primary">{detail.icon}</span>
                   <span className="text-xs text-text-muted dark:text-dark-text-secondary">{detail.label}</span>
                 </div>
                 <p className="text-sm font-bold text-text dark:text-dark-text truncate">{detail.value}</p>
@@ -217,21 +218,21 @@ export default function ProductDetailPage() {
             href={`/product/${product.id}/qr`}
             className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
           >
-            📱 Generate QR Code
+            <QrCode size={18} /> Generate QR Code
           </Link>
 
           <button
             disabled
             className="w-full flex items-center justify-center gap-2 py-3.5 bg-surface dark:bg-dark-surface border border-border dark:border-dark-border text-text dark:text-dark-text rounded-xl font-semibold text-sm opacity-60 cursor-not-allowed"
           >
-            🔄 Transfer Warranty (Phase 2)
+            <ArrowRightLeft size={18} /> Transfer Warranty (Phase 2)
           </button>
 
           <button
             onClick={() => setShowDeleteConfirm(true)}
             className="w-full flex items-center justify-center gap-2 py-3.5 bg-danger/10 text-danger rounded-xl font-semibold text-sm hover:bg-danger/20 transition-colors"
           >
-            🗑️ Remove Product
+            <Trash2 size={18} /> Remove Product
           </button>
         </motion.div>
 

@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { LayoutDashboard, PlusCircle, Bell, User, Sun, Moon } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -17,10 +19,10 @@ export default function Navbar() {
   const unreadCount = getUnreadAlertCount();
 
   const navLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-    { href: '/add', label: 'Add Product', icon: '➕' },
-    { href: '/alerts', label: 'Alerts', icon: '🔔', badge: unreadCount },
-    { href: '/profile', label: 'Profile', icon: '👤' },
+    { href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+    { href: '/add', label: 'Add Product', icon: <PlusCircle size={20} /> },
+    { href: '/alerts', label: 'Alerts', icon: <Bell size={20} />, badge: unreadCount },
+    { href: '/profile', label: 'Profile', icon: <User size={20} /> },
   ];
 
   return (
@@ -35,12 +37,14 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg group-hover:shadow-primary/30 transition-shadow">
-                <span className="text-white font-bold text-sm" style={{ fontFamily: 'var(--font-heading)' }}>K</span>
-              </div>
-              <span className="text-xl font-bold text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-                KeepIt
-              </span>
+              <Image 
+                src="/logo.png" 
+                alt="KeepIt" 
+                width={120} 
+                height={32} 
+                className="h-8 w-auto object-contain brightness-100 dark:brightness-110"
+                priority
+              />
             </Link>
 
             {/* Desktop Links */}
@@ -57,7 +61,7 @@ export default function Navbar() {
                         : 'text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover'
                     }`}
                   >
-                    <span>{link.icon}</span>
+                    <span className="flex-shrink-0">{link.icon}</span>
                     <span>{link.label}</span>
                     {link.badge ? (
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-xs rounded-full flex items-center justify-center font-bold">
@@ -84,7 +88,7 @@ export default function Navbar() {
                   transition={{ duration: 0.3 }}
                   className="text-xl block"
                 >
-                  {isDarkMode ? '☀️' : '🌙'}
+                  {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                 </motion.span>
               </button>
 
@@ -154,7 +158,7 @@ export default function Navbar() {
                         : 'text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover'
                     }`}
                   >
-                    <span className="text-lg">{link.icon}</span>
+                    <span className="text-lg flex-shrink-0">{link.icon}</span>
                     <span>{link.label}</span>
                     {link.badge ? (
                       <span className="ml-auto w-5 h-5 bg-danger text-white text-xs rounded-full flex items-center justify-center font-bold">
@@ -169,7 +173,7 @@ export default function Navbar() {
                   onClick={() => { toggleDarkMode(); setMobileOpen(false); }}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover w-full"
                 >
-                  <span className="text-lg">{isDarkMode ? '☀️' : '🌙'}</span>
+                  <span className="text-lg flex-shrink-0">{isDarkMode ? <Sun size={20} /> : <Moon size={20} />}</span>
                   <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
               </div>
@@ -191,7 +195,7 @@ export default function Navbar() {
                   isActive ? 'text-primary' : 'text-text-muted dark:text-dark-text-secondary'
                 }`}
               >
-                <span className="text-xl">{link.icon}</span>
+                <span className="text-xl flex-shrink-0">{link.icon}</span>
                 <span className="text-[10px] font-medium">{link.label.split(' ')[0]}</span>
                 {link.badge ? (
                   <span className="absolute -top-0.5 right-0 w-4 h-4 bg-danger text-white text-[9px] rounded-full flex items-center justify-center font-bold">

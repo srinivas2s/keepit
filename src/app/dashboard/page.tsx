@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { formatCurrency, formatDate, daysRemaining } from '@/lib/supabase';
 import Link from 'next/link';
+import { FileText, Plus, AlertTriangle, Package, CheckCircle2, Clock, XCircle, Search, Inbox, Smartphone, Laptop, Tv, Home, HelpCircle } from 'lucide-react';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -72,7 +73,7 @@ export default function DashboardPage() {
         >
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-text dark:text-dark-text" style={{ fontFamily: 'var(--font-heading)' }}>
-              Hey, {user?.name || 'there'} 👋
+              Hey, {user?.name || 'there'}
             </h1>
             <p className="text-text-secondary dark:text-dark-text-secondary mt-1">
               Here&apos;s your warranty overview
@@ -83,14 +84,14 @@ export default function DashboardPage() {
               onClick={() => window.print()}
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-surface dark:bg-dark-surface text-text dark:text-dark-text border border-border dark:border-dark-border rounded-xl font-semibold text-sm hover:border-primary/30 transition-all shadow-sm"
             >
-              <span>📄</span>
+              <FileText size={18} />
               Export PDF
             </button>
             <Link
               href="/add"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5"
             >
-              <span className="text-lg">+</span>
+              <Plus size={18} />
               Add Product
             </Link>
           </div>
@@ -104,7 +105,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.1 }}
             className="mb-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/30 rounded-2xl flex items-center gap-3"
           >
-            <span className="text-2xl">⚠️</span>
+            <AlertTriangle className="text-amber-500 flex-shrink-0" size={24} />
             <div>
               <p className="font-semibold text-amber-800 dark:text-amber-200 text-sm">
                 {stats.expiring} {stats.expiring === 1 ? 'warranty is' : 'warranties are'} expiring soon!
@@ -130,10 +131,10 @@ export default function DashboardPage() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8"
         >
           {[
-            { label: 'Total', value: stats.total, icon: '📦', color: 'from-blue-500 to-blue-600' },
-            { label: 'Active', value: stats.active, icon: '✅', color: 'from-emerald-500 to-emerald-600' },
-            { label: 'Expiring', value: stats.expiring, icon: '⏰', color: 'from-amber-500 to-amber-600' },
-            { label: 'Expired', value: stats.expired, icon: '❌', color: 'from-red-500 to-red-600' },
+            { label: 'Total', value: stats.total, icon: <Package size={22} />, color: 'from-blue-500 to-blue-600' },
+            { label: 'Active', value: stats.active, icon: <CheckCircle2 size={22} />, color: 'from-emerald-500 to-emerald-600' },
+            { label: 'Expiring', value: stats.expiring, icon: <Clock size={22} />, color: 'from-amber-500 to-amber-600' },
+            { label: 'Expired', value: stats.expired, icon: <XCircle size={22} />, color: 'from-red-500 to-red-600' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -143,7 +144,7 @@ export default function DashboardPage() {
               className="bg-surface dark:bg-dark-surface rounded-2xl p-4 sm:p-5 border border-border dark:border-dark-border card-hover cursor-default"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-2xl">{stat.icon}</span>
+                <div className="text-text-secondary dark:text-dark-text-secondary">{stat.icon}</div>
                 <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
                   <span className="text-white text-sm font-bold">{stat.value}</span>
                 </div>
@@ -164,7 +165,7 @@ export default function DashboardPage() {
         >
           {/* Search */}
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">🔍</span>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
             <input
               type="text"
               value={search}
@@ -207,7 +208,7 @@ export default function DashboardPage() {
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <span className="text-6xl block mb-4">📭</span>
+            <Inbox className="mx-auto mb-4 text-text-muted" size={48} />
             <h3 className="text-xl font-bold text-text dark:text-dark-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
               {search ? 'No results found' : 'No products yet'}
             </h3>
@@ -219,7 +220,8 @@ export default function DashboardPage() {
                 href="/add"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-dark transition-all"
               >
-                + Add Your First Product
+                <Plus size={18} />
+                Add Your First Product
               </Link>
             )}
           </motion.div>
@@ -241,12 +243,12 @@ export default function DashboardPage() {
                   >
                     {/* Top row */}
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
-                        {product.brand === 'Apple' ? '🍎' :
-                         product.brand === 'Samsung' ? '📱' :
-                         product.brand === 'Sony' ? '🎧' :
-                         product.brand === 'LG' ? '📺' :
-                         product.brand === 'Dyson' ? '🏠' : '📦'}
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center group-hover:scale-110 transition-transform text-primary">
+                        {product.brand === 'Apple' ? <Smartphone size={24} /> :
+                         product.brand === 'Samsung' ? <Smartphone size={24} /> :
+                         product.brand === 'Sony' ? <Smartphone size={24} /> :
+                         product.brand === 'LG' ? <Tv size={24} /> :
+                         product.brand === 'Dyson' ? <Home size={24} /> : <Package size={24} />}
                       </div>
                       <span className={`text-xs font-semibold px-2.5 py-1 rounded-full badge-${product.status}`}>
                         {product.status.charAt(0).toUpperCase() + product.status.slice(1)}

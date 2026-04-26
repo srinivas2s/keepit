@@ -7,6 +7,7 @@ import { formatDate, daysRemaining } from '@/lib/supabase';
 import QRCode from 'react-qr-code';
 import { useState } from 'react';
 import Link from 'next/link';
+import { Search, ChevronLeft, Share2, CheckCircle2, XCircle } from 'lucide-react';
 
 export default function QRCodePage() {
   const params = useParams();
@@ -27,7 +28,7 @@ export default function QRCodePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <span className="text-6xl block mb-4">🔍</span>
+          <Search className="mx-auto mb-4 text-text-muted" size={48} />
           <h2 className="text-xl font-bold text-text dark:text-dark-text mb-2">Product not found</h2>
           <Link href="/dashboard" className="text-primary font-medium hover:underline">← Back to Dashboard</Link>
         </div>
@@ -80,7 +81,7 @@ export default function QRCodePage() {
           onClick={() => router.back()}
           className="flex items-center gap-2 text-sm text-text-secondary dark:text-dark-text-secondary hover:text-primary transition-colors mb-6"
         >
-          ← Back to Product
+          <ChevronLeft size={16} /> Back to Product
         </motion.button>
 
         {/* QR Card */}
@@ -141,10 +142,10 @@ export default function QRCodePage() {
                 Expires: <strong>{formatDate(product.expiry_date)}</strong>
               </span>
             </div>
-            <span className={`inline-block text-sm font-semibold px-4 py-1.5 rounded-full badge-${product.status}`}>
-              {product.status === 'active' ? `✅ Active (${days} days left)` :
-               product.status === 'expiring' ? `⚠️ Expiring (${days} days left)` :
-               '❌ Expired'}
+            <span className={`inline-flex items-center gap-1.5 text-sm font-semibold px-4 py-1.5 rounded-full badge-${product.status}`}>
+              {product.status === 'active' ? <><CheckCircle2 size={14} /> Active ({days} days left)</> :
+               product.status === 'expiring' ? <><CheckCircle2 size={14} /> Expiring ({days} days left)</> :
+               <><XCircle size={14} /> Expired</>}
             </span>
           </motion.div>
 
@@ -159,7 +160,7 @@ export default function QRCodePage() {
               onClick={handleShare}
               className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
             >
-              📤 Share QR Code
+              <Share2 size={18} /> Share QR Code
             </button>
 
             <button
@@ -174,7 +175,7 @@ export default function QRCodePage() {
                   className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full"
                 />
               ) : (
-                <>🔍 Simulate Service Centre Scan</>
+                <><Search size={18} /> Simulate Service Centre Scan</>
               )}
             </button>
           </motion.div>
@@ -199,7 +200,7 @@ export default function QRCodePage() {
                 transition={{ type: 'spring', stiffness: 200 }}
                 className="text-5xl block mb-3"
               >
-                {verificationResult === 'success' ? '✅' : '❌'}
+                {verificationResult === 'success' ? <CheckCircle2 size={48} className="text-success mx-auto" /> : <XCircle size={48} className="text-danger mx-auto" />}
               </motion.span>
               <h3
                 className={`text-lg font-bold mb-1 ${

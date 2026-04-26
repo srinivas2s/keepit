@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { Camera, Bell, QrCode, Lock, LayoutDashboard, ArrowRightLeft, CheckCircle2, ClipboardList, Sparkles, Rocket, ArrowRight } from 'lucide-react';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -14,32 +16,32 @@ const fadeUp = {
 
 const features = [
   {
-    icon: '📸',
+    icon: <Camera size={24} />,
     title: 'Scan & Store',
     description: 'Upload a receipt and our AI extracts all warranty details automatically.',
   },
   {
-    icon: '⏰',
+    icon: <Bell size={24} />,
     title: 'Smart Alerts',
     description: 'Get notified 90, 30, and 7 days before any warranty expires.',
   },
   {
-    icon: '📱',
+    icon: <QrCode size={24} />,
     title: 'QR Verification',
     description: 'Generate QR codes to verify warranty at any service centre instantly.',
   },
   {
-    icon: '🔒',
+    icon: <Lock size={24} />,
     title: 'Secure Storage',
     description: 'All your receipts and warranty data encrypted and stored safely.',
   },
   {
-    icon: '📊',
+    icon: <LayoutDashboard size={24} />,
     title: 'Dashboard',
     description: 'See all your warranties at a glance with status tracking and insights.',
   },
   {
-    icon: '🔄',
+    icon: <ArrowRightLeft size={24} />,
     title: 'Transfer Warranty',
     description: 'Easily transfer warranty ownership when you sell or gift a product.',
   },
@@ -50,19 +52,19 @@ const steps = [
     number: '01',
     title: 'Scan Your Receipt',
     description: 'Take a photo of your receipt or enter details manually. Our OCR does the rest.',
-    icon: '📷',
+    icon: <Camera size={28} />,
   },
   {
     number: '02',
     title: 'Track Warranties',
     description: 'All your products appear on your dashboard with live countdown timers.',
-    icon: '📋',
+    icon: <ClipboardList size={28} />,
   },
   {
     number: '03',
     title: 'Stay Protected',
     description: 'Get smart alerts before expiry. Show QR code at service centres for instant verification.',
-    icon: '✅',
+    icon: <CheckCircle2 size={28} />,
   },
 ];
 
@@ -78,12 +80,14 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-sm" style={{ fontFamily: 'var(--font-heading)' }}>K</span>
-            </div>
-            <span className="text-xl font-bold text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-              KeepIt
-            </span>
+            <Image 
+              src="/logo.png" 
+              alt="KeepIt" 
+              width={100} 
+              height={28} 
+              className="h-7 w-auto object-contain"
+              priority
+            />
           </div>
           <Link
             href="/login"
@@ -142,9 +146,9 @@ export default function LandingPage() {
           >
             <Link
               href="/login"
-              className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary-dark transition-all shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5"
+              className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary-dark transition-all shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
-              Start Tracking Free →
+              Start Tracking Free <ArrowRight size={20} />
             </Link>
             <a
               href="#features"
@@ -233,7 +237,7 @@ export default function LandingPage() {
               custom={0}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 text-accent-dark dark:text-accent-light text-sm font-semibold mb-4"
             >
-              ✨ Features
+              <Sparkles size={16} className="text-accent-dark dark:text-accent-light" /> Features
             </motion.span>
             <motion.h2
               variants={fadeUp}
@@ -262,7 +266,7 @@ export default function LandingPage() {
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="group bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border card-hover cursor-default"
               >
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl mb-4 group-hover:bg-primary/20 transition-colors">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/20 transition-colors">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-bold text-text dark:text-dark-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -291,7 +295,7 @@ export default function LandingPage() {
               custom={0}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4"
             >
-              🚀 How It Works
+              <Rocket size={16} className="text-primary" /> How It Works
             </motion.span>
             <motion.h2
               variants={fadeUp}
@@ -358,7 +362,7 @@ export default function LandingPage() {
             className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-2xl text-lg font-bold hover:bg-white/90 transition-all shadow-xl hover:-translate-y-0.5 relative z-10"
           >
             Get Started — It&apos;s Free
-            <span className="text-xl">→</span>
+            <ArrowRight size={24} />
           </Link>
         </motion.div>
       </section>
@@ -367,11 +371,15 @@ export default function LandingPage() {
       <footer className="py-8 px-4 border-t border-border dark:border-dark-border">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-white font-bold text-xs">K</span>
-            </div>
-            <span className="text-sm font-semibold text-text-secondary dark:text-dark-text-secondary">
-              KeepIt © {new Date().getFullYear()}
+            <Image 
+              src="/logo.png" 
+              alt="KeepIt" 
+              width={80} 
+              height={22} 
+              className="h-5 w-auto object-contain grayscale opacity-60"
+            />
+            <span className="text-sm font-semibold text-text-secondary dark:text-dark-text-secondary ml-2">
+              © {new Date().getFullYear()}
             </span>
           </div>
           <p className="text-sm text-text-muted dark:text-dark-text-secondary">

@@ -4,12 +4,13 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import Link from 'next/link';
+import { Bell, BellOff, ChevronRight, Info, AlertTriangle, AlertCircle, CalendarX } from 'lucide-react';
 
-const alertConfig: Record<string, { icon: string; color: string; label: string; dotColor: string }> = {
-  '90day': { icon: '🟢', color: 'text-success', label: '90-Day Warning', dotColor: 'bg-success' },
-  '30day': { icon: '🟡', color: 'text-warning', label: '30-Day Warning', dotColor: 'bg-warning' },
-  '7day': { icon: '🔴', color: 'text-danger', label: '7-Day Warning', dotColor: 'bg-danger' },
-  'expired': { icon: '⛔', color: 'text-danger', label: 'Expired', dotColor: 'bg-danger' },
+const alertConfig: Record<string, { icon: React.ReactNode; color: string; label: string; dotColor: string }> = {
+  '90day': { icon: <Info size={16} />, color: 'text-success', label: '90-Day Warning', dotColor: 'bg-success' },
+  '30day': { icon: <AlertTriangle size={16} />, color: 'text-warning', label: '30-Day Warning', dotColor: 'bg-warning' },
+  '7day': { icon: <AlertCircle size={16} />, color: 'text-danger', label: '7-Day Warning', dotColor: 'bg-danger' },
+  'expired': { icon: <CalendarX size={16} />, color: 'text-danger', label: 'Expired', dotColor: 'bg-danger' },
 };
 
 export default function AlertsPage() {
@@ -41,7 +42,7 @@ export default function AlertsPage() {
         >
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-text dark:text-dark-text" style={{ fontFamily: 'var(--font-heading)' }}>
-              Alerts 🔔
+              Alerts <Bell className="inline ml-1" size={24} />
             </h1>
             <p className="text-text-secondary dark:text-dark-text-secondary mt-1">
               {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
@@ -64,7 +65,7 @@ export default function AlertsPage() {
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <span className="text-6xl block mb-4">🔕</span>
+            <BellOff className="mx-auto mb-4 text-text-muted" size={48} />
             <h3 className="text-xl font-bold text-text dark:text-dark-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
               No alerts yet
             </h3>
@@ -132,9 +133,7 @@ export default function AlertsPage() {
                     </div>
 
                     {/* Arrow */}
-                    <span className="text-text-muted dark:text-dark-text-secondary group-hover:text-primary transition-colors flex-shrink-0">
-                      →
-                    </span>
+                    <ChevronRight size={18} className="text-text-muted group-hover:text-primary transition-colors" />
                   </div>
                 </motion.div>
               );

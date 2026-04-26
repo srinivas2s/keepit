@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
+import { Camera, PenTool, Package, CreditCard, ChevronLeft, CheckCircle2, Rocket, Receipt, PartyPopper } from 'lucide-react';
 
 type InputMethod = 'select' | 'scan' | 'manual' | 'amazon' | 'razorpay';
 
@@ -32,10 +33,10 @@ export default function AddProductPage() {
   }
 
   const methods = [
-    { id: 'scan' as const, icon: '📸', title: 'Scan Receipt', desc: 'Upload receipt image for AI extraction' },
-    { id: 'manual' as const, icon: '✍️', title: 'Manual Entry', desc: 'Fill in product details yourself' },
-    { id: 'amazon' as const, icon: '📦', title: 'Amazon Import', desc: 'Import from Amazon order history' },
-    { id: 'razorpay' as const, icon: '💳', title: 'Razorpay Sync', desc: 'Sync from payment receipts' },
+    { id: 'scan' as const, icon: <Camera size={24} />, title: 'Scan Receipt', desc: 'Upload receipt image for AI extraction' },
+    { id: 'manual' as const, icon: <PenTool size={24} />, title: 'Manual Entry', desc: 'Fill in product details yourself' },
+    { id: 'amazon' as const, icon: <Package size={24} />, title: 'Amazon Import', desc: 'Import from Amazon order history' },
+    { id: 'razorpay' as const, icon: <CreditCard size={24} />, title: 'Razorpay Sync', desc: 'Sync from payment receipts' },
   ];
 
   const handleScan = async () => {
@@ -110,7 +111,7 @@ export default function AddProductPage() {
             onClick={() => method === 'select' ? router.back() : setMethod('select')}
             className="flex items-center gap-2 text-sm text-text-secondary dark:text-dark-text-secondary hover:text-primary transition-colors mb-4"
           >
-            ← {method === 'select' ? 'Back' : 'Choose Method'}
+            <ChevronLeft size={16} /> {method === 'select' ? 'Back' : 'Choose Method'}
           </button>
           <h1 className="text-2xl sm:text-3xl font-bold text-text dark:text-dark-text" style={{ fontFamily: 'var(--font-heading)' }}>
             {method === 'select' ? 'Add New Product' : method === 'scan' ? 'Scan Receipt' : 'Product Details'}
@@ -144,9 +145,9 @@ export default function AddProductPage() {
                   onClick={() => setMethod(m.id)}
                   className="bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border text-left card-hover group"
                 >
-                  <span className="text-3xl block mb-3 group-hover:scale-110 transition-transform inline-block">
+                  <div className="text-primary mb-3 group-hover:scale-110 transition-transform">
                     {m.icon}
-                  </span>
+                  </div>
                   <h3 className="font-bold text-text dark:text-dark-text mb-1" style={{ fontFamily: 'var(--font-heading)' }}>
                     {m.title}
                   </h3>
@@ -178,13 +179,13 @@ export default function AddProductPage() {
                     onClick={() => fileInputRef.current?.click()}
                     className="w-full h-64 border-2 border-dashed border-border dark:border-dark-border rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors group"
                   >
-                    <motion.span
+                    <motion.div
                       animate={{ y: [0, -5, 0] }}
                       transition={{ repeat: Infinity, duration: 2 }}
-                      className="text-5xl block mb-4"
+                      className="mb-4 text-primary"
                     >
-                      📸
-                    </motion.span>
+                      <Camera size={48} />
+                    </motion.div>
                     <p className="text-sm font-medium text-text-secondary dark:text-dark-text-secondary group-hover:text-primary transition-colors">
                       Click to upload receipt image
                     </p>
@@ -211,8 +212,8 @@ export default function AddProductPage() {
                   {/* Scanning animation */}
                   <div className="relative w-48 h-64 mx-auto mb-6 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border overflow-hidden">
                     <div className="scan-line" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-4xl">🧾</span>
+                    <div className="absolute inset-0 flex items-center justify-center text-primary/40">
+                      <Receipt size={64} />
                     </div>
                   </div>
                   <motion.p
@@ -228,14 +229,7 @@ export default function AddProductPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 200 }}
-                    className="text-5xl block mb-4"
-                  >
-                    ✅
-                  </motion.span>
+                  <CheckCircle2 size={48} className="mx-auto mb-4 text-success" />
                   <p className="font-bold text-text dark:text-dark-text mb-2">Scan Complete!</p>
                   <p className="text-sm text-text-secondary dark:text-dark-text-secondary">
                     We extracted the details. Review and save below.
@@ -258,7 +252,7 @@ export default function AddProductPage() {
               {method === 'amazon' && !scanComplete && (
                 <div className="p-4 bg-primary/10 rounded-xl text-sm text-primary flex flex-col gap-3 mb-2">
                   <div className="flex items-center gap-2">
-                    <span>📦</span>
+                    <Package size={18} />
                     <span className="font-semibold">Amazon Sync (Simulated)</span>
                   </div>
                   <p className="text-xs">Connecting to your Amazon account to fetch recent orders...</p>
@@ -275,7 +269,7 @@ export default function AddProductPage() {
               {method === 'razorpay' && !scanComplete && (
                 <div className="p-4 bg-primary/10 rounded-xl text-sm text-primary flex flex-col gap-3 mb-2">
                   <div className="flex items-center gap-2">
-                    <span>💳</span>
+                    <CreditCard size={18} />
                     <span className="font-semibold">Razorpay Sync (Simulated)</span>
                   </div>
                   <p className="text-xs">Fetching receipts from your Razorpay payment history...</p>
@@ -291,7 +285,7 @@ export default function AddProductPage() {
 
               {scanComplete && (
                 <div className="p-4 bg-success/10 rounded-xl text-sm text-success flex items-center gap-2 mb-2">
-                  <span>✅</span>
+                  <CheckCircle2 size={16} />
                   <span>Auto-filled from scanned receipt. Review and edit if needed.</span>
                 </div>
               )}
@@ -401,13 +395,7 @@ export default function AddProductPage() {
                       transition={{ type: 'spring', stiffness: 200 }}
                       className="bg-surface dark:bg-dark-surface rounded-3xl p-10 text-center shadow-2xl"
                     >
-                      <motion.span
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ repeat: 2, duration: 0.5 }}
-                        className="text-6xl block mb-4"
-                      >
-                        🎉
-                      </motion.span>
+                      <PartyPopper size={64} className="mx-auto mb-4 text-primary" />
                       <h3 className="text-xl font-bold text-text dark:text-dark-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
                         Warranty Saved!
                       </h3>
@@ -424,7 +412,7 @@ export default function AddProductPage() {
                 disabled={!form.name || !form.brand || !form.purchase_date || !form.amount_paid}
                 className="w-full py-3.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Product 🚀
+                Save Product <Rocket size={18} className="inline ml-1" />
               </button>
             </motion.form>
           )}

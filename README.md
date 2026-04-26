@@ -92,5 +92,5 @@ npm run dev
 ---
 
 <div align="center">
-  Built with ❤️ for <b>KeepIt</b>
+   <b>KeepIt</b>
 </div>
