@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { formatDate } from '@/lib/supabase';
 import { useState } from 'react';
-import { Bell, Palette, Star, Info, LogOut, Shield, ChevronRight, Sun, Moon } from 'lucide-react';
+import { Bell, Palette, Star, Info, LogOut, Shield, ChevronRight, Sun, Moon, ChevronLeft, FileText } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -36,11 +36,27 @@ export default function ProfilePage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="flex items-center justify-between mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-text dark:text-dark-text" style={{ fontFamily: 'var(--font-heading)' }}>
-            Profile
-          </h1>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => router.push('/dashboard')}
+              className="p-3 bg-surface dark:bg-dark-surface border border-border dark:border-dark-border rounded-2xl text-text dark:text-dark-text hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-black text-text dark:text-dark-text tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+              Profile
+            </h1>
+          </div>
+          
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-6 py-2.5 bg-surface dark:bg-dark-surface border border-border dark:border-dark-border rounded-xl font-bold text-sm text-text dark:text-dark-text hover:border-primary/30 transition-all shadow-sm"
+          >
+            <FileText size={18} className="text-primary" />
+            <span className="hidden sm:inline">Export Report</span>
+          </button>
         </motion.div>
 
         {/* User Card */}

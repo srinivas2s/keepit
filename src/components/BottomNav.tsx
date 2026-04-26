@@ -16,17 +16,20 @@ const navItems = [
 export default function BottomNav() {
   const pathname = usePathname();
 
-  // Don't show BottomNav on landing page or login page
-  if (pathname === '/' || pathname === '/login') return null;
+  // Don't show BottomNav on landing page, login page, or profile page
+  if (pathname === '/' || pathname === '/login' || pathname === '/profile') return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-8 pt-2 pointer-events-none flex justify-center">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-3xl pointer-events-none">
       <motion.nav
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-        className="mx-auto max-w-3xl w-full bg-white dark:bg-black/90 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_40px_80px_rgba(0,0,0,0.5)] flex items-center justify-between p-2 pointer-events-auto"
+        className="bg-white/80 dark:bg-black/80 backdrop-blur-3xl border border-blue-100/50 dark:border-white/10 p-2 rounded-[32px] shadow-[0_20px_50px_rgba(21,101,192,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto flex items-center justify-between gap-1 relative"
       >
+        {/* Subtle light blue glow for light mode */}
+        <div className="absolute inset-0 bg-blue-50/50 dark:hidden -z-10" />
+
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
