@@ -17,6 +17,21 @@ KeepIt is a premium, full-stack warranty management application designed to ensu
 
 </div>
 
+## 🔄 System Flow
+
+```mermaid
+graph TD
+    A[User] -->|Upload Receipt| B(OCR Engine - Tesseract.js)
+    B -->|Extract Data| C{Validation}
+    C -->|Success| D[Supabase Database]
+    C -->|Manual Edit| A
+    D -->|Real-time Triggers| E[Alerts System]
+    E -->|Notification| A
+    D -->|Generate QR| F[Product QR Code]
+    F -->|Verify Scan| G[Service Centre Portal]
+    G -->|Valid/Expired| F
+```
+
 ## ✨ Features
 
 - **📸 AI-Powered Scanning**: Extract product details, brands, and dates automatically using Open Source OCR (Tesseract.js).
@@ -46,7 +61,7 @@ KeepIt is a premium, full-stack warranty management application designed to ensu
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/yourusername/keepit.git
+git clone https://github.com/srinivas2s/keepit.git
 cd keepit
 npm install
 ```
@@ -68,14 +83,14 @@ Execute the SQL found in [`supabase/schema.sql`](./supabase/schema.sql) within y
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## 📱 Mobile Installation (PWA)
 1. Open your browser on mobile.
 2. Navigate to your deployed KeepIt URL.
 3. Select **"Add to Home Screen"** from the browser menu.
-4. Launch KeepIt from your app drawer!
 
 ---
 
-# keepit
+<div align="center">
+  Built with ❤️ for <b>KeepIt</b>
+</div>
