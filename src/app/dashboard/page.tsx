@@ -7,6 +7,8 @@ import { useApp } from '@/context/AppContext';
 import { formatCurrency, formatDate, daysRemaining } from '@/lib/supabase';
 import Link from 'next/link';
 import { FileText, Plus, AlertTriangle, Package, CheckCircle2, Clock, XCircle, Search, Inbox, Smartphone, Laptop, Tv, Home, HelpCircle } from 'lucide-react';
+import { ProductCardSkeleton, StatCardSkeleton } from '@/components/Skeleton';
+import Skeleton from '@/components/Skeleton';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -48,12 +50,38 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-10 h-10 border-3 border-primary/30 border-t-primary rounded-full"
-        />
+      <div className="min-h-screen bg-background dark:bg-dark-bg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          {/* Header Skeleton */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+              <Skeleton variant="text" className="w-48 h-8 mb-2" />
+              <Skeleton variant="text" className="w-64" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton variant="rect" className="w-32 h-12" />
+              <Skeleton variant="rect" className="w-32 h-12" />
+            </div>
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-8">
+            {[1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)}
+          </div>
+
+          {/* Controls Skeleton */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <Skeleton variant="rect" className="w-full md:w-64 h-12 rounded-xl" />
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {[1, 2, 3, 4].map(i => <Skeleton key={i} variant="rect" className="w-24 h-10 rounded-xl flex-shrink-0" />)}
+            </div>
+          </div>
+
+          {/* Grid Skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => <ProductCardSkeleton key={i} />)}
+          </div>
+        </div>
       </div>
     );
   }
