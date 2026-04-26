@@ -48,16 +48,15 @@ export default function SplashScreen() {
 
           {/* Centered Content Container */}
           <div className="relative z-10 flex flex-col items-center justify-center p-8 max-w-md w-full">
-            {/* Logo with Floating & Shadow Animation */}
+            {/* Logo with 'Getting Clear' Cinematic Animation */}
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ 
-                opacity: 1, 
-                y: 0, 
-                scale: 1,
+              initial={{ opacity: 0, filter: 'blur(20px)', scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 }}
+              transition={{ 
+                duration: 1.8, 
+                ease: [0.22, 1, 0.36, 1] 
               }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative mb-10"
+              className="relative"
             >
               {/* Decorative Ripples */}
               <motion.div 
@@ -65,12 +64,7 @@ export default function SplashScreen() {
                 transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
                 className="absolute inset-0 border border-blue-100 rounded-full -m-4"
               />
-              <motion.div 
-                animate={{ scale: [1, 1.8], opacity: [0.3, 0] }}
-                transition={{ duration: 2, delay: 0.5, repeat: Infinity, ease: "easeOut" }}
-                className="absolute inset-0 border border-blue-50 rounded-full -m-8"
-              />
-
+              
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -79,31 +73,6 @@ export default function SplashScreen() {
                 <Logo size="large" forceLight={true} />
               </motion.div>
             </motion.div>
-
-            {/* Tagline with 'Getting Clear' Cinematic Animation */}
-            <div className="overflow-hidden text-center">
-              <motion.p
-                initial={{ opacity: 0, filter: 'blur(12px)', y: 10 }}
-                animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                transition={{ 
-                  delay: 0.8, 
-                  duration: 1.5, 
-                  ease: [0.22, 1, 0.36, 1] 
-                }}
-                className="text-slate-800 font-bold text-lg sm:text-xl tracking-tight"
-                style={{ fontFamily: 'var(--font-heading)' }}
-              >
-                Receipts Fade. KeepIt Doesn&apos;t.
-              </motion.p>
-              
-              {/* Animated Underline Decal */}
-              <motion.div
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "40px", opacity: 1 }}
-                transition={{ delay: 1.8, duration: 0.8 }}
-                className="h-1 bg-primary/20 rounded-full mx-auto mt-4"
-              />
-            </div>
           </div>
         </motion.div>
       )}
