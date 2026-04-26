@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import Navbar from "@/components/Navbar";
+import BottomNav from "@/components/BottomNav";
 import SplashScreen from "@/components/SplashScreen";
 
 export const metadata: Metadata = {
@@ -32,9 +33,10 @@ export default function RootLayout({
         <AppProvider>
           <SplashScreen />
           <Navbar />
-          <main className="flex-1 pb-20 md:pb-0">
+          <main className="flex-1 pb-24 lg:pb-0">
             {children}
           </main>
+          <BottomNav />
         </AppProvider>
       </body>
     </html>

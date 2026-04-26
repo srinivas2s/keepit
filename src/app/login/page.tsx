@@ -103,9 +103,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white lg:bg-slate-50 flex items-center justify-center p-0 sm:p-4 lg:p-8 overflow-hidden font-sans">
+    <div className="min-h-screen bg-background dark:bg-black flex items-center justify-center p-0 sm:p-4 lg:p-8 overflow-hidden font-sans transition-colors duration-500">
       <div 
-        className={`w-full h-full sm:h-auto lg:max-w-5xl lg:h-[650px] bg-white sm:rounded-[40px] shadow-none sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex relative border-none lg:border lg:border-white transition-all duration-700 ease-in-out ${isSignUp ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
+        className={`w-full h-full sm:h-auto lg:max-w-5xl lg:h-[650px] bg-surface dark:bg-dark-surface sm:rounded-[40px] shadow-none sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex relative border-none lg:border lg:border-border dark:lg:border-white/5 transition-all duration-700 ease-in-out ${isSignUp ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
       >
         
         {/* Desktop Sliding Overlay (Hidden on Mobile) */}

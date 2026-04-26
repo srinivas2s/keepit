@@ -182,38 +182,6 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Mobile Bottom Tab Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass border-t border-border dark:border-dark-border">
-        <div className="flex items-center justify-around py-2">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`relative flex flex-col items-center gap-0.5 p-2 rounded-xl transition-all ${
-                  isActive ? 'text-primary' : 'text-text-muted dark:text-dark-text-secondary'
-                }`}
-              >
-                <span className="text-xl flex-shrink-0">{link.icon}</span>
-                <span className="text-[10px] font-medium">{link.label.split(' ')[0]}</span>
-                {link.badge ? (
-                  <span className="absolute -top-0.5 right-0 w-4 h-4 bg-danger text-white text-[9px] rounded-full flex items-center justify-center font-bold">
-                    {link.badge}
-                  </span>
-                ) : null}
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute -bottom-1 w-6 h-0.5 bg-primary rounded-full"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
     </>
   );
 }

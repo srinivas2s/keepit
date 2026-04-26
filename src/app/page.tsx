@@ -107,14 +107,14 @@ export default function LandingPage() {
           >
             <Link
               href="/login"
-              className="px-10 py-5 bg-white/5 backdrop-blur-xl text-white rounded-2xl font-black text-xl hover:bg-white/10 transition-all border border-white/10 text-center min-w-[240px]"
+              className="px-10 py-5 bg-[#1565C0] text-white rounded-2xl font-black text-xl hover:bg-[#0D47A1] transition-all shadow-xl shadow-blue-900/10 hover:-translate-y-1 active:scale-95 text-center min-w-[240px]"
             >
               Start Tracking Free
             </Link>
 
             <Link
               href="#features"
-              className="px-10 py-5 bg-white/5 backdrop-blur-xl text-white rounded-2xl font-black text-xl hover:bg-white/10 transition-all border border-white/10 text-center min-w-[240px]"
+              className="px-10 py-5 bg-[#1565C0] text-white rounded-2xl font-black text-xl hover:bg-[#0D47A1] transition-all shadow-xl shadow-blue-900/10 hover:-translate-y-1 active:scale-95 text-center min-w-[240px]"
             >
               Learn More
             </Link>
@@ -206,7 +206,7 @@ export default function LandingPage() {
             <motion.h2
               variants={fadeUp}
               custom={1}
-              className="text-4xl sm:text-6xl font-black text-white mb-6 tracking-tight"
+              className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
               Three Simple Steps
@@ -227,16 +227,16 @@ export default function LandingPage() {
               >
                 {/* Step Icon with Glow */}
                 <div className="relative w-24 h-24 mx-auto mb-10">
-                  <div className="relative w-full h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl flex items-center justify-center text-sky-400 transition-all duration-500 group-hover:-translate-y-2 group-hover:border-sky-400/30">
+                  <div className="relative w-full h-full bg-slate-50 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-3xl flex items-center justify-center text-[#1565C0] transition-all duration-500 group-hover:-translate-y-2 group-hover:border-[#1565C0]/30">
                     {step.icon}
                   </div>
                 </div>
 
                 <div className="relative">
-                  <h3 className="text-2xl font-black text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
                     {step.title}
                   </h3>
-                  <p className="text-slate-400 font-medium leading-relaxed max-w-[280px] mx-auto">
+                  <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-[280px] mx-auto">
                     {step.description}
                   </p>
                 </div>
@@ -274,7 +274,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-100 mt-20">
+      <footer className="bg-background dark:bg-black py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-100 dark:border-white/10 mt-20">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Brand Section */}
@@ -282,36 +282,36 @@ export default function LandingPage() {
               <div className="flex items-center gap-3 mb-6">
                 <Logo size="normal" />
               </div>
-              <p className="text-2xl font-black text-slate-900 mb-4 tracking-tight leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+              <p className="text-2xl font-black text-slate-900 dark:text-white mb-4 tracking-tight leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                 Receipts Fade.<br />
                 KeepIt Doesn&apos;t.
               </p>
-              <p className="text-slate-500 max-w-sm leading-relaxed">
+              <p className="text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
                 The world&apos;s most reliable way to manage warranties and protect your purchases. Never lose a receipt again.
               </p>
             </div>
 
             {/* Links Sections */}
             <div>
-              <h4 className="font-black text-slate-900 mb-6 uppercase tracking-widest text-xs">Product</h4>
+              <h4 className="font-black text-slate-900 dark:text-white mb-6 uppercase tracking-widest text-xs">Product</h4>
               <ul className="space-y-4">
-                <li><Link href="#features" className="text-slate-500 hover:text-blue-600 transition-colors">Features</Link></li>
-                <li><Link href="/login" className="text-slate-500 hover:text-blue-600 transition-colors">Pricing</Link></li>
-                <li><Link href="/login" className="text-slate-500 hover:text-blue-600 transition-colors">Security</Link></li>
+                <li><Link href="#features" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors">Features</Link></li>
+                <li><Link href="/login" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors">Pricing</Link></li>
+                <li><Link href="/login" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors">Security</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-black text-slate-900 mb-6 uppercase tracking-widest text-xs">Company</h4>
+              <h4 className="font-black text-slate-900 dark:text-white mb-6 uppercase tracking-widest text-xs">Company</h4>
               <ul className="space-y-4">
-                <li><Link href="#" className="text-slate-500 hover:text-blue-600 transition-colors">About Us</Link></li>
-                <li><Link href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="text-slate-500 hover:text-blue-600 transition-colors">Terms of Service</Link></li>
+                <li><Link href="#" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors">About Us</Link></li>
+                <li><Link href="#" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
+                <li><Link href="#" className="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="pt-8 border-t border-slate-100 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
             <p className="text-slate-400 text-sm font-medium">
               © {new Date().getFullYear()} KeepIt Inc. All rights reserved.
             </p>
