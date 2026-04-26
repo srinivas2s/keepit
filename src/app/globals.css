@@ -3,28 +3,19 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-primary: #1565C0;
-  --color-primary-light: #1976D2;
-  --color-primary-dark: #0D47A1;
-  --color-accent: #F59E0B;
-  --color-accent-light: #FBBF24;
-  --color-accent-dark: #D97706;
-  --color-background: #FFFFFF;
-  --color-surface: #F0F9FF; /* More pronounced light blue tint */
-  --color-text: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94A3B8;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  --color-border: #E0F2FE;
-
-  --color-dark-bg: #000000;
-  --color-dark-surface: #0A0A0A;
-  --color-dark-surface-hover: #171717;
-  --color-dark-text: #F8FAFC;
-  --color-dark-text-secondary: #94A3B8;
-  --color-dark-border: #1E293B;
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-border: var(--border);
 
   --font-heading: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -38,6 +29,38 @@
   --animate-shimmer: shimmer 2s ease-in-out infinite;
   --animate-float: float 3s ease-in-out infinite;
   --animate-scan-line: scan-line 2s ease-in-out infinite;
+}
+
+:root {
+  --primary: #1565C0;
+  --primary-light: #1976D2;
+  --primary-dark: #0D47A1;
+  --accent: #0284C7;
+  --background: #FFFFFF;
+  --surface: #E0F2FE; /* More vivid light blue */
+  --text: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --border: #BAE6FD; /* Crisp blue border */
+}
+
+.dark {
+  --primary: #1565C0;
+  --primary-light: #1E293B;
+  --primary-dark: #000000;
+  --accent: #F59E0B;
+  --background: #000000;
+  --surface: #0A0A0A;
+  --text: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #475569;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --border: #1E293B;
 }
 
 @keyframes fade-in {
@@ -102,16 +125,10 @@ html {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--background);
+  color: var(--text);
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Dark mode */
-html.dark body {
-  background-color: var(--color-dark-bg);
-  color: var(--color-dark-text);
 }
 
 h1, h2, h3, h4, h5, h6 {
