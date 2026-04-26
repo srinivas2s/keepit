@@ -234,3 +234,43 @@ html.dark input, html.dark select, html.dark textarea {
   border-color: var(--color-dark-border);
   color: var(--color-dark-text);
 }
+
+/* Print Styles for PDF Export */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  nav, .no-print, button, .mobile-tabs {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+  
+  .card-hover {
+    transform: none !important;
+    box-shadow: none !important;
+    border: 1px solid #eee !important;
+  }
+  
+  .max-w-7xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .grid {
+    display: block !important;
+  }
+
+  .grid > div {
+    margin-bottom: 1rem !important;
+    page-break-inside: avoid;
+  }
+}
+
+.print-only {
+  display: none;
+}

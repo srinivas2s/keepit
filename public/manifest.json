@@ -1,0 +1,26 @@
+{
+  "name": "KeepIt — Warranty Manager",
+  "short_name": "KeepIt",
+  "description": "Receipts Fade. KeepIt Doesn't. Track, manage, and verify all your product warranties.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#F4F7FB",
+  "theme_color": "#1565C0",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["utilities", "productivity"]
+}

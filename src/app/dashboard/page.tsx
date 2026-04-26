@@ -59,6 +59,10 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg">
+      <div className="print-only p-8 text-center border-b mb-8">
+        <h1 className="text-3xl font-bold text-primary">KeepIt — Warranty Report</h1>
+        <p className="text-gray-500">Generated for {user?.name} on {new Date().toLocaleDateString()}</p>
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
         <motion.div
@@ -74,13 +78,22 @@ export default function DashboardPage() {
               Here&apos;s your warranty overview
             </p>
           </div>
-          <Link
-            href="/add"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5"
-          >
-            <span className="text-lg">+</span>
-            Add Product
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-surface dark:bg-dark-surface text-text dark:text-dark-text border border-border dark:border-dark-border rounded-xl font-semibold text-sm hover:border-primary/30 transition-all shadow-sm"
+            >
+              <span>📄</span>
+              Export PDF
+            </button>
+            <Link
+              href="/add"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5"
+            >
+              <span className="text-lg">+</span>
+              Add Product
+            </Link>
+          </div>
         </motion.div>
 
         {/* Warning Banner */}

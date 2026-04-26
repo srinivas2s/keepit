@@ -248,17 +248,44 @@ export default function AddProductPage() {
           {/* Manual Form / Amazon / Razorpay */}
           {(method === 'manual' || method === 'amazon' || method === 'razorpay') && (
             <motion.form
-              key="manual"
+              key={method}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               onSubmit={handleSubmit}
               className="bg-surface dark:bg-dark-surface rounded-2xl p-6 sm:p-8 border border-border dark:border-dark-border space-y-5"
             >
-              {(method === 'amazon' || method === 'razorpay') && (
-                <div className="p-4 bg-accent/10 rounded-xl text-sm text-accent-dark dark:text-accent-light flex items-center gap-2 mb-2">
-                  <span>🔜</span>
-                  <span>This import method is coming soon. Use manual entry for now.</span>
+              {method === 'amazon' && !scanComplete && (
+                <div className="p-4 bg-primary/10 rounded-xl text-sm text-primary flex flex-col gap-3 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span>📦</span>
+                    <span className="font-semibold">Amazon Sync (Simulated)</span>
+                  </div>
+                  <p className="text-xs">Connecting to your Amazon account to fetch recent orders...</p>
+                  <button 
+                    type="button"
+                    onClick={handleScan} // Reuse handleScan for sync simulation
+                    className="w-full py-2 bg-primary text-white rounded-lg text-xs font-bold"
+                  >
+                    Login to Amazon
+                  </button>
+                </div>
+              )}
+
+              {method === 'razorpay' && !scanComplete && (
+                <div className="p-4 bg-primary/10 rounded-xl text-sm text-primary flex flex-col gap-3 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span>💳</span>
+                    <span className="font-semibold">Razorpay Sync (Simulated)</span>
+                  </div>
+                  <p className="text-xs">Fetching receipts from your Razorpay payment history...</p>
+                  <button 
+                    type="button"
+                    onClick={handleScan} // Reuse handleScan for sync simulation
+                    className="w-full py-2 bg-primary text-white rounded-lg text-xs font-bold"
+                  >
+                    Verify via OTP
+                  </button>
                 </div>
               )}
 
