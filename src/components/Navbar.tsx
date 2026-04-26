@@ -34,15 +34,10 @@ export default function Navbar() {
         className="sticky top-0 z-50 glass border-b border-border dark:border-dark-border"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <Logo size="small" />
-            </Link>
-
-            {/* Desktop Links */}
+          <div className="flex items-center justify-between h-16 relative">
+            {/* Desktop Links (Left) */}
             <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => {
+              {navLinks.slice(0, 2).map((link) => {
                 const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
                 return (
                   <Link
@@ -54,51 +49,63 @@ export default function Navbar() {
                         : 'text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover'
                     }`}
                   >
-                    <span className="flex-shrink-0">{link.icon}</span>
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Centered Logo */}
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+              <Link href="/dashboard" className="flex items-center gap-2 group">
+                <Logo size="small" />
+              </Link>
+            </div>
+
+            {/* Right Side Links & Actions */}
+            <div className="hidden md:flex items-center gap-1">
+              {navLinks.slice(2).map((link) => {
+                const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? 'bg-primary/10 text-primary dark:bg-primary/20'
+                        : 'text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover'
+                    }`}
+                  >
                     <span>{link.label}</span>
                     {link.badge ? (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-xs rounded-full flex items-center justify-center font-bold">
+                      <span className="w-5 h-5 bg-danger text-white text-[10px] rounded-full flex items-center justify-center font-bold">
                         {link.badge}
                       </span>
                     ) : null}
                   </Link>
                 );
               })}
-            </div>
-
-            {/* Right Side */}
-            <div className="hidden md:flex items-center gap-3">
+              
+              <div className="w-px h-6 bg-border dark:bg-dark-border mx-2" />
+              
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-xl hover:bg-surface-hover dark:hover:bg-dark-surface-hover transition-colors"
                 aria-label="Toggle dark mode"
               >
-                <motion.span
-                  key={isDarkMode ? 'dark' : 'light'}
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-xl block"
-                >
-                  {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                </motion.span>
+                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
               </button>
 
               {/* User Avatar */}
               {user && (
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-surface-hover dark:hover:bg-dark-surface-hover transition-colors"
+                  className="flex items-center gap-2 ml-2"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">
-                      {user.name.charAt(0).toUpperCase()}
-                    </span>
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
+                    {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-sm font-medium text-text dark:text-dark-text">
-                    {user.name}
-                  </span>
                 </Link>
               )}
             </div>
