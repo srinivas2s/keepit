@@ -49,6 +49,8 @@ export default function AlertsPage() {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
+  const unreadCount = alerts.filter(a => !a.is_read).length;
+
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
