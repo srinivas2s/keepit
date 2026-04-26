@@ -74,29 +74,48 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Background decorations */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-primary/3 to-accent/3 rounded-full blur-3xl" />
+        {/* Massive Logo Watermark */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-[0.03] dark:opacity-[0.05] pointer-events-none select-none">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            className="w-full h-full"
+          >
+            <Logo size="large" className="w-full h-full grayscale opacity-50" />
+          </motion.div>
+        </div>
+
+        {/* Dynamic Mesh Background */}
+        <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              x: [0, 20, 0],
+              y: [0, -20, 0]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-blue-500/5 dark:bg-blue-400/10 rounded-full blur-[120px]"
+          />
+          <motion.div
+            animate={{
+              scale: [1.1, 1, 1.1],
+              x: [0, -30, 0],
+              y: [0, 30, 0]
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] bg-amber-500/5 dark:bg-amber-400/10 rounded-full blur-[100px]"
+          />
+        </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex justify-center mb-12"
-          >
-            <Logo size="large" />
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight mb-6"
+            className="text-4xl sm:text-6xl md:text-8xl font-black leading-[0.9] mb-8 tracking-tighter"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
-            <span className="gradient-text leading-tight">
+            <span className="gradient-text drop-shadow-2xl">
               Receipts Fade.<br />
               KeepIt Doesn&apos;t.
             </span>
@@ -106,51 +125,35 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg sm:text-xl text-text-secondary dark:text-dark-text-secondary max-w-2xl mx-auto mb-10"
+            className="text-lg sm:text-2xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto mb-12 font-medium leading-relaxed"
           >
-            Never lose a warranty again. Scan receipts, track expiry dates, and verify warranties at service centres — all from your phone.
+            Never lose a warranty again. Scan receipts, track expiry dates, and verify coverage — all from your phone.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
             <Link
               href="/login"
-              className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-2xl text-lg font-bold hover:bg-primary-dark transition-all shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              className="group relative px-10 py-5 bg-primary text-white rounded-2xl font-black text-xl shadow-[0_20px_50px_rgba(21,101,192,0.3)] hover:scale-105 active:scale-95 transition-all overflow-hidden"
             >
-              Start Tracking Free <ArrowRight size={20} />
+              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform" />
+              <span className="relative z-10 flex items-center gap-3">
+                Start Tracking Free <Rocket size={24} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </span>
             </Link>
-            <a
+
+            <Link
               href="#features"
-              className="w-full sm:w-auto px-8 py-4 bg-surface dark:bg-dark-surface text-text dark:text-dark-text rounded-2xl text-lg font-semibold border border-border dark:border-dark-border hover:border-primary/30 transition-all"
+              className="px-10 py-5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl font-black text-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700"
             >
               Learn More
-            </a>
+            </Link>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-16 grid grid-cols-3 gap-8 max-w-md mx-auto"
-          >
-            {[
-              { value: '10K+', label: 'Users' },
-              { value: '50K+', label: 'Warranties' },
-              { value: '99.9%', label: 'Uptime' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-                  {stat.value}
-                </div>
-                <div className="text-sm text-text-muted dark:text-dark-text-secondary">{stat.label}</div>
-              </div>
-            ))}
-          </motion.div>
         </div>
 
         {/* Floating Cards Preview */}
