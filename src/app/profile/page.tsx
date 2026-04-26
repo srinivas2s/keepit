@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { formatDate } from '@/lib/supabase';
 import { useState } from 'react';
-import { Bell, Palette, Star, Info, LogOut, Shield, ChevronRight } from 'lucide-react';
+import { Bell, Palette, Star, Info, LogOut, Shield, ChevronRight, Sun, Moon } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -182,13 +182,13 @@ export default function ProfilePage() {
                     initial={{ scale: 0, rotate: 90 }}
                     animate={{ scale: 1, rotate: 0 }}
                   >
-                    <Sun size={18} className="text-blue-600" />
+                    <Sun size={18} className="text-white" />
                   </motion.div>
                 )}
               </motion.div>
               
               <div className="absolute inset-0 flex items-center justify-around pointer-events-none opacity-20 dark:opacity-40">
-                <Sun size={14} className="text-blue-400" />
+                <Sun size={14} className="text-blue-600 dark:text-blue-400" />
                 <Moon size={14} className="text-slate-400" />
               </div>
             </button>

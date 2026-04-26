@@ -89,33 +89,42 @@ export default function HistoryPage() {
         <div className="space-y-6 relative">
           <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-100 dark:bg-white/5 -z-10" />
           
-          {mockHistory.filter(i => filter === 'all' || i.type === filter).map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="flex gap-6 group"
-            >
-              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                {item.icon}
-              </div>
-              
-              <div className="flex-1 bg-surface dark:bg-dark-surface p-6 rounded-3xl border border-border dark:border-dark-border hover:shadow-xl hover:shadow-blue-900/5 transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-bold text-text dark:text-dark-text">
-                    {item.title}
-                  </h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-text-muted dark:text-dark-text-secondary">
-                    {formatDate(item.date)}
-                  </span>
+          <AnimatePresence mode="popLayout">
+            {mockHistory.filter(i => filter === 'all' || i.type === filter).map((item, i) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ 
+                  delay: i * 0.05,
+                  type: 'spring',
+                  stiffness: 260,
+                  damping: 20
+                }}
+                className="flex gap-6 group"
+              >
+                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                  {item.icon}
                 </div>
-                <p className="text-sm text-text-secondary dark:text-dark-text-secondary leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+                
+                <div className="flex-1 bg-surface dark:bg-dark-surface p-6 rounded-3xl border border-border dark:border-dark-border hover:shadow-xl hover:shadow-blue-900/5 transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-bold text-text dark:text-dark-text">
+                      {item.title}
+                    </h3>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted dark:text-dark-text-secondary">
+                      {formatDate(item.date)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-text-secondary dark:text-dark-text-secondary leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {mockHistory.filter(i => filter === 'all' || i.type === filter).length === 0 && (
             <div className="text-center py-20 bg-surface dark:bg-dark-surface rounded-[40px] border border-dashed border-slate-200 dark:border-white/10">
