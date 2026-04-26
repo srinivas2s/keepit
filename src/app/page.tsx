@@ -75,27 +75,6 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
 
-        {/* Dynamic Mesh Background */}
-        <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              x: [0, 20, 0],
-              y: [0, -20, 0]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-blue-500/5 dark:bg-blue-400/10 rounded-full blur-[120px]"
-          />
-          <motion.div
-            animate={{
-              scale: [1.1, 1, 1.1],
-              x: [0, -30, 0],
-              y: [0, 30, 0]
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] bg-amber-500/5 dark:bg-amber-400/10 rounded-full blur-[100px]"
-          />
-        </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <motion.h1
@@ -105,7 +84,7 @@ export default function LandingPage() {
             className="text-4xl sm:text-6xl md:text-8xl font-black leading-[0.9] mb-8 tracking-tighter"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
-            <span className="gradient-text drop-shadow-2xl">
+            <span className="gradient-text">
               Receipts Fade.<br />
               KeepIt Doesn&apos;t.
             </span>
@@ -216,11 +195,7 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      {/* How It Works */}
       <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Background Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-500/5 rounded-full blur-[120px] pointer-events-none" />
-        
         <div className="max-w-6xl mx-auto relative z-10">
           <motion.div
             initial="hidden"
@@ -239,8 +214,7 @@ export default function LandingPage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-            {/* Luminous Connecting line */}
-            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-sky-400/50 to-transparent shadow-[0_0_20px_rgba(56,189,248,0.5)]" />
+            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-px bg-slate-200 dark:bg-white/10" />
 
             {steps.map((step, i) => (
               <motion.div
@@ -253,16 +227,12 @@ export default function LandingPage() {
               >
                 {/* Step Icon with Glow */}
                 <div className="relative w-24 h-24 mx-auto mb-10">
-                  <div className="absolute inset-0 bg-sky-400/20 blur-2xl rounded-3xl scale-75 group-hover:scale-110 transition-transform duration-500" />
-                  <div className="relative w-full h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl flex items-center justify-center text-sky-400 shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-sky-400/30 group-hover:shadow-sky-500/20">
+                  <div className="relative w-full h-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl flex items-center justify-center text-sky-400 transition-all duration-500 group-hover:-translate-y-2 group-hover:border-sky-400/30">
                     {step.icon}
                   </div>
                 </div>
 
                 <div className="relative">
-                  <span className="text-8xl font-black text-white/5 absolute -top-16 left-1/2 -translate-x-1/2 select-none" style={{ fontFamily: 'var(--font-heading)' }}>
-                    {step.number}
-                  </span>
                   <h3 className="text-2xl font-black text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
                     {step.title}
                   </h3>
@@ -278,19 +248,13 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* CTA Background Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-sky-500/10 rounded-full blur-[150px] pointer-events-none" />
-
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="max-w-5xl mx-auto bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 rounded-[3rem] p-12 sm:p-20 text-center relative overflow-hidden shadow-[0_40px_100px_rgba(14,165,233,0.3)]"
+          className="max-w-5xl mx-auto bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 rounded-[3rem] p-12 sm:p-20 text-center relative overflow-hidden"
         >
-          {/* Luminous accents */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-400/20 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
 
           <h2 className="text-4xl sm:text-6xl font-black text-white mb-8 relative z-10 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
             Ready to Protect Your Purchases?
