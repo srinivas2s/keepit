@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Camera, Bell, QrCode, Lock, LayoutDashboard, ArrowRightLeft, CheckCircle2, ClipboardList, Sparkles, Rocket, ArrowRight } from 'lucide-react';
+import Logo from '@/components/Logo';
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
@@ -80,14 +80,7 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <Image 
-              src="/logo.png" 
-              alt="KeepIt" 
-              width={100} 
-              height={28} 
-              className="h-7 w-auto object-contain mix-blend-multiply dark:mix-blend-normal dark:filter dark:brightness-200"
-              priority
-            />
+            <Logo size="small" />
           </div>
           <Link
             href="/login"
@@ -245,7 +238,7 @@ export default function LandingPage() {
               className="text-3xl sm:text-4xl md:text-5xl font-bold text-text dark:text-dark-text mb-4"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
-              Everything You Need
+              <Logo size="large" className="mx-auto" />
             </motion.h2>
             <motion.p
               variants={fadeUp}
@@ -371,13 +364,7 @@ export default function LandingPage() {
       <footer className="py-8 px-4 border-t border-border dark:border-dark-border">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Image 
-              src="/logo.png" 
-              alt="KeepIt" 
-              width={80} 
-              height={22} 
-              className="h-5 w-auto object-contain grayscale opacity-60"
-            />
+            <Logo size="small" className="grayscale opacity-60" />
             <span className="text-sm font-semibold text-text-secondary dark:text-dark-text-secondary ml-2">
               © {new Date().getFullYear()}
             </span>

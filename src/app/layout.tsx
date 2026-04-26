@@ -29,8 +29,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <SplashScreen />
         <AppProvider>
+          <SplashScreen />
           <Navbar />
           <main className="flex-1 pb-20 md:pb-0">
             {children}

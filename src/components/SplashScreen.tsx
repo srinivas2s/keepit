@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import Logo from './Logo';
 
 export default function SplashScreen() {
   const [isVisible, setIsVisible] = useState(true);
@@ -43,14 +43,7 @@ export default function SplashScreen() {
               }}
               className="mb-6"
             >
-              <Image 
-                src="/logo.png" 
-                alt="KeepIt" 
-                width={180} 
-                height={48} 
-                className="h-12 w-auto object-contain mx-auto mix-blend-multiply dark:mix-blend-normal dark:filter dark:brightness-200"
-                priority
-              />
+              <Logo size="large" className="mx-auto" />
             </motion.div>
 
             {/* Tagline */}
