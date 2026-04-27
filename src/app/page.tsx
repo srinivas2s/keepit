@@ -245,7 +245,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="relative">
-                  <h3 className="text-2xl font-black text-primary mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
+                  <h3 className="text-2xl font-black text-text dark:text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
                     {step.title}
                   </h3>
                   <p className="text-text-secondary dark:text-dark-text-secondary font-medium leading-relaxed max-w-[280px] mx-auto">
