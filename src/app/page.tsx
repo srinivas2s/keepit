@@ -77,7 +77,7 @@ export default function LandingPage() {
         <Logo size="normal" />
         <Link 
           href="/login" 
-          className="px-6 py-2.5 bg-white dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl font-black text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-white/10 transition-all shadow-sm"
+          className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold text-sm hover:opacity-90 transition-all shadow-lg active:scale-95"
         >
           Login
         </Link>
@@ -245,7 +245,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="relative">
-                  <h3 className="text-2xl font-black text-text dark:text-white mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
+                  <h3 className="text-2xl font-black text-primary mb-4 relative z-10" style={{ fontFamily: 'var(--font-heading)' }}>
                     {step.title}
                   </h3>
                   <p className="text-text-secondary dark:text-dark-text-secondary font-medium leading-relaxed max-w-[280px] mx-auto">
