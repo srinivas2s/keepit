@@ -77,7 +77,7 @@ export default function LandingPage() {
         <Logo size="normal" />
         <Link 
           href="/login" 
-          className="px-6 py-2.5 bg-white dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl font-black text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-white/10 transition-all shadow-sm"
+          className="px-6 py-2.5 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark transition-all shadow-lg shadow-blue-900/10 active:scale-95"
         >
           Login
         </Link>
