@@ -17,7 +17,7 @@ KeepIt is a premium, full-stack warranty management application designed to ensu
 
 </div>
 
-## 🔄 System Flow
+## System Flow
 
 ```mermaid
 graph TD
@@ -32,17 +32,17 @@ graph TD
     G -->|Valid/Expired| F
 ```
 
-## ✨ Features
+## Features
 
-- **📸 AI-Powered Scanning**: Extract product details, brands, and dates automatically using Open Source OCR (Tesseract.js).
-- **⏳ Live Countdown**: Real-time warranty tracking with animated flip counters and progress bars.
-- **📱 Smart QR Verification**: Generate unique, secure QR codes for instant verification at service centres.
-- **🔔 Proactive Alerts**: Automatic notifications 90, 30, and 7 days before any warranty expires.
-- **📄 PDF Export**: Generate professional warranty reports for your entire inventory with one click.
-- **🌗 Dark Mode**: Full support for system-wide light and dark themes with persistent memory.
-- **📲 PWA Support**: Install KeepIt on your iOS or Android device for an app-like experience.
+- **AI-Powered Scanning**: Extract product details, brands, and dates automatically using Open Source OCR (Tesseract.js).
+- **Live Countdown**: Real-time warranty tracking with animated flip counters and progress bars.
+- **Smart QR Verification**: Generate unique, secure QR codes for instant verification at service centres.
+- **Proactive Alerts**: Automatic notifications 90, 30, and 7 days before any warranty expires.
+- **PDF Export**: Generate professional warranty reports for your entire inventory with one click.
+- **Dark Mode**: Full support for system-wide light and dark themes with persistent memory.
+- **PWA Support**: Install KeepIt on your iOS or Android device for an app-like experience.
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 | Layer | Technology |
 |---|---|
@@ -53,7 +53,7 @@ graph TD
 | **OCR** | [Tesseract.js](https://tesseract.projectnaptha.com/) (Open Source) |
 | **QR Library** | [react-qr-code](https://github.com/rosskhanas/react-qr-code) |
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v18+)
