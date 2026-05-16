@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📦 KeepIt
+# KeepIt
 ### **"Receipts Fade. KeepIt Doesn't."**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
