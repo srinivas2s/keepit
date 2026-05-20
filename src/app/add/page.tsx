@@ -15,6 +15,7 @@ export default function AddProductPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanComplete, setScanComplete] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
@@ -39,23 +40,46 @@ export default function AddProductPage() {
     { id: 'razorpay' as const, icon: <CreditCard size={24} />, title: 'Razorpay Sync', desc: 'Sync from payment receipts' },
   ];
 
-  const handleScan = async () => {
+  const handleScan = async (file?: File) => {
+    if (!file) return;
+
     setIsScanning(true);
-    // Simulate OCR processing
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    setIsScanning(false);
-    setScanComplete(true);
-    // Auto-fill with simulated OCR data
-    setForm({
-      name: 'iPhone 15 Pro Max',
-      brand: 'Apple',
-      retailer: 'Apple Store',
-      purchase_date: '2025-03-15',
-      warranty_months: 12,
-      amount_paid: '159900',
-      receipt_url: '',
-    });
-    setMethod('manual');
+    setScanComplete(false);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('receipt', file);
+
+      const response = await fetch('/api/ocr', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success && result.data) {
+        const extracted = result.data;
+        setForm({
+          name: extracted.name || 'New Product',
+          brand: extracted.brand || 'Other',
+          retailer: extracted.retailer || 'Unknown',
+          purchase_date: extracted.purchase_date || new Date().toISOString().split('T')[0],
+          warranty_months: extracted.warranty_months || 12,
+          amount_paid: extracted.amount_paid ? String(extracted.amount_paid) : '0',
+          receipt_url: '',
+        });
+        setScanComplete(true);
+        setMethod('manual');
+      } else {
+        setError(result.error || 'Failed to scan receipt. Please upload a clear receipt image.');
+      }
+    } catch (err) {
+      console.error('OCR scanning error:', err);
+      setError('An error occurred while parsing the receipt. Please try again.');
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +149,7 @@ export default function AddProductPage() {
             }
           </p>
         </motion.div>
-
+ 
         <AnimatePresence mode="wait">
           {/* Method Selection */}
           {method === 'select' && (
@@ -198,14 +222,23 @@ export default function AddProductPage() {
                     type="file"
                     accept="image/*,.pdf"
                     className="hidden"
-                    onChange={handleScan}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleScan(file);
+                      }
+                    }}
                   />
-                  <button
-                    onClick={handleScan}
-                    className="mt-6 px-8 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
-                  >
-                    Use Demo Receipt Instead
-                  </button>
+                  
+                  {error && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4 p-4 bg-danger/10 dark:bg-danger/20 rounded-xl border border-danger/20 text-danger font-bold text-sm text-center"
+                    >
+                      ⚠️ {error}
+                    </motion.div>
+                  )}
                 </div>
               ) : isScanning ? (
                 <div className="text-center py-8">
@@ -258,7 +291,7 @@ export default function AddProductPage() {
                   <p className="text-xs">Connecting to your Amazon account to fetch recent orders...</p>
                   <button 
                     type="button"
-                    onClick={handleScan} // Reuse handleScan for sync simulation
+                    onClick={() => handleScan()} // Reuse handleScan for sync simulation
                     className="w-full py-2 bg-primary text-white rounded-lg text-xs font-bold"
                   >
                     Login to Amazon
@@ -275,7 +308,7 @@ export default function AddProductPage() {
                   <p className="text-xs">Fetching receipts from your Razorpay payment history...</p>
                   <button 
                     type="button"
-                    onClick={handleScan} // Reuse handleScan for sync simulation
+                    onClick={() => handleScan()} // Reuse handleScan for sync simulation
                     className="w-full py-2 bg-primary text-white rounded-lg text-xs font-bold"
                   >
                     Verify via OTP

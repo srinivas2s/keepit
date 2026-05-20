@@ -57,20 +57,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Recalculate statuses
       setProducts(prods.map(p => ({ ...p, status: calculateStatus(p.expiry_date) })));
     } else {
-      // Load demo data with recalculated statuses
-      const updatedProducts = demoProducts.map(p => ({
-        ...p,
-        status: calculateStatus(p.expiry_date),
-      }));
-      setProducts(updatedProducts);
-      localStorage.setItem('keepit_products', JSON.stringify(updatedProducts));
+      setProducts([]);
+      localStorage.setItem('keepit_products', JSON.stringify([]));
     }
 
     if (savedAlerts) {
       setAlerts(JSON.parse(savedAlerts));
     } else {
-      setAlerts(demoAlerts);
-      localStorage.setItem('keepit_alerts', JSON.stringify(demoAlerts));
+      setAlerts([]);
+      localStorage.setItem('keepit_alerts', JSON.stringify([]));
     }
 
     setIsLoading(false);

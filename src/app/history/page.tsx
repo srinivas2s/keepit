@@ -2,46 +2,45 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { History, PlusCircle, ArrowRightLeft, AlertCircle, CheckCircle2, Search, Filter } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { formatDate } from '@/lib/supabase';
-
-const mockHistory = [
-  {
-    id: 1,
-    type: 'addition',
-    title: 'MacBook Pro 14" Added',
-    description: 'Product added to vault with 2 years of AppleCare+ coverage.',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    icon: <PlusCircle size={20} className="text-blue-500" />,
-  },
-  {
-    id: 2,
-    type: 'transfer',
-    title: 'Warranty Transferred',
-    description: 'iPad Air M2 ownership transferred to srinivas@example.com.',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    icon: <ArrowRightLeft size={20} className="text-purple-500" />,
-  },
-  {
-    id: 3,
-    type: 'alert',
-    title: 'Expiry Reminder',
-    description: 'Galaxy S24 Ultra warranty will expire in 30 days.',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
-    icon: <AlertCircle size={20} className="text-amber-500" />,
-  },
-  {
-    id: 4,
-    type: 'success',
-    title: 'Verification Success',
-    description: 'Sony WH-1000XM5 warranty verified at Sony Center, Mumbai.',
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), // 1 week ago
-    icon: <CheckCircle2 size={20} className="text-emerald-500" />,
-  },
-];
+import { useApp } from '@/context/AppContext';
 
 export default function HistoryPage() {
   const [filter, setFilter] = useState('all');
+  const { products, alerts } = useApp();
+
+  const historyItems = useMemo(() => {
+    const items = [];
+
+    // Map products to "addition" history
+    for (const prod of products) {
+      items.push({
+        id: `prod-${prod.id}`,
+        type: 'addition',
+        title: `${prod.name} Added`,
+        description: `Product added to vault with ${prod.warranty_months} months of warranty coverage from ${prod.retailer}.`,
+        date: new Date(prod.created_at || new Date()),
+        icon: <PlusCircle size={20} className="text-blue-500" />,
+      });
+    }
+
+    // Map alerts to "alert" history
+    for (const alert of alerts) {
+      const prod = products.find(p => p.id === alert.product_id);
+      items.push({
+        id: `alert-${alert.id}`,
+        type: 'alert',
+        title: `${prod?.name || 'Product'} Alert`,
+        description: `Warranty reminder: ${prod?.name || 'Product'} is ${alert.alert_type === 'expired' ? 'now expired' : `expires in ${alert.alert_type.replace('day', ' days')}`}.`,
+        date: new Date(alert.created_at || new Date()),
+        icon: <AlertCircle size={20} className="text-amber-500" />,
+      });
+    }
+
+    // Sort by date descending
+    return items.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [products, alerts]);
 
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg transition-colors duration-500">
@@ -70,7 +69,7 @@ export default function HistoryPage() {
 
         {/* Filters */}
         <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
-          {['all', 'addition', 'transfer', 'alert', 'success'].map((f) => (
+          {['all', 'addition', 'alert'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -90,7 +89,7 @@ export default function HistoryPage() {
           <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-100 dark:bg-white/5 -z-10" />
           
           <AnimatePresence mode="popLayout">
-            {mockHistory.filter(i => filter === 'all' || i.type === filter).map((item, i) => (
+            {historyItems.filter(i => filter === 'all' || i.type === filter).map((item, i) => (
               <motion.div
                 key={item.id}
                 layout
@@ -126,7 +125,7 @@ export default function HistoryPage() {
             ))}
           </AnimatePresence>
 
-          {mockHistory.filter(i => filter === 'all' || i.type === filter).length === 0 && (
+          {historyItems.filter(i => filter === 'all' || i.type === filter).length === 0 && (
             <div className="text-center py-20 bg-surface dark:bg-dark-surface rounded-[40px] border border-dashed border-slate-200 dark:border-white/10">
               <History size={48} className="mx-auto text-slate-300 dark:text-slate-700 mb-4" />
               <p className="text-text-secondary dark:text-dark-text-secondary font-medium">No activities found for this filter</p>

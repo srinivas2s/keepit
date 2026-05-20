@@ -24,12 +24,40 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    if (!text) {
-      return NextResponse.json({ error: 'Failed to extract text from image' }, { status: 500 });
+    if (!text || text.trim().length === 0) {
+      return NextResponse.json({ error: 'Failed to extract text from image' }, { status: 400 });
+    }
+
+    // Validate if it is a real receipt
+    const lowerText = text.toLowerCase();
+    const receiptKeywords = [
+      'receipt', 'invoice', 'bill', 'total', 'amount', 'payment', 
+      'tax', 'date', 'gst', 'vat', 'retailer', 'merchant', 'cashier', 
+      'purchase', 'qty', 'subtotal', 'cash', 'card', 'transaction', 
+      'store', 'rs.', 'inr', 'usd', 'price'
+    ];
+
+    // Check if the text matches any receipt keyword patterns
+    const matchedKeywords = receiptKeywords.filter(k => lowerText.includes(k));
+
+    // If the text is extremely short or lacks common billing/receipt terms, it is an invalid bill
+    if (text.length < 30 || matchedKeywords.length < 2) {
+      return NextResponse.json({ 
+        success: false,
+        error: 'Invalid receipt! Please upload a valid receipt or bill image.' 
+      }, { status: 400 });
     }
 
     // Parse OCR text using our robust parser
     const extractedData = parseReceiptText(text);
+
+    // If both name and amount are empty or default, reject it
+    if (extractedData.amount_paid === 0 && extractedData.name === 'New Product') {
+      return NextResponse.json({
+        success: false,
+        error: 'Could not extract valid product or billing details. Please try again with a clearer image.'
+      }, { status: 400 });
+    }
 
     return NextResponse.json({
       success: true,
