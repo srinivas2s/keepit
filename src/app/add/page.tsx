@@ -39,7 +39,7 @@ export default function AddProductPage() {
     { id: 'amazon' as const, icon: <Package size={24} />, title: 'Amazon Import', desc: 'Import from Amazon order history' },
     { id: 'razorpay' as const, icon: <CreditCard size={24} />, title: 'Razorpay Sync', desc: 'Sync from payment receipts' },
   ];
-
+ 
   const handleScan = async (file?: File) => {
     if (!file) return;
 
@@ -55,6 +55,7 @@ export default function AddProductPage() {
         method: 'POST',
         body: formData,
       });
+      
 
       const result = await response.json();
 
