@@ -55,7 +55,7 @@ export default function AddProductPage() {
         method: 'POST',
         body: formData,
       });
-      
+    
 
       const result = await response.json();
 
