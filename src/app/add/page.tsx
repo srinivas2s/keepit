@@ -181,7 +181,7 @@ function parseReceiptText(text: string) {
 
 export default function AddProductPage() {
   const router = useRouter();
-  const { addProduct, isAuthenticated, isLoading: appLoading } = useApp();
+  const { addProduct, familyMembers, isAuthenticated, isLoading: appLoading } = useApp();
   const [method, setMethod] = useState<InputMethod>('select');
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
@@ -198,6 +198,7 @@ export default function AddProductPage() {
     warranty_months: 12,
     amount_paid: '',
     receipt_url: '',
+    owner_name: 'You',
   });
 
   if (!appLoading && !isAuthenticated) {
@@ -251,6 +252,7 @@ export default function AddProductPage() {
         warranty_months: extracted.warranty_months,
         amount_paid: extracted.amount_paid ? String(extracted.amount_paid) : '',
         receipt_url: '',
+        owner_name: 'You',
       });
       setScanComplete(true);
       setScanProgress(100);
@@ -292,6 +294,7 @@ export default function AddProductPage() {
       expiry_date: expiryDate.toISOString().split('T')[0],
       amount_paid: Number(form.amount_paid),
       receipt_url: form.receipt_url,
+      owner_name: form.owner_name,
     });
 
     try {
@@ -424,7 +427,7 @@ export default function AddProductPage() {
                       </div>
                     </div>
                     <p className="font-black text-text dark:text-dark-text text-lg mb-1">
-                      {scanComplete ? '✅ Scan Complete!' : 'Reading Receipt...'}
+                      {scanComplete ? 'Scan Complete' : 'Reading Receipt...'}
                     </p>
                     <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-5">
                       {scanComplete ? 'Extracted your details' : 'AI is analyzing the image'}
@@ -458,7 +461,7 @@ export default function AddProductPage() {
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-4 bg-success/10 rounded-2xl border border-success/20 flex items-center gap-3">
                   <CheckCircle2 size={20} className="text-success" />
                   <div>
-                    <p className="font-bold text-success text-sm">Receipt Scanned!</p>
+                    <p className="font-bold text-success text-sm">Receipt Scanned</p>
                     <p className="text-xs text-success/70">Review details below and save</p>
                   </div>
                 </motion.div>
@@ -512,6 +515,22 @@ export default function AddProductPage() {
                     />
                   </div>
                 </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider mb-2">Product Owner / Shared Member</label>
+                  <select
+                    value={form.owner_name}
+                    onChange={e => setForm(p => ({ ...p, owner_name: e.target.value }))}
+                    className="w-full px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  >
+                    <option value="You">You (Private)</option>
+                    {familyMembers.map(m => (
+                      <option key={m.id} value={`${m.name} (${m.role})`}>
+                        {m.name} ({m.role})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="bg-surface dark:bg-dark-surface rounded-3xl border border-border dark:border-dark-border p-5 space-y-4">
@@ -557,7 +576,7 @@ export default function AddProductPage() {
                 type="submit"
                 className="w-full py-4 bg-primary text-white rounded-2xl font-black text-base hover:bg-primary-dark transition-all shadow-xl shadow-primary/25 hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                Save Product 🎉
+                Save Product
               </button>
             </motion.form>
           )}

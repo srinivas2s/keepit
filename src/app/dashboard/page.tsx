@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const { user, products, isAuthenticated, isLoading, getUnreadAlertCount } = useApp();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState<'all' | 'personal'>('all');
 
   if (!isLoading && !isAuthenticated) { router.push('/login'); return null; }
 
@@ -37,6 +38,9 @@ export default function DashboardPage() {
 
   const filteredProducts = useMemo(() => {
     let r = products;
+    if (viewMode === 'personal') {
+      r = r.filter(p => !p.owner_name || p.owner_name === 'You');
+    }
     if (filter !== 'all') r = r.filter(p => p.status === filter);
     if (search) {
       const q = search.toLowerCase();
@@ -47,7 +51,7 @@ export default function DashboardPage() {
       );
     }
     return r;
-  }, [products, filter, search]);
+  }, [products, filter, search, viewMode]);
 
   const unreadAlerts = getUnreadAlertCount();
 
@@ -77,7 +81,7 @@ export default function DashboardPage() {
           className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-black text-text dark:text-dark-text">
-              Hey, {user?.name?.split(' ')[0] || 'there'} 👋
+              Hey, {user?.name?.split(' ')[0] || 'there'}
             </h1>
             <p className="text-sm text-text-secondary dark:text-dark-text-secondary mt-0.5">
               {stats.total > 0 ? `${stats.total} product${stats.total > 1 ? 's' : ''} tracked` : 'Start adding products'}
@@ -158,7 +162,7 @@ export default function DashboardPage() {
 
         {/* Filter Pills */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.18 }}
-          className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-hide">
+          className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
           {[
             { key: 'all', label: 'All', count: stats.total, icon: null },
             { key: 'active', label: 'Active', count: stats.active, icon: <CheckCircle2 size={14} className="text-success" /> },
@@ -182,6 +186,31 @@ export default function DashboardPage() {
               </span>
             </button>
           ))}
+        </motion.div>
+
+        {/* Ownership View Toggle */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+          className="flex bg-surface-hover dark:bg-dark-surface-hover border border-border dark:border-dark-border p-1 rounded-2xl mb-5 max-w-sm">
+          <button
+            onClick={() => setViewMode('all')}
+            className={`flex-1 py-2 text-xs font-black rounded-xl transition-all ${
+              viewMode === 'all'
+                ? 'bg-white dark:bg-zinc-800 text-primary shadow-sm'
+                : 'text-text-secondary dark:text-dark-text-secondary hover:text-text'
+            }`}
+          >
+            All Family Warranties
+          </button>
+          <button
+            onClick={() => setViewMode('personal')}
+            className={`flex-1 py-2 text-xs font-black rounded-xl transition-all ${
+              viewMode === 'personal'
+                ? 'bg-white dark:bg-zinc-800 text-primary shadow-sm'
+                : 'text-text-secondary dark:text-dark-text-secondary hover:text-text'
+            }`}
+          >
+            My Warranties Only
+          </button>
         </motion.div>
 
         {/* Product Grid / Empty State */}

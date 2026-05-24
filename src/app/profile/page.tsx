@@ -115,7 +115,7 @@ export default function ProfilePage() {
             <div>
               <p className="text-sm font-semibold text-text dark:text-dark-text">Theme Mode</p>
               <p className="text-xs text-text-secondary dark:text-dark-text-secondary mt-0.5">
-                Currently: {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                Currently: {isDarkMode ? 'Dark Mode' : 'Light Mode'}
               </p>
             </div>
             <button onClick={toggleDarkMode}
