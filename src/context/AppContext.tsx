@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Product, Alert, calculateStatus } from '@/lib/supabase';
-import { demoUser, demoProducts, demoAlerts } from '@/lib/demo-data';
+import { demoUser } from '@/lib/demo-data';
 
 interface AppState {
   user: User | null;
@@ -35,34 +35,62 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check localStorage for auth state
-    const savedAuth = localStorage.getItem('keepit_auth');
-    const savedDark = localStorage.getItem('keepit_dark');
+    const savedAuth     = localStorage.getItem('keepit_auth');
+    const savedDark     = localStorage.getItem('keepit_dark');
     const savedProducts = localStorage.getItem('keepit_products');
-    const savedAlerts = localStorage.getItem('keepit_alerts');
+    const savedAlerts   = localStorage.getItem('keepit_alerts');
 
+    // ── Auth ───────────────────────────────────────────────
     if (savedAuth) {
-      const authData = JSON.parse(savedAuth);
-      setUser(authData);
-      setIsAuthenticated(true);
+      try {
+        const authData = JSON.parse(savedAuth);
+        setUser(authData);
+        setIsAuthenticated(true);
+      } catch { localStorage.removeItem('keepit_auth'); }
     }
 
+    // ── Dark mode ──────────────────────────────────────────
+    // Always sync the class with saved preference
     if (savedDark === 'true') {
       setIsDarkMode(true);
       document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
     }
 
+    // ── Products ───────────────────────────────────────────
+    // DEMO DATA PURGE: remove old hardcoded demo products (prod-001 … prod-006)
+    const DEMO_IDS = new Set(['prod-001','prod-002','prod-003','prod-004','prod-005','prod-006']);
     if (savedProducts) {
-      const prods = JSON.parse(savedProducts) as Product[];
-      // Recalculate statuses
-      setProducts(prods.map(p => ({ ...p, status: calculateStatus(p.expiry_date) })));
+      try {
+        const all = JSON.parse(savedProducts) as Product[];
+        const real = all.filter(p => !DEMO_IDS.has(p.id));
+        const withStatus = real.map(p => ({ ...p, status: calculateStatus(p.expiry_date) }));
+        setProducts(withStatus);
+        localStorage.setItem('keepit_products', JSON.stringify(withStatus));
+      } catch {
+        setProducts([]);
+        localStorage.setItem('keepit_products', JSON.stringify([]));
+      }
     } else {
       setProducts([]);
       localStorage.setItem('keepit_products', JSON.stringify([]));
     }
 
+    // ── Alerts ─────────────────────────────────────────────
+    // Purge alerts belonging to old demo products
+    const DEMO_ALERT_IDS = new Set(['alert-001','alert-002','alert-003','alert-004','alert-005']);
     if (savedAlerts) {
-      setAlerts(JSON.parse(savedAlerts));
+      try {
+        const all = JSON.parse(savedAlerts);
+        const real = all.filter((a: { id: string }) => !DEMO_ALERT_IDS.has(a.id));
+        setAlerts(real);
+        localStorage.setItem('keepit_alerts', JSON.stringify(real));
+      } catch {
+        setAlerts([]);
+        localStorage.setItem('keepit_alerts', JSON.stringify([]));
+      }
     } else {
       setAlerts([]);
       localStorage.setItem('keepit_alerts', JSON.stringify([]));

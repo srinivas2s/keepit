@@ -3,141 +3,46 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { LayoutDashboard, PlusCircle, Bell, User, Sun, Moon } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Sun, Moon } from 'lucide-react';
 import Logo from './Logo';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { isAuthenticated, isDarkMode, toggleDarkMode, getUnreadAlertCount, user } = useApp();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { isDarkMode, toggleDarkMode, user } = useApp();
 
-  // Don't show navbar on landing or login pages
   if (pathname === '/' || pathname === '/login') return null;
 
-  const unreadCount = getUnreadAlertCount();
-
-  const navLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { href: '/add', label: 'Add Product', icon: <PlusCircle size={20} /> },
-    { href: '/alerts', label: 'Alerts', icon: <Bell size={20} />, badge: unreadCount },
-    { href: '/profile', label: 'Profile', icon: <User size={20} /> },
-  ];
-
   return (
-    <>
-      {/* Desktop Navbar */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 glass border-b border-border dark:border-dark-border"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 relative">
-            {/* Brand Logo (Left on desktop, Center on mobile) */}
-            <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center gap-2 group">
-                <Logo size="small" />
-              </Link>
-            </div>
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-border dark:border-dark-border"
+    >
+      <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <Logo size="small" />
+        </Link>
 
-            {/* Right Side Actions */}
-            <div className="flex items-center gap-3">
-              {/* Dark Mode Toggle */}
-              <button
-                onClick={toggleDarkMode}
-                className="p-2.5 rounded-2xl hover:bg-surface-hover dark:hover:bg-dark-surface-hover transition-all border border-transparent hover:border-border dark:hover:border-dark-border"
-                aria-label="Toggle dark mode"
-              >
-                {isDarkMode ? <Sun size={20} className="text-primary" /> : <Moon size={20} className="text-slate-400" />}
-              </button>
-
-              {/* User Avatar */}
-              {user && (
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 pl-2"
-                >
-                  <div className="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center text-white font-black text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                </Link>
-              )}
-            </div>
-
-            {/* Mobile Hamburger */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-xl hover:bg-surface-hover dark:hover:bg-dark-surface-hover"
-              aria-label="Toggle menu"
-            >
-              <div className="w-6 h-5 relative flex flex-col justify-between">
-                <motion.span
-                  animate={mobileOpen ? { rotate: 45, y: 8 } : { rotate: 0, y: 0 }}
-                  className="w-full h-0.5 bg-text dark:bg-dark-text rounded-full origin-left"
-                />
-                <motion.span
-                  animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
-                  className="w-full h-0.5 bg-text dark:bg-dark-text rounded-full"
-                />
-                <motion.span
-                  animate={mobileOpen ? { rotate: -45, y: -8 } : { rotate: 0, y: 0 }}
-                  className="w-full h-0.5 bg-text dark:bg-dark-text rounded-full origin-left"
-                />
-              </div>
-            </button>
-          </div>
-        </div>
-      </motion.nav>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden fixed top-16 left-0 right-0 z-40 glass border-b border-border dark:border-dark-border overflow-hidden"
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleDarkMode}
+            className="w-9 h-9 rounded-2xl flex items-center justify-center text-text-secondary dark:text-dark-text-secondary hover:bg-surface dark:hover:bg-dark-surface hover:text-primary transition-all"
+            aria-label="Toggle theme"
           >
-            <div className="p-4 space-y-2">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover'
-                    }`}
-                  >
-                    <span className="text-lg flex-shrink-0">{link.icon}</span>
-                    <span>{link.label}</span>
-                    {link.badge ? (
-                      <span className="ml-auto w-5 h-5 bg-danger text-white text-xs rounded-full flex items-center justify-center font-bold">
-                        {link.badge}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
-              <div className="pt-2 border-t border-border dark:border-dark-border">
-                <button
-                  onClick={() => { toggleDarkMode(); setMobileOpen(false); }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-text-secondary hover:bg-surface-hover dark:text-dark-text-secondary dark:hover:bg-dark-surface-hover w-full"
-                >
-                  <span className="text-lg flex-shrink-0">{isDarkMode ? <Sun size={20} /> : <Moon size={20} />}</span>
-                  <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {isDarkMode
+              ? <Sun size={18} className="text-amber-400" />
+              : <Moon size={18} />}
+          </button>
 
-    </>
+          {user && (
+            <Link href="/profile"
+              className="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center text-white font-black text-sm shadow-md shadow-primary/25 hover:bg-primary-dark transition-all">
+              {user.name.charAt(0).toUpperCase()}
+            </Link>
+          )}
+        </div>
+      </div>
+    </motion.header>
   );
 }
