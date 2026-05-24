@@ -4,18 +4,18 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import Link from 'next/link';
 import Logo from '@/components/Logo';
-import { Phone, Mail, User, ShieldCheck, Lock } from 'lucide-react';
+import { Phone, Mail, User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useApp();
   const [isSignUp, setIsSignUp] = useState(false);
-  const [step, setStep] = useState<'phone' | 'otp' | 'name'>('phone');
+  const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,27 +25,25 @@ export default function LoginPage() {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!isSignUp) {
-      // Direct Login Logic
       if (!email || !password) {
         setError('Please enter your email and password');
         return;
       }
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1200));
       login(email, 'User');
       router.push('/dashboard');
       return;
     }
 
-    // Sign Up Logic -> Trigger OTP
     if (!name || !email || !phone || !password) {
       setError('Please fill in all details');
       return;
     }
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1200));
     setIsLoading(false);
     setStep('otp');
   };
@@ -69,8 +67,8 @@ export default function LoginPage() {
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifyOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setError('');
     const otpValue = otp.join('');
     if (otpValue.length !== 4) {
@@ -78,18 +76,15 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 1200));
     setIsLoading(false);
-    
-    // Direct login after OTP verification
     login(email || ('+91' + phone), name || 'User');
     router.push('/dashboard');
   };
 
-
   useEffect(() => {
     if (otp.every(d => d !== '') && step === 'otp') {
-      handleVerifyOtp(new Event('submit') as unknown as React.FormEvent);
+      handleVerifyOtp();
     }
   }, [otp, step]);
 
@@ -103,91 +98,79 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-black flex items-center justify-center p-0 sm:p-4 lg:p-8 overflow-hidden font-sans transition-colors duration-500">
-      <div 
-        className={`w-full h-full sm:h-auto lg:max-w-5xl lg:h-[650px] bg-surface dark:bg-dark-surface sm:rounded-[40px] shadow-none sm:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex relative border-none lg:border lg:border-border dark:lg:border-white/5 transition-all duration-700 ease-in-out ${isSignUp ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
-      >
+    <div className="min-h-screen bg-background dark:bg-dark-bg flex items-center justify-center p-0 sm:p-6 lg:p-12 overflow-hidden transition-colors duration-500">
+      <div className="w-full h-screen sm:h-auto sm:max-w-4xl sm:min-h-[580px] bg-surface dark:bg-dark-surface sm:rounded-[36px] border border-border dark:border-dark-border sm:shadow-[0_24px_60px_-15px_rgba(0,0,0,0.08)] dark:sm:shadow-[0_24px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden flex relative">
         
-        {/* Desktop Sliding Overlay (Hidden on Mobile) */}
+        {/* Left/Right Accent panel on Desktop */}
         <motion.div
-          animate={{ x: isSignUp ? '0%' : '100%' }}
-          transition={{ type: 'spring', stiffness: 80, damping: 20 }}
-          className="absolute top-0 left-0 w-1/2 h-full bg-[#1565C0] z-30 hidden lg:flex flex-col items-center justify-center p-12 text-white text-center"
+          animate={{ x: isSignUp ? '100%' : '0%' }}
+          transition={{ type: 'spring', stiffness: 90, damping: 22 }}
+          className={`absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-br from-primary to-primary-dark z-30 hidden md:flex flex-col items-center justify-center p-12 text-white text-center select-none`}
         >
           <motion.div
             key={isSignUp ? 'signup-msg' : 'signin-msg'}
-            initial={{ opacity: 0, scale: 0.9, x: isSignUp ? 20 : -20 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="flex flex-col items-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            className="flex flex-col items-center max-w-xs"
           >
-            <Logo size="large" variant="white" className="mb-12" />
-            <h2 className="text-4xl font-black mb-6 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-              {isSignUp ? 'Welcome Back!' : 'Join the Revolution'}
+            <Logo size="large" variant="white" className="mb-10" />
+            <h2 className="text-3xl font-black mb-4 tracking-tight leading-tight">
+              {isSignUp ? 'Welcome Back!' : 'Protect Your Products'}
             </h2>
-            <p className="text-blue-100 mb-10 max-w-xs text-lg opacity-80 leading-relaxed">
+            <p className="text-sm text-white/80 mb-8 leading-relaxed">
               {isSignUp 
-                ? 'Sign in to keep your warranties secured and never miss an expiry again.' 
-                : 'Start protecting your products today. KeepIt makes warranty management simple.'}
+                ? 'Sign in to access your warranty vault and track all your receipt dates securely.' 
+                : 'Upload invoices, track expirations automatically, and verification is just a scan away.'}
             </p>
             <button
               onClick={toggleMode}
-              className="px-10 py-4 border-2 border-white/30 rounded-2xl font-bold hover:bg-white hover:text-[#1565C0] transition-all active:scale-95 bg-white/10 backdrop-blur-sm"
+              className="px-8 py-3.5 border-2 border-white/20 rounded-2xl font-bold bg-white/10 hover:bg-white hover:text-primary transition-all active:scale-95"
             >
-              {isSignUp ? 'Login Instead' : 'Create Account'}
+              {isSignUp ? 'Sign In Instead' : 'Create Account'}
             </button>
           </motion.div>
         </motion.div>
 
-        {/* Form Panel (Full screen on mobile, Half screen on desktop) */}
-        <div className="w-full lg:w-1/2 h-full flex flex-col justify-center p-6 sm:p-12 lg:p-20 z-20 bg-white">
-          <div className="max-w-sm mx-auto w-full">
-            {/* Mobile Logo Section */}
-            <div className="lg:hidden mb-10 flex flex-col items-center">
-              <Logo size="normal" className="mb-2" />
-              <div className="h-1 w-12 bg-primary/10 rounded-full mt-4" />
-            </div>
+        {/* Form Container */}
+        <div className={`w-full md:w-1/2 h-full flex flex-col justify-center px-6 py-10 sm:px-12 lg:px-16 z-20 bg-surface dark:bg-dark-surface transition-all duration-500 ${isSignUp ? 'md:ml-0' : 'md:ml-auto'}`}>
+          <div className="max-w-sm mx-auto w-full flex flex-col justify-center">
             
-            <motion.div
-               key={isSignUp ? 'signup-head' : 'signin-head'}
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
-                {isSignUp ? 'Sign Up' : 'Login'}
-              </h1>
-              <p className="text-slate-500 mb-8 text-base lg:text-lg">
-                {step === 'phone' && (isSignUp ? 'Create your secure account.' : 'Access your warranty vault.')}
-                {step === 'otp' && 'Check your messages for a code.'}
-                {step === 'name' && 'Finalizing your profile...'}
-              </p>
-            </motion.div>
+            {/* Mobile Header Logo */}
+            <div className="md:hidden flex flex-col items-center mb-8">
+              <Logo size="normal" className="mb-1" />
+              <p className="text-xs text-text-secondary dark:text-dark-text-secondary mt-1 font-bold">Your Warranty Vault</p>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-text dark:text-dark-text mb-2">
+              {isSignUp ? 'Sign Up' : 'Sign In'}
+            </h1>
+            <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-6">
+              {step === 'phone' && (isSignUp ? 'Create your secure account to start.' : 'Access your warranties instantly.')}
+              {step === 'otp' && 'Enter the 4-digit code sent to your phone.'}
+            </p>
 
             <AnimatePresence mode="wait">
               {step === 'phone' && (
                 <motion.form
                   key="phone"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
                   onSubmit={handleSendOtp}
                   className="space-y-4"
                 >
                   {isSignUp && (
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Full Name</label>
+                      <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Full Name</label>
                       <div className="relative flex items-center group">
-                        <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
-                          <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                            <User size={16} />
-                          </div>
-                        </div>
+                        <User size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
                         <input
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          className="w-full pl-14 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-base !text-black placeholder:text-slate-400 shadow-sm"
-                          placeholder="Your Name"
+                          className="w-full pl-11 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
+                          placeholder="John Doe"
                           required={isSignUp}
                         />
                       </div>
@@ -195,19 +178,15 @@ export default function LoginPage() {
                   )}
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Email Address</label>
+                    <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Email Address</label>
                     <div className="relative flex items-center group">
-                      <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
-                        <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                          <Mail size={16} />
-                        </div>
-                      </div>
+                      <Mail size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-14 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-base !text-black placeholder:text-slate-400 shadow-sm"
-                        placeholder="email@example.com"
+                        className="w-full pl-11 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
+                        placeholder="john@example.com"
                         required
                       />
                     </div>
@@ -215,20 +194,16 @@ export default function LoginPage() {
 
                   {isSignUp && (
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Phone Number</label>
+                      <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Phone Number</label>
                       <div className="relative flex items-center group">
-                        <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
-                          <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                            <Phone size={16} />
-                          </div>
-                          <span className="font-black text-slate-900 text-lg border-r-2 border-slate-100 pr-3 leading-none">+91</span>
-                        </div>
+                        <Phone size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
+                        <span className="absolute left-11 font-black text-text dark:text-dark-text text-sm border-r border-border dark:border-dark-border pr-2.5">+91</span>
                         <input
                           type="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          className="w-full pl-28 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-lg !text-black placeholder:text-slate-400 shadow-sm"
-                          placeholder="000 000 0000"
+                          className="w-full pl-22 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
+                          placeholder="98765 43210"
                           required={isSignUp}
                         />
                       </div>
@@ -236,32 +211,39 @@ export default function LoginPage() {
                   )}
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">Password</label>
+                    <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Password</label>
                     <div className="relative flex items-center group">
-                      <div className="absolute left-4 flex items-center gap-3 pointer-events-none z-10">
-                        <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                          <Lock size={16} />
-                        </div>
-                      </div>
+                      <Lock size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-14 pr-6 py-3 !bg-white rounded-xl border-2 border-slate-100 focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all font-bold text-base !text-black placeholder:text-slate-400 shadow-sm"
+                        className="w-full pl-11 pr-10 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
                         placeholder="••••••••"
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 text-text-muted dark:text-dark-text-secondary hover:text-primary transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
                     </div>
                   </div>
 
                   <button
                     disabled={isLoading}
-                    className="w-full py-4 bg-[#1565C0] text-white rounded-xl font-black text-lg shadow-lg shadow-blue-900/10 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3 mt-2"
+                    type="submit"
+                    className="w-full py-3.5 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark shadow-lg shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
                   >
                     {isLoading ? (
-                      <span className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      isSignUp ? 'Continue to Verify' : 'Login'
+                      <>
+                        {isSignUp ? 'Send OTP Verification' : 'Sign In'}
+                        <ArrowRight size={16} />
+                      </>
                     )}
                   </button>
                 </motion.form>
@@ -270,11 +252,11 @@ export default function LoginPage() {
               {step === 'otp' && (
                 <motion.form
                   key="otp"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  onSubmit={handleVerifyOtp}
-                  className="space-y-8"
+                  exit={{ opacity: 0, y: -10 }}
+                  onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }}
+                  className="space-y-6"
                 >
                   <div className="flex justify-between gap-3">
                     {otp.map((digit, i) => (
@@ -285,7 +267,7 @@ export default function LoginPage() {
                         value={digit}
                         onChange={(e) => handleOtpChange(i, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                        className="w-full h-16 !bg-white border-2 border-slate-100 rounded-2xl text-center text-3xl font-black !text-black focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 outline-none transition-all"
+                        className="w-full h-14 bg-background dark:bg-dark-bg border border-border dark:border-dark-border rounded-2xl text-center text-2xl font-black text-text dark:text-dark-text focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
                         maxLength={1}
                         autoFocus={i === 0}
                       />
@@ -293,27 +275,29 @@ export default function LoginPage() {
                   </div>
                   <button
                     disabled={isLoading}
-                    className="w-full py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-blue-200 transition-all"
+                    type="submit"
+                    className="w-full py-3.5 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center"
                   >
-                    Verify & Continue
+                    {isLoading ? (
+                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : 'Verify & Sign In'}
                   </button>
                   <button 
                     type="button" 
                     onClick={() => setStep('phone')}
-                    className="w-full text-center text-sm font-bold text-slate-400 hover:text-primary transition-colors"
+                    className="w-full text-center text-xs font-bold text-text-muted hover:text-primary transition-colors"
                   >
-                    Back to edit phone number
+                    Go Back & Edit details
                   </button>
                 </motion.form>
               )}
-
             </AnimatePresence>
 
             {error && (
               <motion.div 
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 p-4 bg-red-50 rounded-xl border border-red-100 text-red-600 font-bold text-sm text-center"
+                className="mt-5 p-3.5 bg-danger/10 rounded-2xl border border-danger/15 text-danger font-bold text-xs text-center"
               >
                 {error}
               </motion.div>
@@ -321,20 +305,13 @@ export default function LoginPage() {
             
             <button
               onClick={toggleMode}
-              className="mt-10 w-full lg:hidden text-[#1565C0] font-black text-sm uppercase tracking-widest"
+              className="mt-8 w-full md:hidden text-primary font-black text-xs uppercase tracking-wider hover:underline"
             >
-              {isSignUp ? 'Already have an account? Login' : 'Need an account? Create one'}
+              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
             </button>
           </div>
         </div>
-
-        {/* Empty Spacer Panel (Hidden by Sliding Overlay on desktop) */}
-        <div className="hidden lg:block w-1/2 bg-slate-50/30"></div>
       </div>
-      
-      {/* Background Subtle Decal */}
-      <div className="fixed -bottom-20 -left-20 w-96 h-96 bg-blue-50/50 rounded-full blur-[100px] -z-10" />
-      <div className="fixed -top-20 -right-20 w-[500px] h-[500px] bg-blue-50/30 rounded-full blur-[120px] -z-10" />
     </div>
   );
 }

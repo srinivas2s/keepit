@@ -75,8 +75,8 @@ export default function HistoryPage() {
               onClick={() => setFilter(f)}
               className={`px-6 py-2.5 rounded-xl text-sm font-bold capitalize transition-all border ${
                 filter === f
-                  ? 'bg-[#1565C0] text-white border-[#1565C0] shadow-lg shadow-blue-900/10'
-                  : 'bg-surface dark:bg-dark-surface text-text-secondary dark:text-dark-text-secondary border-border dark:border-dark-border hover:border-[#1565C0]/30'
+                  ? 'bg-primary text-white border-primary shadow-lg shadow-primary/10'
+                  : 'bg-surface dark:bg-dark-surface text-text-secondary dark:text-dark-text-secondary border-border dark:border-dark-border hover:border-primary/30'
               }`}
             >
               {f}
@@ -86,7 +86,7 @@ export default function HistoryPage() {
 
         {/* Timeline */}
         <div className="space-y-6 relative">
-          <div className="absolute left-6 top-0 bottom-0 w-px bg-slate-100 dark:bg-white/5 -z-10" />
+          <div className="absolute left-6 top-0 bottom-0 w-px bg-border dark:bg-dark-border -z-10" />
           
           <AnimatePresence mode="popLayout">
             {historyItems.filter(i => filter === 'all' || i.type === filter).map((item, i) => (
@@ -104,11 +104,11 @@ export default function HistoryPage() {
                 }}
                 className="flex gap-6 group"
               >
-                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white dark:bg-black border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-surface dark:bg-dark-surface border border-border dark:border-dark-border flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                   {item.icon}
                 </div>
                 
-                <div className="flex-1 bg-surface dark:bg-dark-surface p-6 rounded-3xl border border-border dark:border-dark-border hover:shadow-xl hover:shadow-blue-900/5 transition-all">
+                <div className="flex-1 bg-surface dark:bg-dark-surface p-6 rounded-3xl border border-border dark:border-dark-border hover:shadow-xl hover:shadow-primary/5 transition-all">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-bold text-text dark:text-dark-text">
                       {item.title}
