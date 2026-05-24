@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS products (
   receipt_url TEXT DEFAULT '',
   qr_code TEXT DEFAULT '',
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'expiring', 'expired')),
+  owner_name TEXT DEFAULT 'You',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -39,6 +40,21 @@ CREATE INDEX IF NOT EXISTS idx_products_user_id ON products(user_id);
 CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
 CREATE INDEX IF NOT EXISTS idx_products_expiry ON products(expiry_date);
 CREATE INDEX IF NOT EXISTS idx_products_qr_code ON products(qr_code);
+
+-- ============================================
+-- Table: family_members
+-- ============================================
+CREATE TABLE IF NOT EXISTS family_members (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  role TEXT DEFAULT 'Other',
+  avatar_color TEXT DEFAULT '#1565C0',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_family_members_user_id ON family_members(user_id);
 
 -- ============================================
 -- Table: alerts
@@ -64,6 +80,7 @@ CREATE INDEX IF NOT EXISTS idx_alerts_is_read ON alerts(is_read);
 -- Enable RLS on all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE family_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alerts ENABLE ROW LEVEL SECURITY;
 
 -- Users: can only view/update their own row
@@ -90,6 +107,23 @@ CREATE POLICY "Users can update own products"
 
 CREATE POLICY "Users can delete own products"
   ON products FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Family members: can only CRUD their own family members list
+CREATE POLICY "Users can view own family members"
+  ON family_members FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own family members"
+  ON family_members FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own family members"
+  ON family_members FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own family members"
+  ON family_members FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Alerts: can only view/update their own alerts

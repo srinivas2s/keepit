@@ -285,7 +285,7 @@ export default function AddProductPage() {
     const expiryDate = new Date(purchaseDate);
     expiryDate.setMonth(expiryDate.getMonth() + form.warranty_months);
 
-    addProduct({
+    await addProduct({
       name: form.name,
       brand: form.brand,
       retailer: form.retailer,
@@ -302,7 +302,7 @@ export default function AddProductPage() {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#1565C0', '#F59E0B', '#10B981'] });
     } catch {}
 
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 800));
     router.push('/dashboard');
   };
 

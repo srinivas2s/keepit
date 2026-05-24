@@ -14,10 +14,10 @@ export default function FamilyPage() {
   const [inviteRole, setInviteRole] = useState('Wife');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
-  const handleInvite = (e: React.FormEvent) => {
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteName || !inviteEmail) return;
-    inviteFamilyMember(inviteName, inviteEmail, inviteRole);
+    await inviteFamilyMember(inviteName, inviteEmail, inviteRole);
     setInviteName('');
     setInviteEmail('');
     setInviteRole('Wife');
@@ -355,8 +355,8 @@ export default function FamilyPage() {
                     Cancel
                   </button>
                   <button
-                    onClick={() => {
-                      removeFamilyMember(showDeleteConfirm);
+                    onClick={async () => {
+                      await removeFamilyMember(showDeleteConfirm!);
                       setShowDeleteConfirm(null);
                     }}
                     className="flex-1 py-2.5 bg-danger text-white rounded-xl font-bold text-xs hover:bg-danger/90 transition-colors"

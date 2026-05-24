@@ -32,8 +32,7 @@ export default function LoginPage() {
         return;
       }
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      login(email, 'User');
+      await login(email, name || 'User');
       router.push('/dashboard');
       return;
     }
@@ -43,7 +42,6 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1200));
     setIsLoading(false);
     setStep('otp');
   };
@@ -76,9 +74,7 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    setIsLoading(false);
-    login(email || ('+91' + phone), name || 'User');
+    await login(email || ('+91' + phone), name || 'User');
     router.push('/dashboard');
   };
 

@@ -126,8 +126,8 @@ export default function AlertsPage() {
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  onClick={() => {
-                    markAlertRead(alert.id);
+                  onClick={async () => {
+                    await markAlertRead(alert.id);
                     if (product) router.push(`/product/${product.id}`);
                   }}
                   className={`relative flex items-center gap-4 p-4 rounded-3xl border cursor-pointer group transition-all ${

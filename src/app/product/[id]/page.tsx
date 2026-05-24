@@ -107,8 +107,8 @@ export default function ProductDetailPage() {
     ? Math.min(100, Math.max(0, ((product.warranty_months * 30 - days) / (product.warranty_months * 30)) * 100))
     : 100;
 
-  const handleDelete = () => {
-    deleteProduct(product.id);
+  const handleDelete = async () => {
+    await deleteProduct(product.id);
     router.push('/dashboard');
   };
 
