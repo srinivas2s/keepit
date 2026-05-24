@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Product, Alert, FamilyMember, calculateStatus } from '@/lib/supabase';
-import { demoUser } from '@/lib/demo-data';
 
 interface AppState {
   user: User | null;
@@ -46,13 +45,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const savedFamily   = localStorage.getItem('keepit_family_members');
 
     // ── Auth ───────────────────────────────────────────────
-    let currentUserId = 'demo-user-001';
     if (savedAuth) {
       try {
         const authData = JSON.parse(savedAuth);
         setUser(authData);
         setIsAuthenticated(true);
-        currentUserId = authData.id;
       } catch { localStorage.removeItem('keepit_auth'); }
     }
 
@@ -66,104 +63,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     // ── Family Members ─────────────────────────────────────
-    const defaultFamily: FamilyMember[] = [
-      { id: 'fam-1', name: 'Priya Sharma', email: 'priya@example.com', role: 'Wife', avatarColor: '#EC4899', joinedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() },
-      { id: 'fam-2', name: 'Aarav Sharma', email: 'aarav@example.com', role: 'Son', avatarColor: '#10B981', joinedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString() }
-    ];
-
-    let currentFamily: FamilyMember[] = defaultFamily;
     if (savedFamily) {
       try {
-        currentFamily = JSON.parse(savedFamily);
-        setFamilyMembers(currentFamily);
+        setFamilyMembers(JSON.parse(savedFamily));
       } catch {
-        setFamilyMembers(defaultFamily);
-        localStorage.setItem('keepit_family_members', JSON.stringify(defaultFamily));
+        setFamilyMembers([]);
+        localStorage.setItem('keepit_family_members', JSON.stringify([]));
       }
     } else {
-      setFamilyMembers(defaultFamily);
-      localStorage.setItem('keepit_family_members', JSON.stringify(defaultFamily));
+      setFamilyMembers([]);
+      localStorage.setItem('keepit_family_members', JSON.stringify([]));
     }
 
     // ── Products ───────────────────────────────────────────
-    const defaultProducts = (userId: string): Product[] => [
-      {
-        id: 'prod-family-1',
-        user_id: 'fam-1',
-        owner_name: 'Priya Sharma (Wife)',
-        name: 'Dyson Airwrap Multi-Styler',
-        brand: 'Dyson',
-        retailer: 'Reliance Digital',
-        purchase_date: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        warranty_months: 24,
-        expiry_date: new Date(Date.now() + 540 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        amount_paid: 49900,
-        receipt_url: '',
-        qr_code: 'keepit-dyson-airwrap',
-        status: 'active',
-        created_at: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: 'prod-family-2',
-        user_id: 'fam-2',
-        owner_name: 'Aarav Sharma (Son)',
-        name: 'PlayStation 5 Console',
-        brand: 'Sony',
-        retailer: 'Amazon',
-        purchase_date: new Date(Date.now() - 380 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        warranty_months: 12,
-        expiry_date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        amount_paid: 54990,
-        receipt_url: '',
-        qr_code: 'keepit-ps5-console',
-        status: 'expired',
-        created_at: new Date(Date.now() - 380 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: 'prod-family-3',
-        user_id: userId,
-        owner_name: 'You',
-        name: 'iPhone 15 Pro Max',
-        brand: 'Apple',
-        retailer: 'Apple Store',
-        purchase_date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        warranty_months: 12,
-        expiry_date: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        amount_paid: 159900,
-        receipt_url: '',
-        qr_code: 'keepit-iphone15',
-        status: 'active',
-        created_at: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
-      }
-    ];
-
-    const DEMO_IDS = new Set(['prod-001','prod-002','prod-003','prod-004','prod-005','prod-006']);
     if (savedProducts) {
       try {
         const all = JSON.parse(savedProducts) as Product[];
-        const real = all.filter(p => !DEMO_IDS.has(p.id));
-        const withStatus = real.map(p => ({ ...p, status: calculateStatus(p.expiry_date) }));
+        const withStatus = all.map(p => ({ ...p, status: calculateStatus(p.expiry_date) }));
         setProducts(withStatus);
         localStorage.setItem('keepit_products', JSON.stringify(withStatus));
       } catch {
-        const dp = defaultProducts(currentUserId);
-        setProducts(dp);
-        localStorage.setItem('keepit_products', JSON.stringify(dp));
+        setProducts([]);
+        localStorage.setItem('keepit_products', JSON.stringify([]));
       }
     } else {
-      const dp = defaultProducts(currentUserId);
-      setProducts(dp);
-      localStorage.setItem('keepit_products', JSON.stringify(dp));
+      setProducts([]);
+      localStorage.setItem('keepit_products', JSON.stringify([]));
     }
 
     // ── Alerts ─────────────────────────────────────────────
-    const DEMO_ALERT_IDS = new Set(['alert-001','alert-002','alert-003','alert-004','alert-005']);
     if (savedAlerts) {
       try {
         const all = JSON.parse(savedAlerts);
-        const real = all.filter((a: { id: string }) => !DEMO_ALERT_IDS.has(a.id));
-        setAlerts(real);
-        localStorage.setItem('keepit_alerts', JSON.stringify(real));
+        setAlerts(all);
+        localStorage.setItem('keepit_alerts', JSON.stringify(all));
       } catch {
         setAlerts([]);
         localStorage.setItem('keepit_alerts', JSON.stringify([]));
@@ -178,9 +111,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const login = (phone: string, name?: string) => {
     const userData: User = {
-      ...demoUser,
+      id: 'usr-' + Math.random().toString(36).substring(2, 11),
       phone,
-      name: name || demoUser.name,
+      name: name || 'Srinivas',
+      email: name ? `${name.toLowerCase().replace(/\s+/g, '')}@example.com` : 'srinivas@example.com',
+      created_at: new Date().toISOString(),
     };
     setUser(userData);
     setIsAuthenticated(true);

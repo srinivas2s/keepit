@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         user: {
-          id: 'demo-user-001',
+          id: 'usr-' + Math.random().toString(36).substring(2, 11),
           phone,
           name: '',
           email: '',
