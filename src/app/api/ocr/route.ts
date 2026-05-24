@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Tesseract from 'tesseract.js';
 
+// OCR is now handled client-side using Tesseract.js browser APIs.
+// This route validates the file format only.
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -10,121 +11,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    // Convert file to Buffer for Tesseract
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Use Tesseract.js for Open Source OCR
-    // We use a worker for better control, though recognize is simpler
-    const { data: { text } } = await Tesseract.recognize(
-      buffer,
-      'eng',
-      { 
-        logger: m => console.log(m) // Optional: log progress
-      }
-    );
-
-    if (!text || text.trim().length === 0) {
-      return NextResponse.json({ error: 'Failed to extract text from image' }, { status: 400 });
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Please upload a JPG, PNG, WEBP or PDF.' }, { status: 400 });
     }
 
-    // Validate if it is a real receipt
-    const lowerText = text.toLowerCase();
-    const receiptKeywords = [
-      'receipt', 'invoice', 'bill', 'total', 'amount', 'payment', 
-      'tax', 'date', 'gst', 'vat', 'retailer', 'merchant', 'cashier', 
-      'purchase', 'qty', 'subtotal', 'cash', 'card', 'transaction', 
-      'store', 'rs.', 'inr', 'usd', 'price'
-    ];
-
-    // Check if the text matches any receipt keyword patterns
-    const matchedKeywords = receiptKeywords.filter(k => lowerText.includes(k));
-
-    // If the text is extremely short or lacks common billing/receipt terms, it is an invalid bill
-    if (text.length < 30 || matchedKeywords.length < 2) {
-      return NextResponse.json({ 
-        success: false,
-        error: 'Invalid receipt! Please upload a valid receipt or bill image.' 
-      }, { status: 400 });
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File too large. Maximum size is 10MB.' }, { status: 400 });
     }
 
-    // Parse OCR text using our robust parser
-    const extractedData = parseReceiptText(text);
-
-    // If both name and amount are empty or default, reject it
-    if (extractedData.amount_paid === 0 && extractedData.name === 'New Product') {
-      return NextResponse.json({
-        success: false,
-        error: 'Could not extract valid product or billing details. Please try again with a clearer image.'
-      }, { status: 400 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      engine: 'Tesseract (Open Source)',
-      data: extractedData,
-      rawText: text,
-    });
+    return NextResponse.json({ success: true, message: 'File validated' });
   } catch (error) {
-    console.error('OCR Error:', error);
-    return NextResponse.json({ error: 'OCR processing failed' }, { status: 500 });
+    console.error('File validation error:', error);
+    return NextResponse.json({ error: 'Validation failed' }, { status: 500 });
   }
-}
-
-function parseReceiptText(text: string) {
-  // Enhanced parsing logic for Tesseract output
-  const lines = text.split('\n').filter(l => l.trim().length > 0);
-  
-  let name = '';
-  let brand = 'Other';
-  let retailer = 'Unknown';
-  let amount = 0;
-  let date = new Date().toISOString().split('T')[0];
-
-  // Common brands and retailers to look for
-  const brandList = ['Apple', 'Samsung', 'Sony', 'LG', 'Dyson', 'HP', 'Dell', 'Logitech', 'Bose'];
-  const retailerList = ['Amazon', 'Flipkart', 'Croma', 'Reliance', 'Apple Store', 'Walmart', 'Best Buy'];
-
-  for (const line of lines) {
-    const lower = line.toLowerCase();
-
-    // Amount extraction: looking for currency patterns
-    const amountMatch = line.match(/(?:₹|Rs\.?|INR|\$)\s*([\d,]+\.?\d*)/i);
-    if (amountMatch) {
-      const parsed = parseFloat(amountMatch[1].replace(/,/g, ''));
-      if (!isNaN(parsed) && parsed > amount) amount = parsed;
-    }
-
-    // Date extraction: DD/MM/YYYY or MM/DD/YYYY
-    const dateMatch = line.match(/(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/);
-    if (dateMatch) {
-      const [, d, m, y] = dateMatch;
-      const year = y.length === 2 ? `20${y}` : y;
-      // Try to determine if it's DD/MM or MM/DD
-      if (parseInt(d) > 12) date = `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-      else date = `${year}-${d.padStart(2, '0')}-${m.padStart(2, '0')}`;
-    }
-
-    // Identify Brand
-    brandList.forEach(b => {
-      if (lower.includes(b.toLowerCase())) brand = b;
-    });
-
-    // Identify Retailer
-    retailerList.forEach(r => {
-      if (lower.includes(r.toLowerCase())) retailer = r;
-    });
-  }
-
-  // Use the most prominent line as product name if not determined
-  name = lines.find(l => l.length > 5 && l.length < 50 && !l.includes('Total') && !l.includes('Tax')) || 'New Product';
-
-  return {
-    name: name.trim(),
-    brand,
-    retailer,
-    purchase_date: date,
-    warranty_months: 12, // Default
-    amount_paid: amount,
-  };
 }
