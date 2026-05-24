@@ -9,44 +9,174 @@ import { Camera, PenTool, Package, CreditCard, ChevronLeft, CheckCircle2, Upload
 type InputMethod = 'select' | 'scan' | 'manual' | 'amazon' | 'razorpay';
 
 function parseReceiptText(text: string) {
-  const lines = text.split('\n').filter(l => l.trim().length > 0);
-  let name = 'New Product';
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  let name = '';
   let brand = 'Other';
-  let retailer = 'Unknown';
+  let retailer = 'Retail Store';
   let amount = 0;
+  
+  // Standardized Date parsing: Default to today
   let date = new Date().toISOString().split('T')[0];
 
-  const brandList = ['Apple', 'Samsung', 'Sony', 'LG', 'Dyson', 'HP', 'Dell', 'Logitech', 'Bose', 'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Motorola'];
-  const retailerList = ['Amazon', 'Flipkart', 'Croma', 'Reliance Digital', 'Apple Store', 'Vijay Sales', 'Poorvika', 'Sangeetha', 'Walmart'];
+  const brandList = [
+    'Apple', 'Samsung', 'Sony', 'LG', 'Dyson', 'HP', 'Dell', 'Logitech', 'Bose', 
+    'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Motorola', 'Lenovo', 'Asus', 'Acer', 
+    'Microsoft', 'Nintendo', 'Sony PlayStation', 'GoPro', 'Fitbit', 'Garmin', 
+    'Sennheiser', 'JBL', 'Canon', 'Nikon', 'Philips', 'Panasonic'
+  ];
+
+  const retailerList = [
+    'Amazon', 'Flipkart', 'Croma', 'Reliance Digital', 'Apple Store', 'Vijay Sales', 
+    'Poorvika', 'Sangeetha', 'Walmart', 'Target', 'Best Buy', 'Costco', 'IKEA'
+  ];
+
+  // Helper lists for common product category keywords to locate the product name
+  const productCategories = [
+    'phone', 'iphone', 'galaxy', 'tv', 'television', 'laptop', 'macbook', 'pad', 'tablet',
+    'watch', 'buds', 'airpods', 'headphones', 'earphones', 'speaker', 'vacuum', 'airwrap', 
+    'dryer', 'monitor', 'keyboard', 'mouse', 'charger', 'adapter', 'cable', 'camera', 'lens',
+    'console', 'playstation', 'xbox', 'switch', 'router', 'fridge', 'refrigerator', 'dryer', 
+    'washer', 'microwave', 'oven', 'trimmer', 'shaver'
+  ];
+
+  // 1. Scan for retailer, brand and amount
+  let maxNumericValue = 0;
+  let totalsFound: number[] = [];
 
   for (const line of lines) {
     const lower = line.toLowerCase();
-    const amountMatch = line.match(/(?:₹|Rs\.?|INR|\$)\s*([\d,]+\.?\d*)/i);
+
+    // Check retailer
+    for (const ret of retailerList) {
+      if (new RegExp('\\b' + ret.toLowerCase() + '\\b', 'i').test(lower)) {
+        retailer = ret;
+        break;
+      }
+    }
+
+    // Check brand
+    for (const brd of brandList) {
+      if (new RegExp('\\b' + brd.toLowerCase() + '\\b', 'i').test(lower)) {
+        brand = brd;
+        break;
+      }
+    }
+
+    // Extract Date (Handles DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD, and Worded dates like DD-MMM-YYYY)
+    // Pattern for standard numeric dates
+    const dateMatch = line.match(/(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/) || line.match(/(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
+    if (dateMatch) {
+      if (dateMatch[3] && dateMatch[3].length >= 2) {
+        // format is DD/MM/YYYY or MM/DD/YYYY
+        const d = dateMatch[1];
+        const m = dateMatch[2];
+        const y = dateMatch[3];
+        const year = y.length === 2 ? `20${y}` : y;
+        // Parse safely assuming Day is usually > 12 if first
+        if (parseInt(d) > 12) {
+          date = `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        } else {
+          date = `${year}-${d.padStart(2, '0')}-${m.padStart(2, '0')}`;
+        }
+      } else if (dateMatch[1] && dateMatch[1].length === 4) {
+        // format is YYYY/MM/DD
+        date = `${dateMatch[1]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[3].padStart(2, '0')}`;
+      }
+    }
+
+    // Pattern for DD-MMM-YYYY (e.g. 24-May-2026 or 24 May 2026)
+    const monthRegex = /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*/i;
+    const wordDateMatch = line.match(new RegExp(`(\\d{1,2})[\\s-]?(${monthRegex.source})[\\s-]?(\\d{4})`, 'i'));
+    if (wordDateMatch) {
+      const day = wordDateMatch[1].padStart(2, '0');
+      const monthStr = wordDateMatch[2].substring(0, 3).toLowerCase();
+      const year = wordDateMatch[3];
+      const monthsMap: Record<string, string> = {
+        jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+        jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12'
+      };
+      if (monthsMap[monthStr]) {
+        date = `${year}-${monthsMap[monthStr]}-${day}`;
+      }
+    }
+
+    // Amount extraction: Match numbers prefix with currency signs or lines containing "total", "net", "amount"
+    const amountMatch = line.match(/(?:₹|Rs\.?|INR|\$|EUR|£)\s*([\d,]+\.?\d*)/i);
     if (amountMatch) {
       const parsed = parseFloat(amountMatch[1].replace(/,/g, ''));
-      if (!isNaN(parsed) && parsed > amount) amount = parsed;
+      if (!isNaN(parsed)) {
+        if (lower.includes('total') || lower.includes('net') || lower.includes('grand') || lower.includes('pay')) {
+          totalsFound.push(parsed);
+        }
+        if (parsed > maxNumericValue) maxNumericValue = parsed;
+      }
     }
-    const dateMatch = line.match(/(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/);
-    if (dateMatch) {
-      const [, d, m, y] = dateMatch;
-      const year = y.length === 2 ? `20${y}` : y;
-      date = parseInt(d) > 12
-        ? `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`
-        : `${year}-${d.padStart(2, '0')}-${m.padStart(2, '0')}`;
-    }
-    brandList.forEach(b => { if (lower.includes(b.toLowerCase())) brand = b; });
-    retailerList.forEach(r => { if (lower.includes(r.toLowerCase())) retailer = r; });
   }
 
-  const nameCandidate = lines.find(l =>
-    l.length > 5 && l.length < 60 &&
-    !l.toLowerCase().includes('total') &&
-    !l.toLowerCase().includes('tax') &&
-    !l.match(/^[\d₹$]/)
-  );
-  if (nameCandidate) name = nameCandidate.trim();
+  // Choose the best total amount. If we found totals, pick the largest one. Otherwise pick the max numeric value found.
+  if (totalsFound.length > 0) {
+    amount = Math.max(...totalsFound);
+  } else {
+    amount = maxNumericValue;
+  }
 
-  return { name, brand, retailer, purchase_date: date, warranty_months: 12, amount_paid: amount };
+  // 2. Scan for product name candidate
+  // We prefer a line that contains the detected brand name or product category keywords
+  let candidateLines: string[] = [];
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+    // Exclude payment method lines, headers, addresses, dates, website urls
+    if (
+      lower.includes('total') || lower.includes('tax') || lower.includes('payment') ||
+      lower.includes('invoice') || lower.includes('receipt') || lower.includes('date') ||
+      lower.includes('tel') || lower.includes('phone') || lower.includes('gst') ||
+      lower.includes('www.') || lower.includes('http') || lower.includes('customer') ||
+      lower.match(/^[\d\s₹$\-+.,/]+$/) || line.length < 5 || line.length > 50
+    ) {
+      continue;
+    }
+
+    // Score lines based on brand and category match
+    let score = 0;
+    if (brand !== 'Other' && lower.includes(brand.toLowerCase())) score += 10;
+    for (const cat of productCategories) {
+      if (lower.includes(cat)) {
+        score += 5;
+        break;
+      }
+    }
+    
+    if (score > 0) {
+      candidateLines.push(line);
+    }
+  }
+
+  // If we found targeted candidates, pick the highest-scoring/first one
+  if (candidateLines.length > 0) {
+    name = candidateLines[0].trim();
+  } else {
+    // Fallback: Pick first line that isn't empty, total, date, url or address
+    const fallback = lines.find(l => {
+      const lower = l.toLowerCase();
+      return l.length > 5 && l.length < 45 &&
+             !lower.includes('total') && !lower.includes('tax') &&
+             !lower.includes('receipt') && !lower.includes('invoice') &&
+             !lower.includes('date') && !lower.match(/^[\d\s₹$\-+.,/]+$/);
+    });
+    name = fallback ? fallback.trim() : 'Product / Appliance';
+  }
+
+  // Final sanitization of the name (e.g. capitalized nicely)
+  name = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+  return { 
+    name, 
+    brand, 
+    retailer, 
+    purchase_date: date, 
+    warranty_months: 12, 
+    amount_paid: amount 
+  };
 }
 
 export default function AddProductPage() {
