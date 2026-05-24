@@ -1,96 +1,129 @@
-<div align="center">
+# KeepIt — Warranty Management App
 
-# KeepIt
-### **"Receipts Fade. KeepIt Doesn't."**
-
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-Animations-ff0055?style=for-the-badge&logo=framer)](https://www.framer.com/motion/)
-[![Tesseract.js](https://img.shields.io/badge/Tesseract.js-Open_Source_OCR-5E35B1?style=for-the-badge)](https://tesseract.projectnaptha.com/)
+A modern, mobile-first warranty management application built with **Next.js 16**, **TypeScript**, **Tailwind CSS v4**, and **Supabase**.
 
 ---
 
-KeepIt is a premium, full-stack warranty management application designed to ensure you never lose a warranty claim again. Scan receipts, track expiry dates, and verify coverage with dynamic QR codes.
+## Project Structure
 
-[Explore Dashboard](http://localhost:3000/dashboard) · [Add New Product](http://localhost:3000/add) · [View Alerts](http://localhost:3000/alerts)
-
-</div>
-
-## System Flow
-
-```mermaid
-graph TD
-    A[User] -->|Upload Receipt| B(OCR Engine - Tesseract.js)
-    B -->|Extract Data| C{Validation}
-    C -->|Success| D[Supabase Database]
-    C -->|Manual Edit| A
-    D -->|Real-time Triggers| E[Alerts System]
-    E -->|Notification| A
-    D -->|Generate QR| F[Product QR Code]
-    F -->|Verify Scan| G[Service Centre Portal]
-    G -->|Valid/Expired| F
+```
+keepit/
+├── public/                    # Static assets
+│   ├── favicon.ico
+│   ├── logo.png
+│   ├── manifest.json          # PWA manifest
+│   └── icons/                 # PWA icon set
+│
+├── supabase/
+│   └── schema.sql             # Full database schema + RLS policies
+│
+├── src/
+│   ├── app/                   # Next.js App Router pages
+│   │   ├── page.tsx           # Landing / splash page
+│   │   ├── layout.tsx         # Root layout
+│   │   ├── globals.css        # Global styles + design tokens
+│   │   ├── loading.tsx        # Route-level loading UI
+│   │   │
+│   │   ├── login/             # Auth (sign in / sign up)
+│   │   ├── dashboard/         # Main warranty list + filters
+│   │   ├── add/               # Add product (manual + OCR scan)
+│   │   ├── product/[id]/      # Product detail + QR code
+│   │   ├── family/            # Family sharing hub
+│   │   ├── alerts/            # Warranty expiry alerts
+│   │   ├── history/           # Activity history
+│   │   ├── profile/           # User profile + settings
+│   │   ├── verify/[code]/     # Public QR verification portal
+│   │   │
+│   │   └── api/
+│   │       ├── ocr/           # AI receipt scanner endpoint
+│   │       └── alerts/        # Alerts read/unread API
+│   │
+│   ├── components/            # Shared UI components
+│   │   ├── BottomNav.tsx      # Mobile bottom navigation
+│   │   ├── Navbar.tsx         # Top navigation bar
+│   │   ├── Logo.tsx           # Brand logo
+│   │   ├── SplashScreen.tsx   # App launch animation
+│   │   ├── PageTransition.tsx # Page fade transitions
+│   │   └── Skeleton.tsx       # Loading skeletons
+│   │
+│   ├── context/
+│   │   └── AppContext.tsx     # Global state + Supabase CRUD
+│   │
+│   └── lib/
+│       └── supabase.ts        # Supabase client + types + helpers
+│
+├── .env                       # Environment variables (git-ignored)
+├── .env.example               # Env variable template
+├── next.config.ts
+├── tsconfig.json
+└── package.json
 ```
 
-## Features
+---
 
-- **AI-Powered Scanning**: Extract product details, brands, and dates automatically using Open Source OCR (Tesseract.js).
-- **Live Countdown**: Real-time warranty tracking with animated flip counters and progress bars.
-- **Smart QR Verification**: Generate unique, secure QR codes for instant verification at service centres.
-- **Proactive Alerts**: Automatic notifications 90, 30, and 7 days before any warranty expires.
-- **PDF Export**: Generate professional warranty reports for your entire inventory with one click.
-- **Dark Mode**: Full support for system-wide light and dark themes with persistent memory.
-- **PWA Support**: Install KeepIt on your iOS or Android device for an app-like experience.
+## Setup
 
-##  Technology Stack
-
-| Layer | Technology |
-|---|---|
-| **Framework** | [Next.js 15+](https://nextjs.org/) (App Router) |
-| **Styling** | [Tailwind CSS 4.0](https://tailwindcss.com/) & [Framer Motion](https://www.framer.com/motion/) |
-| **Database** | [Supabase](https://supabase.com/) (PostgreSQL) |
-| **Auth** | [Supabase Auth](https://supabase.com/auth) (OTP via Phone) |
-| **OCR** | [Tesseract.js](https://tesseract.projectnaptha.com/) (Open Source) |
-| **QR Library** | [react-qr-code](https://github.com/rosskhanas/react-qr-code) |
-
-##  Getting Started
-
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v18+)
-- [Supabase](https://supabase.com/) Project
-
-### 1. Clone & Install
+### 1. Clone and install
 ```bash
 git clone https://github.com/srinivas2s/keepit.git
 cd keepit
 npm install
 ```
 
-### 2. Environment Setup
-Create a `.env.local` file and add your credentials:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+### 2. Configure environment
+Copy `.env.example` to `.env` and fill in your Supabase credentials:
+```bash
+cp .env.example .env
 ```
 
-### 3. Database Migration
-Execute the SQL found in [`supabase/schema.sql`](./supabase/schema.sql) within your Supabase SQL Editor to set up:
-- Users, Products, and Alerts tables
-- Row Level Security (RLS) Policies
-- Automatic Status Update Triggers
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+GEMINI_API_KEY=your-gemini-key
+```
 
-### 4. Run Development Server
+### 3. Set up Supabase database
+In your Supabase project → **SQL Editor**, paste and run the contents of `supabase/schema.sql`.
+
+This creates:
+- `users` — user profiles
+- `products` — warranty records (with `owner_name` for family sharing)
+- `family_members` — invited family group members
+- `alerts` — expiry notification records
+- All **Row Level Security (RLS)** policies (each user sees only their own data)
+- Auto-status trigger on products
+- `generate_warranty_alerts()` function (schedule via pg_cron)
+
+### 4. Run development server
 ```bash
 npm run dev
 ```
 
-## 📱 Mobile Installation (PWA)
-1. Open your browser on mobile.
-2. Navigate to your deployed KeepIt URL.
-3. Select **"Add to Home Screen"** from the browser menu.
+Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
-<div align="center">
-   <b>KeepIt</b>
-</div>
+## Key Features
+
+| Feature | Description |
+|---|---|
+| Warranty Tracking | Add products with purchase date, brand, retailer, warranty duration |
+| OCR Scanner | Scan receipts with AI (Gemini) to auto-fill product details |
+| QR Verification | Each product gets a unique QR code for service centre verification |
+| Family Sharing | Invite family members, assign product ownership, view shared warranties |
+| Smart Alerts | 90-day, 30-day, 7-day and expired alerts auto-generated by Supabase |
+| Dark Mode | Full light/dark theme with persistent preference |
+| PWA Ready | Installable as a mobile app via manifest + icons |
+
+---
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Database**: Supabase (PostgreSQL + RLS)
+- **Auth**: Supabase / custom OTP flow
+- **AI**: Google Gemini (OCR receipt scanning)
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
