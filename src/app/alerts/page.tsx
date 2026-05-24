@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import Link from 'next/link';
@@ -51,7 +52,12 @@ export default function AlertsPage() {
   const router = useRouter();
   const { alerts, products, markAlertRead, markAllAlertsRead, isAuthenticated, isLoading } = useApp();
 
-  if (!isLoading && !isAuthenticated) { router.push('/login'); return null; }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) router.push('/login');
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) return null;
+  if (!isAuthenticated) return null;
 
   const getProduct = (id: string) => products.find(p => p.id === id);
   const unreadCount = alerts.filter(a => !a.is_read).length;

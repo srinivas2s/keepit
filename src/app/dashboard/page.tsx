@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -27,7 +27,12 @@ export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'all' | 'personal'>('all');
 
-  if (!isLoading && !isAuthenticated) { router.push('/login'); return null; }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) router.push('/login');
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) return null;
+  if (!isAuthenticated) return null;
 
   const stats = useMemo(() => ({
     total: products.length,

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Palette, Star, LogOut, Sun, Moon, ChevronRight, Shield, Package, TrendingUp } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -13,7 +13,14 @@ export default function ProfilePage() {
     warranty_90: true, warranty_30: true, warranty_7: true, expired: true,
   });
 
-  if (!isLoading && !isAuthenticated) { router.push('/login'); return null; }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) return null;
+  if (!isAuthenticated) return null;
 
   const handleLogout = () => { logout(); router.push('/'); };
 
