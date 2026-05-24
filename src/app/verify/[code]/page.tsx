@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 
 export default function VerifyPage() {
   const params = useParams();
@@ -17,11 +18,9 @@ export default function VerifyPage() {
   } | null>(null);
 
   useEffect(() => {
-    // Simulate verification
     const verify = async () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Check localStorage for matching product
       try {
         const savedProducts = localStorage.getItem('keepit_products');
         if (savedProducts) {
@@ -42,7 +41,6 @@ export default function VerifyPage() {
         // Ignore parse errors
       }
 
-      // Check if code matches demo pattern
       if (code.startsWith('keepit-prod-')) {
         setProductData({
           name: 'Demo Product',
@@ -62,7 +60,7 @@ export default function VerifyPage() {
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg flex items-center justify-center px-4">
       <div className="max-w-md w-full">
-        {/* Service Centre Header */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,15 +112,15 @@ export default function VerifyPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4"
+                className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4 text-success animate-pulse"
               >
-                <span className="text-4xl">✅</span>
+                <CheckCircle2 size={40} />
               </motion.div>
               <h2 className="text-xl font-bold text-success mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
                 Warranty Valid
               </h2>
               <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-6">
-                This product is covered under warranty.
+                This product is covered under active warranty.
               </p>
 
               <div className="bg-background dark:bg-dark-bg rounded-2xl p-4 text-left space-y-3">
@@ -140,7 +138,7 @@ export default function VerifyPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-text-muted dark:text-dark-text-secondary">Status</span>
-                  <span className="font-semibold text-success">✅ Active</span>
+                  <span className="font-semibold text-success">Active</span>
                 </div>
               </div>
             </motion.div>
@@ -156,9 +154,9 @@ export default function VerifyPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                className="w-20 h-20 rounded-full bg-danger/10 flex items-center justify-center mx-auto mb-4"
+                className="w-20 h-20 rounded-full bg-danger/10 flex items-center justify-center mx-auto mb-4 text-danger animate-pulse"
               >
-                <span className="text-4xl">❌</span>
+                <XCircle size={40} />
               </motion.div>
               <h2 className="text-xl font-bold text-danger mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
                 Warranty Expired
@@ -194,9 +192,9 @@ export default function VerifyPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                className="w-20 h-20 rounded-full bg-border dark:bg-dark-border flex items-center justify-center mx-auto mb-4"
+                className="w-20 h-20 rounded-full bg-border dark:bg-dark-border flex items-center justify-center mx-auto mb-4 text-text-secondary"
               >
-                <span className="text-4xl">🔍</span>
+                <AlertCircle size={40} />
               </motion.div>
               <h2 className="text-xl font-bold text-text dark:text-dark-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
                 Not Found
