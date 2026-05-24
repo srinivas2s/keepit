@@ -4,157 +4,169 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import Link from 'next/link';
-import { Bell, BellOff, ChevronRight, Info, AlertTriangle, AlertCircle, CalendarX } from 'lucide-react';
-import { AlertItemSkeleton } from '@/components/Skeleton';
-import Skeleton from '@/components/Skeleton';
+import { Bell, BellOff, ChevronRight, Info, AlertTriangle, AlertCircle, CalendarX, CheckCheck } from 'lucide-react';
 
-const alertConfig: Record<string, { icon: React.ReactNode; color: string; label: string; dotColor: string }> = {
-  '90day': { icon: <Info size={16} />, color: 'text-success', label: '90-Day Warning', dotColor: 'bg-success' },
-  '30day': { icon: <AlertTriangle size={16} />, color: 'text-warning', label: '30-Day Warning', dotColor: 'bg-warning' },
-  '7day': { icon: <AlertCircle size={16} />, color: 'text-danger', label: '7-Day Warning', dotColor: 'bg-danger' },
-  'expired': { icon: <CalendarX size={16} />, color: 'text-danger', label: 'Expired', dotColor: 'bg-danger' },
+const alertConfig: Record<string, { icon: React.ReactNode; label: string; bgClass: string; dotClass: string; textClass: string }> = {
+  '90day': {
+    icon: <Info size={16} />,
+    label: '90-Day Notice',
+    bgClass: 'bg-blue-50 dark:bg-blue-900/15',
+    dotClass: 'bg-blue-500',
+    textClass: 'text-blue-600 dark:text-blue-400',
+  },
+  '30day': {
+    icon: <AlertTriangle size={16} />,
+    label: '30-Day Warning',
+    bgClass: 'bg-warning/10 dark:bg-warning/15',
+    dotClass: 'bg-warning',
+    textClass: 'text-warning',
+  },
+  '7day': {
+    icon: <AlertCircle size={16} />,
+    label: 'Critical — 7 Days',
+    bgClass: 'bg-danger/10 dark:bg-danger/15',
+    dotClass: 'bg-danger',
+    textClass: 'text-danger',
+  },
+  expired: {
+    icon: <CalendarX size={16} />,
+    label: 'Expired',
+    bgClass: 'bg-danger/10 dark:bg-danger/15',
+    dotClass: 'bg-danger',
+    textClass: 'text-danger',
+  },
 };
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const d = Math.floor(diff / 86400000);
+  if (d === 0) return 'Today';
+  if (d === 1) return 'Yesterday';
+  if (d < 7) return `${d}d ago`;
+  if (d < 30) return `${Math.floor(d / 7)}w ago`;
+  return `${Math.floor(d / 30)}mo ago`;
+}
 
 export default function AlertsPage() {
   const router = useRouter();
-  const { alerts, products, markAlertRead, markAllAlertsRead, isAuthenticated, isLoading: appLoading } = useApp();
+  const { alerts, products, markAlertRead, markAllAlertsRead, isAuthenticated, isLoading } = useApp();
 
-  if (!appLoading && !isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
+  if (!isLoading && !isAuthenticated) { router.push('/login'); return null; }
 
-  const getProduct = (productId: string) => products.find(p => p.id === productId);
-  if (appLoading) {
+  const getProduct = (id: string) => products.find(p => p.id === id);
+  const unreadCount = alerts.filter(a => !a.is_read).length;
+
+  const sorted = [...alerts].sort((a, b) => {
+    if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background dark:bg-dark-bg">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <Skeleton variant="text" className="w-32 h-8 mb-2" />
-              <Skeleton variant="text" className="w-48" />
-            </div>
-          </div>
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map(i => <AlertItemSkeleton key={i} />)}
-          </div>
+        <div className="max-w-2xl mx-auto px-4 py-6 space-y-3 animate-pulse">
+          <div className="h-8 bg-surface dark:bg-dark-surface rounded-2xl w-40" />
+          {[1,2,3,4].map(i => <div key={i} className="h-20 bg-surface dark:bg-dark-surface rounded-3xl" />)}
         </div>
       </div>
     );
   }
 
-  const sortedAlerts = [...alerts].sort((a, b) => {
-    // Unread first, then by date
-    if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-  });
-
-  const unreadCount = alerts.filter(a => !a.is_read).length;
-
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-36">
+
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
-        >
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-text dark:text-dark-text" style={{ fontFamily: 'var(--font-heading)' }}>
-              Alerts <Bell className="inline ml-1" size={24} />
+            <h1 className="text-2xl font-black text-text dark:text-dark-text flex items-center gap-2">
+              Alerts
+              {unreadCount > 0 && (
+                <span className="text-sm font-black px-2.5 py-1 rounded-full bg-danger text-white">
+                  {unreadCount}
+                </span>
+              )}
             </h1>
-            <p className="text-text-secondary dark:text-dark-text-secondary mt-1">
+            <p className="text-sm text-text-secondary dark:text-dark-text-secondary mt-0.5">
               {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
             </p>
           </div>
           {unreadCount > 0 && (
-            <button
-              onClick={markAllAlertsRead}
-              className="px-4 py-2 bg-primary/10 text-primary rounded-xl text-sm font-semibold hover:bg-primary/20 transition-colors"
-            >
+            <button onClick={markAllAlertsRead}
+              className="flex items-center gap-2 px-4 py-2.5 bg-surface dark:bg-dark-surface border border-border dark:border-dark-border rounded-2xl text-sm font-bold text-text dark:text-dark-text hover:border-primary/30 transition-all">
+              <CheckCheck size={15} className="text-primary" />
               Mark all read
             </button>
           )}
         </motion.div>
 
-        {/* Alerts List */}
-        {sortedAlerts.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-20"
-          >
-            <BellOff className="mx-auto mb-4 text-text-muted" size={48} />
-            <h3 className="text-xl font-bold text-text dark:text-dark-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
-              No alerts yet
-            </h3>
-            <p className="text-text-secondary dark:text-dark-text-secondary">
-              We&apos;ll notify you when your warranties need attention.
+        {/* Alert List */}
+        {sorted.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="text-center py-24 px-4">
+            <div className="w-20 h-20 rounded-3xl bg-surface dark:bg-dark-surface border border-border dark:border-dark-border flex items-center justify-center mx-auto mb-5">
+              <BellOff size={32} className="text-text-muted dark:text-dark-text-secondary" />
+            </div>
+            <h3 className="text-lg font-black text-text dark:text-dark-text mb-2">No alerts yet</h3>
+            <p className="text-sm text-text-secondary dark:text-dark-text-secondary max-w-xs mx-auto">
+              We'll notify you 90, 30, and 7 days before a warranty expires.
             </p>
+            <Link href="/dashboard" className="inline-flex items-center gap-2 mt-6 px-5 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-lg shadow-primary/25 hover:bg-primary-dark transition-all">
+              <Bell size={16} /> Go to Dashboard
+            </Link>
           </motion.div>
         ) : (
-          <div className="space-y-3">
-            {sortedAlerts.map((alert, i) => {
+          <div className="space-y-2.5">
+            {sorted.map((alert, i) => {
               const product = getProduct(alert.product_id);
-              const config = alertConfig[alert.alert_type] || alertConfig['90day'];
-              const timeAgo = getTimeAgo(alert.created_at);
-
+              const cfg = alertConfig[alert.alert_type] || alertConfig['90day'];
               return (
-                <motion.div
-                  key={alert.id}
-                  initial={{ opacity: 0, x: -20 }}
+                <motion.div key={alert.id}
+                  initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className={`bg-surface dark:bg-dark-surface rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer group ${
-                    alert.is_read
-                      ? 'border-border dark:border-dark-border opacity-70'
-                      : 'border-border dark:border-dark-border shadow-md hover:shadow-lg'
-                  }`}
+                  transition={{ delay: i * 0.04 }}
                   onClick={() => {
                     markAlertRead(alert.id);
                     if (product) router.push(`/product/${product.id}`);
                   }}
-                >
-                  <div className="flex items-start gap-4">
-                    {/* Status Dot */}
-                    <div className="relative flex-shrink-0 mt-1">
-                      <div className={`w-3 h-3 rounded-full ${config.dotColor}`} />
-                      {!alert.is_read && (
-                        <div className={`absolute inset-0 w-3 h-3 rounded-full ${config.dotColor} animate-ping opacity-75`} />
-                      )}
+                  className={`relative flex items-center gap-4 p-4 rounded-3xl border cursor-pointer group transition-all ${
+                    alert.is_read
+                      ? 'bg-surface dark:bg-dark-surface border-border dark:border-dark-border opacity-60'
+                      : `${cfg.bgClass} border-transparent shadow-sm hover:shadow-md`
+                  }`}>
+                  {/* Status dot */}
+                  {!alert.is_read && (
+                    <div className="absolute top-4 right-4">
+                      <div className={`w-2 h-2 rounded-full ${cfg.dotClass}`} />
                     </div>
+                  )}
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className={`font-semibold text-sm ${alert.is_read ? 'text-text-secondary dark:text-dark-text-secondary' : 'text-text dark:text-dark-text'}`}>
-                            {config.label}
-                          </p>
-                          <p className="text-sm text-text-secondary dark:text-dark-text-secondary mt-0.5">
-                            {product ? (
-                              <>
-                                <strong>{product.name}</strong> ({product.brand}) warranty
-                                {alert.alert_type === 'expired'
-                                  ? ' has expired'
-                                  : ` expires in ${alert.alert_type.replace('day', ' days')}`
-                                }
-                              </>
-                            ) : (
-                              'Product warranty notification'
-                            )}
-                          </p>
-                        </div>
-                        <span className="text-xs text-text-muted dark:text-dark-text-secondary whitespace-nowrap flex-shrink-0">
-                          {timeAgo}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Arrow */}
-                    <ChevronRight size={18} className="text-text-muted group-hover:text-primary transition-colors" />
+                  {/* Icon */}
+                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                    alert.is_read ? 'bg-border/50 dark:bg-dark-border text-text-muted dark:text-dark-text-secondary' : `${cfg.bgClass} ${cfg.textClass}`
+                  }`}>
+                    {cfg.icon}
                   </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className={`text-xs font-black uppercase tracking-wider ${alert.is_read ? 'text-text-muted dark:text-dark-text-secondary' : cfg.textClass}`}>
+                        {cfg.label}
+                      </p>
+                      <span className="text-xs text-text-muted dark:text-dark-text-secondary">·</span>
+                      <span className="text-xs text-text-muted dark:text-dark-text-secondary">{timeAgo(alert.created_at)}</span>
+                    </div>
+                    <p className={`text-sm font-semibold truncate ${alert.is_read ? 'text-text-secondary dark:text-dark-text-secondary' : 'text-text dark:text-dark-text'}`}>
+                      {product ? (
+                        <><strong>{product.name}</strong> ({product.brand})
+                          {alert.alert_type === 'expired' ? ' has expired' : ` expires in ${alert.alert_type.replace('day', ' days')}`}</>
+                      ) : 'Product warranty notification'}
+                    </p>
+                  </div>
+
+                  <ChevronRight size={16} className="text-text-muted dark:text-dark-text-secondary flex-shrink-0 group-hover:text-primary transition-colors" />
                 </motion.div>
               );
             })}
@@ -163,18 +175,4 @@ export default function AlertsPage() {
       </div>
     </div>
   );
-}
-
-function getTimeAgo(dateStr: string): string {
-  const now = new Date();
-  const date = new Date(dateStr);
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
-  return `${Math.floor(diffDays / 365)}y ago`;
 }

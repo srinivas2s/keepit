@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-background dark:bg-dark-bg transition-colors duration-300">
         <AppProvider>
           <SplashScreen />
           <main className="flex-1 pb-32">

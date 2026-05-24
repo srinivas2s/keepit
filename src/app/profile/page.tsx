@@ -3,153 +3,98 @@
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import { formatDate } from '@/lib/supabase';
 import { useState } from 'react';
-import { Bell, Palette, Star, Info, LogOut, Shield, ChevronRight, Sun, Moon, ChevronLeft, FileText } from 'lucide-react';
+import { Bell, Palette, Star, LogOut, Sun, Moon, ChevronRight, Shield, Package, TrendingUp } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, products, logout, isDarkMode, toggleDarkMode, isAuthenticated, isLoading: appLoading } = useApp();
+  const { user, products, logout, isDarkMode, toggleDarkMode, isAuthenticated, isLoading } = useApp();
   const [notifications, setNotifications] = useState({
-    warranty_90: true,
-    warranty_30: true,
-    warranty_7: true,
-    expired: true,
+    warranty_90: true, warranty_30: true, warranty_7: true, expired: true,
   });
 
-  if (!appLoading && !isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
+  if (!isLoading && !isAuthenticated) { router.push('/login'); return null; }
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
+  const handleLogout = () => { logout(); router.push('/'); };
 
-  const totalValue = products.reduce((sum, p) => sum + p.amount_paid, 0);
+  const totalValue = products.reduce((s, p) => s + p.amount_paid, 0);
+  const activeCount = products.filter(p => p.status === 'active').length;
+
+  const formatValue = (v: number) => v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : v >= 1000 ? `₹${Math.round(v / 1000)}K` : `₹${v}`;
 
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-36 space-y-4">
+
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
-        >
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => router.push('/dashboard')}
-              className="p-3 bg-surface dark:bg-dark-surface border border-border dark:border-dark-border rounded-2xl text-text dark:text-dark-text hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <h1 className="text-2xl sm:text-3xl font-black text-text dark:text-dark-text tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-              Profile
-            </h1>
-          </div>
-          
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-6 py-2.5 bg-surface dark:bg-dark-surface border border-border dark:border-dark-border rounded-xl font-bold text-sm text-text dark:text-dark-text hover:border-primary/30 transition-all shadow-sm"
-          >
-            <FileText size={18} className="text-primary" />
-            <span className="hidden sm:inline">Export Report</span>
-          </button>
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-2xl font-black text-text dark:text-dark-text mb-0.5">Profile</h1>
+          <p className="text-sm text-text-secondary dark:text-dark-text-secondary">Manage your account</p>
         </motion.div>
 
         {/* User Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-surface dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-border dark:border-dark-border mb-6 shadow-lg"
-        >
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-              <span className="text-white text-2xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-                {user?.name?.charAt(0).toUpperCase() || '?'}
-              </span>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+          className="bg-gradient-to-br from-primary to-primary-dark rounded-3xl p-6 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full translate-x-12 -translate-y-12" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -translate-x-8 translate-y-8" />
+
+          <div className="relative flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-3xl bg-white/20 backdrop-blur flex items-center justify-center text-3xl font-black shadow-lg">
+              {user?.name?.charAt(0).toUpperCase() || '?'}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-text dark:text-dark-text" style={{ fontFamily: 'var(--font-heading)' }}>
-                {user?.name || 'User'}
-              </h2>
-              <p className="text-sm text-text-secondary dark:text-dark-text-secondary">
-                {user?.phone || '+91 XXXXXXXXXX'}
-              </p>
-              {user?.email && (
-                <p className="text-sm text-text-secondary dark:text-dark-text-secondary">
-                  {user.email}
-                </p>
-              )}
+              <p className="text-xl font-black">{user?.name || 'User'}</p>
+              <p className="text-sm text-white/70">{user?.email || user?.phone || 'No contact info'}</p>
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-background dark:bg-dark-bg rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
-                {products.length}
-              </p>
-              <p className="text-xs text-text-muted dark:text-dark-text-secondary">Products</p>
-            </div>
-            <div className="bg-background dark:bg-dark-bg rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-success" style={{ fontFamily: 'var(--font-heading)' }}>
-                {products.filter(p => p.status === 'active').length}
-              </p>
-              <p className="text-xs text-text-muted dark:text-dark-text-secondary">Active</p>
-            </div>
-            <div className="bg-background dark:bg-dark-bg rounded-xl p-3 text-center">
-              <p className="text-lg font-bold text-accent" style={{ fontFamily: 'var(--font-heading)' }}>
-                ₹{Math.round(totalValue / 1000)}K
-              </p>
-              <p className="text-xs text-text-muted dark:text-dark-text-secondary">Total Value</p>
-            </div>
+          <div className="relative grid grid-cols-3 gap-3">
+            {[
+              { label: 'Products', value: String(products.length), icon: <Package size={14} /> },
+              { label: 'Active', value: String(activeCount), icon: <Shield size={14} /> },
+              { label: 'Value', value: formatValue(totalValue), icon: <TrendingUp size={14} /> },
+            ].map(s => (
+              <div key={s.label} className="bg-white/10 rounded-2xl p-3 text-center">
+                <div className="flex items-center justify-center gap-1 text-white/60 mb-1">{s.icon}</div>
+                <p className="text-lg font-black">{s.value}</p>
+                <p className="text-[10px] font-bold text-white/60 uppercase tracking-wider">{s.label}</p>
+              </div>
+            ))}
           </div>
         </motion.div>
 
-        {/* Notification Preferences */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border mb-6"
-        >
-          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
-            <Bell size={18} className="text-primary" /> Notification Preferences
-          </h3>
-          <div className="space-y-3">
+        {/* Notification Prefs */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="bg-surface dark:bg-dark-surface rounded-3xl border border-border dark:border-dark-border overflow-hidden">
+          <div className="flex items-center gap-3 px-5 pt-5 pb-3 border-b border-border dark:border-dark-border">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Bell size={16} className="text-primary" />
+            </div>
+            <p className="font-black text-text dark:text-dark-text">Notifications</p>
+          </div>
+          <div className="divide-y divide-border dark:divide-dark-border">
             {[
               { key: 'warranty_90', label: '90-day warning', desc: 'Alert 90 days before expiry' },
               { key: 'warranty_30', label: '30-day warning', desc: 'Alert 30 days before expiry' },
               { key: 'warranty_7', label: '7-day warning', desc: 'Alert 7 days before expiry' },
-              { key: 'expired', label: 'Expired notification', desc: 'Alert when warranty expires' },
-            ].map((pref) => (
-              <div key={pref.key} className="flex items-center justify-between py-2">
+              { key: 'expired', label: 'Expired', desc: 'Alert when warranty expires' },
+            ].map(pref => (
+              <div key={pref.key} className="flex items-center justify-between px-5 py-4">
                 <div>
-                  <p className="text-sm font-medium text-text dark:text-dark-text">{pref.label}</p>
-                  <p className="text-xs text-text-muted dark:text-dark-text-secondary">{pref.desc}</p>
+                  <p className="text-sm font-semibold text-text dark:text-dark-text">{pref.label}</p>
+                  <p className="text-xs text-text-secondary dark:text-dark-text-secondary">{pref.desc}</p>
                 </div>
                 <button
-                  onClick={() =>
-                    setNotifications(prev => ({
-                      ...prev,
-                      [pref.key]: !prev[pref.key as keyof typeof prev],
-                    }))
-                  }
-                  className={`relative w-11 h-6 rounded-full transition-colors ${
-                    notifications[pref.key as keyof typeof notifications]
-                      ? 'bg-primary'
-                      : 'bg-border dark:bg-dark-border'
+                  onClick={() => setNotifications(p => ({ ...p, [pref.key]: !p[pref.key as keyof typeof p] }))}
+                  className={`relative w-12 h-6.5 rounded-full transition-colors duration-200 ${
+                    notifications[pref.key as keyof typeof notifications] ? 'bg-primary' : 'bg-border dark:bg-dark-border'
                   }`}
-                >
+                  style={{ height: '26px' }}>
                   <motion.div
-                    animate={{
-                      x: notifications[pref.key as keyof typeof notifications] ? 20 : 2,
-                    }}
+                    animate={{ x: notifications[pref.key as keyof typeof notifications] ? 22 : 2 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    className="absolute top-1 w-4 h-4 bg-white rounded-full shadow"
+                    className="absolute top-1 w-4.5 h-4.5 bg-white rounded-full shadow"
+                    style={{ width: '18px', height: '18px', top: '4px' }}
                   />
                 </button>
               </div>
@@ -158,123 +103,75 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* Appearance */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border mb-6"
-        >
-          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
-            <Palette size={18} className="text-primary" /> Appearance
-          </h3>
-          <div className="flex items-center justify-between">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+          className="bg-surface dark:bg-dark-surface rounded-3xl border border-border dark:border-dark-border overflow-hidden">
+          <div className="flex items-center gap-3 px-5 pt-5 pb-3 border-b border-border dark:border-dark-border">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Palette size={16} className="text-primary" />
+            </div>
+            <p className="font-black text-text dark:text-dark-text">Appearance</p>
+          </div>
+          <div className="px-5 py-4 flex items-center justify-between">
             <div>
-              <p className="text-sm font-black text-text dark:text-dark-text uppercase tracking-widest">Theme Mode</p>
-              <p className="text-xs font-bold text-text-muted dark:text-dark-text-secondary mt-1">
-                {isDarkMode ? 'Pure Black' : 'Pure White'}
+              <p className="text-sm font-semibold text-text dark:text-dark-text">Theme Mode</p>
+              <p className="text-xs text-text-secondary dark:text-dark-text-secondary mt-0.5">
+                Currently: {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
               </p>
             </div>
-            <button
-              onClick={toggleDarkMode}
-              className="relative w-20 h-10 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center p-1 group overflow-hidden"
-            >
+            <button onClick={toggleDarkMode}
+              className={`relative w-16 h-8 rounded-full transition-colors duration-300 ${isDarkMode ? 'bg-primary' : 'bg-slate-200 dark:bg-dark-border'}`}>
               <motion.div
-                animate={{ 
-                  x: isDarkMode ? 40 : 0,
-                  rotate: isDarkMode ? 360 : 0
-                }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="w-8 h-8 rounded-xl bg-[#1565C0] shadow-md flex items-center justify-center relative z-10"
+                animate={{ x: isDarkMode ? 32 : 2 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center"
               >
-                {isDarkMode ? (
-                  <motion.div
-                    initial={{ scale: 0, rotate: -90 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                  >
-                    <Moon size={18} className="text-white" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ scale: 0, rotate: 90 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                  >
-                    <Sun size={18} className="text-white" />
-                  </motion.div>
-                )}
+                {isDarkMode ? <Moon size={13} className="text-primary" /> : <Sun size={13} className="text-amber-500" />}
               </motion.div>
-              
-              <div className="absolute inset-0 flex items-center justify-around pointer-events-none opacity-20 dark:opacity-40">
-                <Sun size={14} className="text-blue-600 dark:text-blue-400" />
-                <Moon size={14} className="text-slate-400" />
-              </div>
             </button>
           </div>
         </motion.div>
 
         {/* Premium Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-white mb-6 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-3">
-              <Star size={20} className="fill-white/20" />
-              <span className="text-xs font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">
-                Premium
-              </span>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="relative bg-gradient-to-br from-violet-600 to-purple-700 rounded-3xl p-5 text-white overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full translate-x-10 -translate-y-10" />
+          <div className="relative flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Star size={14} className="fill-yellow-300 text-yellow-300" />
+                <span className="text-xs font-black uppercase tracking-wider bg-white/15 px-2 py-0.5 rounded-full">Pro</span>
+              </div>
+              <h3 className="text-base font-black mb-1">Upgrade to KeepIt Pro</h3>
+              <p className="text-xs text-white/70 mb-4 max-w-xs">
+                Unlimited products, cloud backup, priority support & warranty transfer
+              </p>
+              <button className="px-5 py-2.5 bg-white text-purple-700 rounded-2xl font-black text-sm shadow-lg hover:bg-white/90 transition-colors">
+                Upgrade — ₹199/yr
+              </button>
             </div>
-            <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
-              Upgrade to KeepIt Pro
-            </h3>
-            <p className="text-sm text-white/80 mb-4">
-              Unlimited products, PDF export, priority support, and warranty transfer.
-            </p>
-            <button className="px-6 py-2.5 bg-white text-primary rounded-xl font-bold text-sm hover:bg-white/90 transition-colors shadow-lg">
-              Upgrade — ₹199/year
-            </button>
           </div>
         </motion.div>
 
         {/* Account Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="bg-surface dark:bg-dark-surface rounded-2xl p-6 border border-border dark:border-dark-border mb-6"
-        >
-          <h3 className="text-base font-bold text-text dark:text-dark-text mb-4 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
-            <Info size={18} className="text-primary" /> Account
-          </h3>
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-text-secondary dark:text-dark-text-secondary">Member since</span>
-              <span className="font-medium text-text dark:text-dark-text">
-                {user?.created_at ? formatDate(user.created_at) : 'N/A'}
-              </span>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+          className="bg-surface dark:bg-dark-surface rounded-3xl border border-border dark:border-dark-border divide-y divide-border dark:divide-dark-border">
+          {[
+            { label: 'Plan', value: 'Free' },
+            { label: 'Member since', value: user?.created_at ? new Date(user.created_at).getFullYear().toString() : '2026' },
+            { label: 'App Version', value: '1.0.0' },
+          ].map(item => (
+            <div key={item.label} className="flex items-center justify-between px-5 py-4">
+              <p className="text-sm text-text-secondary dark:text-dark-text-secondary">{item.label}</p>
+              <p className="text-sm font-bold text-text dark:text-dark-text">{item.value}</p>
             </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary dark:text-dark-text-secondary">Plan</span>
-              <span className="font-medium text-text dark:text-dark-text">Free</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary dark:text-dark-text-secondary">Version</span>
-              <span className="font-medium text-text dark:text-dark-text">1.0.0</span>
-            </div>
-          </div>
+          ))}
         </motion.div>
 
         {/* Logout */}
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+        <motion.button initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           onClick={handleLogout}
-          className="w-full py-3.5 bg-danger/10 text-danger rounded-xl font-semibold text-sm hover:bg-danger/20 transition-colors"
-        >
-          <LogOut size={18} className="inline mr-2" /> Logout
+          className="w-full py-4 bg-danger/10 dark:bg-danger/15 text-danger rounded-3xl font-black text-sm border border-danger/20 hover:bg-danger/15 dark:hover:bg-danger/20 transition-all flex items-center justify-center gap-2">
+          <LogOut size={17} /> Sign Out
         </motion.button>
       </div>
     </div>
