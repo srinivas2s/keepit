@@ -250,36 +250,49 @@ export default function DashboardPage() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: i * 0.04, type: 'spring', stiffness: 300, damping: 25 }}>
                     <Link href={`/product/${product.id}`}
-                      className="block bg-surface dark:bg-dark-surface rounded-3xl border border-border dark:border-dark-border p-5 hover:shadow-xl hover:shadow-primary/8 dark:hover:shadow-black/40 hover:-translate-y-1 transition-all group">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-2xl bg-primary/8 dark:bg-primary/15 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                      className="block bg-surface dark:bg-dark-surface rounded-3xl border border-border dark:border-dark-border p-4 sm:p-5 hover:shadow-xl hover:shadow-primary/8 dark:hover:shadow-black/40 hover:-translate-y-0.5 transition-all group">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-primary/8 dark:bg-primary/15 flex items-center justify-center text-primary group-hover:scale-105 transition-transform flex-shrink-0">
                             {brandIcon(product.brand)}
                           </div>
-                          <div>
-                            <p className="font-black text-text dark:text-dark-text text-base leading-tight">{product.name}</p>
-                            <p className="text-xs text-text-secondary dark:text-dark-text-secondary mt-0.5">{product.brand} · {product.retailer}</p>
+                          <div className="min-w-0">
+                            <p className="font-black text-text dark:text-dark-text text-sm sm:text-base leading-tight truncate">{product.name}</p>
+                            <p className="text-[11px] text-text-secondary dark:text-dark-text-secondary mt-0.5 truncate">{product.brand} · {product.retailer}</p>
                           </div>
                         </div>
-                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide badge-${product.status}`}>
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide badge-${product.status} flex-shrink-0`}>
                           {product.status}
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between">
+                      {product.owner_name && product.owner_name !== 'You' && (
+                        <div className="flex items-center gap-1.5 mb-3 bg-surface-hover dark:bg-dark-surface-hover px-2 py-0.5 rounded-lg w-fit border border-border dark:border-dark-border/40">
+                          <div className="w-3.5 h-3.5 rounded-full bg-primary/15 text-primary text-[8px] font-black flex items-center justify-center flex-shrink-0">
+                            {product.owner_name.replace(/\s*\([^)]*\)*/g, '').split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase()}
+                          </div>
+                          <span className="text-[10px] font-bold text-text-secondary dark:text-dark-text-secondary truncate">
+                            Shared by {product.owner_name.replace(/\s*\([^)]*\)*/g, '')}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between border-t border-border/40 dark:border-dark-border/40 pt-3">
                         <div>
-                          <p className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider">Paid</p>
-                          <p className="text-sm font-black text-text dark:text-dark-text">{formatCurrency(product.amount_paid)}</p>
+                          <p className="text-[9px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider">Paid</p>
+                          <p className="text-xs sm:text-sm font-black text-text dark:text-dark-text">{formatCurrency(product.amount_paid)}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider">
-                            {product.status === 'expired' ? 'Expired' : 'Expires in'}
-                          </p>
-                          <p className={`text-sm font-black ${sc.text}`}>
-                            {product.status === 'expired' ? formatDate(product.expiry_date) : `${days}d`}
-                          </p>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <p className="text-[9px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider">
+                              {product.status === 'expired' ? 'Expired' : 'Expires in'}
+                            </p>
+                            <p className={`text-xs sm:text-sm font-black ${sc.text}`}>
+                              {product.status === 'expired' ? formatDate(product.expiry_date) : `${days}d`}
+                            </p>
+                          </div>
+                          <ChevronRight size={14} className="text-text-muted dark:text-dark-text-secondary group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                         </div>
-                        <ChevronRight size={16} className="text-text-muted dark:text-dark-text-secondary group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                       </div>
                     </Link>
                   </motion.div>
