@@ -28,6 +28,7 @@ export interface Product {
   qr_code: string;
   status: 'active' | 'expiring' | 'expired';
   created_at: string;
+  owner_name?: string;
 }
 
 export interface Alert {
@@ -38,6 +39,15 @@ export interface Alert {
   is_read: boolean;
   created_at: string;
   product?: Product;
+}
+
+export interface FamilyMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarColor: string;
+  joinedAt: string;
 }
 
 // Helper to calculate status

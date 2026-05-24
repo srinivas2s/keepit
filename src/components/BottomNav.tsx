@@ -1,14 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Plus, Bell, User, History } from 'lucide-react';
+import { LayoutDashboard, Plus, Bell, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Home', href: '/dashboard' },
-  { icon: History, label: 'History', href: '/history' },
+  { icon: Users, label: 'Family', href: '/family' },
   { icon: Plus, label: 'Add', href: '/add', isCenter: true },
   { icon: Bell, label: 'Alerts', href: '/alerts' },
   { icon: User, label: 'Profile', href: '/profile' },

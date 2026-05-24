@@ -129,7 +129,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.08 + i * 0.05 }}
               onClick={() => setFilter(s.label.toLowerCase() === 'total' ? 'all' : s.label.toLowerCase())}
-              className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-surface dark:bg-dark-surface border transition-all ${
+              className={`p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-surface dark:bg-dark-surface border transition-all text-left ${
                 (filter === 'all' && s.label === 'Total') || filter === s.label.toLowerCase()
                   ? 'border-primary/40 dark:border-primary/30 shadow-lg shadow-primary/10'
                   : 'border-border dark:border-dark-border hover:border-border/60'
@@ -160,10 +160,10 @@ export default function DashboardPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.18 }}
           className="flex gap-2 overflow-x-auto pb-2 mb-5 scrollbar-hide">
           {[
-            { key: 'all', label: 'All', count: stats.total },
-            { key: 'active', label: '✅ Active', count: stats.active },
-            { key: 'expiring', label: '⚠️ Expiring', count: stats.expiring },
-            { key: 'expired', label: '❌ Expired', count: stats.expired },
+            { key: 'all', label: 'All', count: stats.total, icon: null },
+            { key: 'active', label: 'Active', count: stats.active, icon: <CheckCircle2 size={14} className="text-success" /> },
+            { key: 'expiring', label: 'Expiring', count: stats.expiring, icon: <Clock size={14} className="text-warning" /> },
+            { key: 'expired', label: 'Expired', count: stats.expired, icon: <XCircle size={14} className="text-danger" /> },
           ].map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
               className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
@@ -171,6 +171,11 @@ export default function DashboardPage() {
                   ? 'bg-primary text-white shadow-md shadow-primary/20'
                   : 'bg-surface dark:bg-dark-surface border border-border dark:border-dark-border text-text-secondary dark:text-dark-text-secondary hover:border-primary/30'
               }`}>
+              {f.icon && (
+                <span className={filter === f.key ? 'brightness-200' : ''}>
+                  {f.icon}
+                </span>
+              )}
               {f.label}
               <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${filter === f.key ? 'bg-white/20' : 'bg-border dark:bg-dark-border'}`}>
                 {f.count}
