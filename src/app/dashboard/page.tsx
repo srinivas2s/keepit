@@ -27,13 +27,6 @@ export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'all' | 'personal'>('all');
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) router.push('/login');
-  }, [isLoading, isAuthenticated, router]);
-
-  if (isLoading) return null;
-  if (!isAuthenticated) return null;
-
   const stats = useMemo(() => ({
     total: products.length,
     active: products.filter(p => p.status === 'active').length,

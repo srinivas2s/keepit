@@ -9,7 +9,7 @@ import { Phone, Mail, User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useApp();
+  const { login, signUp } = useApp();
   const [isSignUp, setIsSignUp] = useState(false);
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [name, setName] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -32,8 +33,14 @@ export default function LoginPage() {
         return;
       }
       setIsLoading(true);
-      await login(email, name || 'User');
-      router.push('/dashboard');
+      try {
+        await login(email, password);
+        router.push('/dashboard');
+      } catch (err: any) {
+        setError(err.message || 'Login failed. Please verify your email and password.');
+      } finally {
+        setIsLoading(false);
+      }
       return;
     }
 
@@ -42,8 +49,16 @@ export default function LoginPage() {
       return;
     }
     setIsLoading(true);
-    setIsLoading(false);
-    setStep('otp');
+    try {
+      // Generate random 4-digit code
+      const code = Math.floor(1000 + Math.random() * 9000).toString();
+      setGeneratedOtp(code);
+      setStep('otp');
+    } catch (err: any) {
+      setError(err.message || 'Verification initialization failed.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -73,9 +88,20 @@ export default function LoginPage() {
       setError('Please enter the 4-digit OTP');
       return;
     }
+    if (otpValue !== generatedOtp) {
+      setError('Invalid OTP code. Please enter the verification code shown below.');
+      return;
+    }
+
     setIsLoading(true);
-    await login(email || ('+91' + phone), name || 'User');
-    router.push('/dashboard');
+    try {
+      await signUp(email, password, name, phone);
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Verification and registration failed.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -254,6 +280,19 @@ export default function LoginPage() {
                   onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }}
                   className="space-y-6"
                 >
+                  {generatedOtp && (
+                    <motion.div 
+                      initial={{ scale: 0.95, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="p-4 bg-primary/10 dark:bg-primary/20 border border-primary/20 rounded-2xl flex items-center justify-between gap-3"
+                    >
+                      <div className="text-left">
+                        <p className="text-[10px] font-black text-primary uppercase tracking-wider">KeepIt Verification OTP</p>
+                        <p className="text-xs text-text-secondary dark:text-dark-text-secondary mt-0.5">Use this security code to verify:</p>
+                      </div>
+                      <span className="text-xl font-black tracking-widest text-primary bg-primary/10 dark:bg-primary/20 px-3.5 py-1.5 rounded-xl border border-primary/20">{generatedOtp}</span>
+                    </motion.div>
+                  )}
                   <div className="flex justify-between gap-3">
                     {otp.map((digit, i) => (
                       <input

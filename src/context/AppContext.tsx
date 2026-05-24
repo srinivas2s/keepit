@@ -11,8 +11,9 @@ interface AppState {
   isAuthenticated: boolean;
   isDarkMode: boolean;
   isLoading: boolean;
-  login: (phoneOrEmail: string, name?: string) => Promise<void>;
-  logout: () => void;
+  login: (email: string, password?: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string, phone: string) => Promise<void>;
+  logout: () => Promise<void>;
   toggleDarkMode: () => void;
   addProduct: (product: Omit<Product, 'id' | 'user_id' | 'created_at' | 'qr_code' | 'status'> & { owner_name?: string }) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
@@ -37,12 +38,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // ── Initial State Loading ─────────────────────────────────
+  // ── Theme Setup ───────────────────────────────────────────
   useEffect(() => {
-    const savedAuth = localStorage.getItem('keepit_auth');
     const savedDark = localStorage.getItem('keepit_dark');
-
-    // Theme setup
     if (savedDark === 'true') {
       setIsDarkMode(true);
       document.documentElement.classList.add('dark');
@@ -50,29 +48,70 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsDarkMode(false);
       document.documentElement.classList.remove('dark');
     }
+  }, []);
 
-    // Local authentication fallback
-    if (savedAuth) {
-      try {
-        const authData = JSON.parse(savedAuth);
-        setUser(authData);
+  // ── Listen to Supabase Auth State Changes ─────────────────
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setIsLoading(true);
+      if (session?.user) {
+        const sessionUser = session.user;
+        
+        // Sync user profile in public.users table
+        const { data: existingUser, error: queryError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', sessionUser.id)
+          .maybeSingle();
+
+        let finalUser: User;
+        
+        if (existingUser) {
+          finalUser = existingUser;
+        } else {
+          // If the profile does not exist yet (e.g. from sign up), insert it
+          const newUser = {
+            id: sessionUser.id,
+            phone: sessionUser.phone || sessionUser.user_metadata?.phone || '',
+            email: sessionUser.email || '',
+            name: sessionUser.user_metadata?.name || sessionUser.email?.split('@')[0] || 'User',
+            created_at: new Date().toISOString()
+          };
+
+          const { data: insertedUser, error: insertError } = await supabase
+            .from('users')
+            .insert(newUser)
+            .select()
+            .single();
+
+          finalUser = insertError ? newUser : insertedUser;
+        }
+
+        setUser(finalUser);
         setIsAuthenticated(true);
-      } catch {
+        localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        setProducts([]);
+        setAlerts([]);
+        setFamilyMembers([]);
         localStorage.removeItem('keepit_auth');
+        localStorage.removeItem('keepit_products');
+        localStorage.removeItem('keepit_family_members');
+        localStorage.removeItem('keepit_alerts');
       }
-    }
+      setIsLoading(false);
+    });
 
-    setIsLoading(false);
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // ── Database Sync Effect when Authenticated User Changes ──
   useEffect(() => {
-    if (!user) {
-      setProducts([]);
-      setAlerts([]);
-      setFamilyMembers([]);
-      return;
-    }
+    if (!user) return;
 
     const loadData = async () => {
       try {
@@ -89,9 +128,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }));
           setProducts(withStatus);
           localStorage.setItem('keepit_products', JSON.stringify(withStatus));
-        } else {
-          const savedProducts = localStorage.getItem('keepit_products');
-          if (savedProducts) setProducts(JSON.parse(savedProducts));
         }
 
         // Fetch Family Members
@@ -111,9 +147,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }));
           setFamilyMembers(formatted);
           localStorage.setItem('keepit_family_members', JSON.stringify(formatted));
-        } else {
-          const savedFamily = localStorage.getItem('keepit_family_members');
-          if (savedFamily) setFamilyMembers(JSON.parse(savedFamily));
         }
 
         // Fetch Alerts
@@ -125,9 +158,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (!alertErr && dbAlerts) {
           setAlerts(dbAlerts);
           localStorage.setItem('keepit_alerts', JSON.stringify(dbAlerts));
-        } else {
-          const savedAlerts = localStorage.getItem('keepit_alerts');
-          if (savedAlerts) setAlerts(JSON.parse(savedAlerts));
         }
       } catch (e) {
         console.error('Error synchronizing with Supabase:', e);
@@ -138,62 +168,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   // ── Authentication API ────────────────────────────────────
-  const login = async (phoneOrEmail: string, name?: string) => {
+  const login = async (email: string, password?: string) => {
     setIsLoading(true);
     try {
-      const queryField = phoneOrEmail.includes('@') ? 'email' : 'phone';
-      
-      const { data: existingUser, error: queryError } = await supabase
-        .from('users')
-        .select('*')
-        .eq(queryField, phoneOrEmail)
-        .maybeSingle();
-
-      let userData: User;
-
-      if (existingUser) {
-        userData = existingUser;
-      } else {
-        // Create new user if not exists
-        const newId = 'usr-' + Math.random().toString(36).substring(2, 11);
-        const newUser = {
-          id: newId,
-          phone: phoneOrEmail.includes('@') ? '' : phoneOrEmail,
-          email: phoneOrEmail.includes('@') ? phoneOrEmail : '',
-          name: name || 'User',
-          created_at: new Date().toISOString(),
-        };
-
-        const { data: insertedUser, error: insertError } = await supabase
-          .from('users')
-          .insert(newUser)
-          .select()
-          .single();
-
-        if (insertError) {
-          userData = { ...newUser, id: newId };
-        } else {
-          userData = insertedUser;
-        }
-      }
-
-      setUser(userData);
-      setIsAuthenticated(true);
-      localStorage.setItem('keepit_auth', JSON.stringify(userData));
-    } catch (err) {
-      console.error('Login action error:', err);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: password || 'KeepItPassword123!',
+      });
+      if (error) throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('keepit_auth');
-    localStorage.removeItem('keepit_products');
-    localStorage.removeItem('keepit_family_members');
-    localStorage.removeItem('keepit_alerts');
+  const signUp = async (email: string, password: string, name: string, phone: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            phone,
+          }
+        }
+      });
+      
+      if (error) throw error;
+
+      if (data?.user) {
+        // Automatically insert their profile to public.users linked directly to their auth id
+        const newUserProfile = {
+          id: data.user.id,
+          phone,
+          name,
+          email,
+          created_at: new Date().toISOString()
+        };
+
+        await supabase.from('users').insert(newUserProfile);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleDarkMode = () => {
@@ -225,84 +252,63 @@ export function AppProvider({ children }: { children: ReactNode }) {
       owner_name: product.owner_name || 'You',
     };
 
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert(newProduct)
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('products')
+      .insert(newProduct)
+      .select()
+      .single();
 
-      if (!error && data) {
-        setProducts(prev => [data, ...prev]);
-        localStorage.setItem('keepit_products', JSON.stringify([data, ...products]));
-      } else {
-        const localProduct: Product = {
-          ...newProduct,
-          id: 'prod-' + Date.now(),
-          created_at: new Date().toISOString(),
-        };
-        const updated = [localProduct, ...products];
-        setProducts(updated);
-        localStorage.setItem('keepit_products', JSON.stringify(updated));
-      }
-    } catch {
-      const localProduct: Product = {
-        ...newProduct,
-        id: 'prod-' + Date.now(),
-        created_at: new Date().toISOString(),
-      };
-      const updated = [localProduct, ...products];
-      setProducts(updated);
-      localStorage.setItem('keepit_products', JSON.stringify(updated));
+    if (!error && data) {
+      setProducts(prev => [data, ...prev]);
+      localStorage.setItem('keepit_products', JSON.stringify([data, ...products]));
+    } else {
+      console.error('Error inserting product to database:', error);
     }
   };
 
   const deleteProduct = async (id: string) => {
     if (!user) return;
-    try {
-      await supabase
-        .from('products')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-    } catch (e) {
-      console.error(e);
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+    
+    if (!error) {
+      const updated = products.filter(p => p.id !== id);
+      setProducts(updated);
+      localStorage.setItem('keepit_products', JSON.stringify(updated));
     }
-    const updated = products.filter(p => p.id !== id);
-    setProducts(updated);
-    localStorage.setItem('keepit_products', JSON.stringify(updated));
   };
 
   // ── Alerts API ───────────────────────────────────────────
   const markAlertRead = async (id: string) => {
     if (!user) return;
-    try {
-      await supabase
-        .from('alerts')
-        .update({ is_read: true })
-        .eq('id', id)
-        .eq('user_id', user.id);
-    } catch (e) {
-      console.error(e);
+    const { error } = await supabase
+      .from('alerts')
+      .update({ is_read: true })
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (!error) {
+      const updated = alerts.map(a => a.id === id ? { ...a, is_read: true } : a);
+      setAlerts(updated);
+      localStorage.setItem('keepit_alerts', JSON.stringify(updated));
     }
-    const updated = alerts.map(a => a.id === id ? { ...a, is_read: true } : a);
-    setAlerts(updated);
-    localStorage.setItem('keepit_alerts', JSON.stringify(updated));
   };
 
   const markAllAlertsRead = async () => {
     if (!user) return;
-    try {
-      await supabase
-        .from('alerts')
-        .update({ is_read: true })
-        .eq('user_id', user.id);
-    } catch (e) {
-      console.error(e);
+    const { error } = await supabase
+      .from('alerts')
+      .update({ is_read: true })
+      .eq('user_id', user.id);
+
+    if (!error) {
+      const updated = alerts.map(a => ({ ...a, is_read: true }));
+      setAlerts(updated);
+      localStorage.setItem('keepit_alerts', JSON.stringify(updated));
     }
-    const updated = alerts.map(a => ({ ...a, is_read: true }));
-    setAlerts(updated);
-    localStorage.setItem('keepit_alerts', JSON.stringify(updated));
   };
 
   const getProduct = (id: string) => products.find(p => p.id === id);
@@ -337,67 +343,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
       avatar_color: randomColor,
     };
 
-    try {
-      const { data, error } = await supabase
-        .from('family_members')
-        .insert(newMember)
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('family_members')
+      .insert(newMember)
+      .select()
+      .single();
 
-      if (!error && data) {
-        const formatted: FamilyMember = {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          role: data.role,
-          avatarColor: data.avatar_color,
-          joinedAt: data.created_at,
-        };
-        const updated = [...familyMembers, formatted];
-        setFamilyMembers(updated);
-        localStorage.setItem('keepit_family_members', JSON.stringify(updated));
-      } else {
-        const formatted: FamilyMember = {
-          id: 'fam-' + Date.now(),
-          name,
-          email,
-          role,
-          avatarColor: randomColor,
-          joinedAt: new Date().toISOString(),
-        };
-        const updated = [...familyMembers, formatted];
-        setFamilyMembers(updated);
-        localStorage.setItem('keepit_family_members', JSON.stringify(updated));
-      }
-    } catch {
+    if (!error && data) {
       const formatted: FamilyMember = {
-        id: 'fam-' + Date.now(),
-        name,
-        email,
-        role,
-        avatarColor: randomColor,
-        joinedAt: new Date().toISOString(),
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        avatarColor: data.avatar_color,
+        joinedAt: data.created_at,
       };
       const updated = [...familyMembers, formatted];
       setFamilyMembers(updated);
       localStorage.setItem('keepit_family_members', JSON.stringify(updated));
+    } else {
+      console.error('Error inviting family member to database:', error);
     }
   };
 
   const removeFamilyMember = async (id: string) => {
     if (!user) return;
-    try {
-      await supabase
-        .from('family_members')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-    } catch (e) {
-      console.error(e);
+    const { error } = await supabase
+      .from('family_members')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+    
+    if (!error) {
+      const updated = familyMembers.filter(m => m.id !== id);
+      setFamilyMembers(updated);
+      localStorage.setItem('keepit_family_members', JSON.stringify(updated));
     }
-    const updated = familyMembers.filter(m => m.id !== id);
-    setFamilyMembers(updated);
-    localStorage.setItem('keepit_family_members', JSON.stringify(updated));
   };
 
   return (
@@ -411,6 +392,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isDarkMode,
         isLoading,
         login,
+        signUp,
         logout,
         toggleDarkMode,
         addProduct,
