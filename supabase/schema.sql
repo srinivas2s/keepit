@@ -73,7 +73,6 @@ CREATE INDEX IF NOT EXISTS idx_alerts_user_id ON alerts(user_id);
 CREATE INDEX IF NOT EXISTS idx_alerts_product_id ON alerts(product_id);
 CREATE INDEX IF NOT EXISTS idx_alerts_is_read ON alerts(is_read);
 
--- ============================================
 -- Row Level Security (RLS)
 -- ============================================
 
@@ -82,6 +81,23 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE family_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alerts ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist to prevent duplicates
+DROP POLICY IF EXISTS "Users can view own profile" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+
+DROP POLICY IF EXISTS "Users can view own products" ON products;
+DROP POLICY IF EXISTS "Users can insert own products" ON products;
+DROP POLICY IF EXISTS "Users can update own products" ON products;
+DROP POLICY IF EXISTS "Users can delete own products" ON products;
+
+DROP POLICY IF EXISTS "Users can view own family members" ON family_members;
+DROP POLICY IF EXISTS "Users can insert own family members" ON family_members;
+DROP POLICY IF EXISTS "Users can update own family members" ON family_members;
+DROP POLICY IF EXISTS "Users can delete own family members" ON family_members;
+
+DROP POLICY IF EXISTS "Users can view own alerts" ON alerts;
+DROP POLICY IF EXISTS "Users can update own alerts" ON alerts;
 
 -- Users: can only view/update their own row
 CREATE POLICY "Users can view own profile"
@@ -163,6 +179,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_update_product_status ON products;
 
 CREATE TRIGGER trigger_update_product_status
   BEFORE INSERT OR UPDATE ON products
