@@ -10,6 +10,7 @@ import { Phone, Mail, User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 export default function LoginPage() {
   const router = useRouter();
   const { login, signUp } = useApp();
+  const [mounted, setMounted] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
@@ -22,6 +23,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +124,14 @@ export default function LoginPage() {
     setName('');
     setError('');
   };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background dark:bg-dark-bg flex items-center justify-center p-0 sm:p-6 lg:p-12 overflow-hidden transition-colors duration-500">
+        <div className="w-full h-screen sm:h-auto sm:max-w-4xl sm:min-h-[580px] bg-surface dark:bg-dark-surface sm:rounded-[36px] border border-border dark:border-dark-border sm:shadow-[0_24px_60px_-15px_rgba(0,0,0,0.08)] dark:sm:shadow-[0_24px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden flex relative animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg flex items-center justify-center p-0 sm:p-6 lg:p-12 overflow-hidden transition-colors duration-500">

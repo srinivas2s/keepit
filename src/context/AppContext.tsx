@@ -227,11 +227,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password?: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password: password || 'KeepItPassword123!',
       });
       if (error) throw error;
+      
+      if (data?.user) {
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .maybeSingle();
+          
+        if (existingUser) {
+          setUser(existingUser);
+          setIsAuthenticated(true);
+          localStorage.setItem('keepit_auth', JSON.stringify(existingUser));
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -254,16 +268,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data?.user) {
-        // Automatically insert their profile to public.users linked directly to their auth id
+        const fallbackPhone = `phone-${data.user.id.substring(0, 8)}`;
         const newUserProfile = {
           id: data.user.id,
-          phone: phone || `phone-${data.user.id.substring(0, 8)}`,
+          phone: phone || fallbackPhone,
           name,
           email,
           created_at: new Date().toISOString()
         };
 
-        await supabase.from('users').insert(newUserProfile);
+        const { data: insertedUser, error: insertError } = await supabase
+          .from('users')
+          .insert(newUserProfile)
+          .select()
+          .single();
+          
+        const finalUser = insertError ? newUserProfile : insertedUser;
+        setUser(finalUser);
+        setIsAuthenticated(true);
+        localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
       }
     } finally {
       setIsLoading(false);
