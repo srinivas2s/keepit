@@ -70,9 +70,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           finalUser = existingUser;
         } else {
           // If the profile does not exist yet (e.g. from sign up), insert it
+          const fallbackPhone = `phone-${sessionUser.id.substring(0, 8)}`;
           const newUser = {
             id: sessionUser.id,
-            phone: sessionUser.phone || sessionUser.user_metadata?.phone || '',
+            phone: sessionUser.phone || sessionUser.user_metadata?.phone || fallbackPhone,
             email: sessionUser.email || '',
             name: sessionUser.user_metadata?.name || sessionUser.email?.split('@')[0] || 'User',
             created_at: new Date().toISOString()
@@ -201,7 +202,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // Automatically insert their profile to public.users linked directly to their auth id
         const newUserProfile = {
           id: data.user.id,
-          phone,
+          phone: phone || `phone-${data.user.id.substring(0, 8)}`,
           name,
           email,
           created_at: new Date().toISOString()
