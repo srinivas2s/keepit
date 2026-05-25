@@ -50,48 +50,67 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // ── Listen to Supabase Auth State Changes ─────────────────
+  // ── Synchronous & Asynchronous Session Recovery ───────────
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const recoverSession = async () => {
       setIsLoading(true);
-      if (session?.user) {
-        const sessionUser = session.user;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
         
-        // Sync user profile in public.users table
-        const { data: existingUser, error: queryError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', sessionUser.id)
-          .maybeSingle();
-
-        let finalUser: User;
-        
-        if (existingUser) {
-          finalUser = existingUser;
-        } else {
-          // If the profile does not exist yet (e.g. from sign up), insert it
-          const fallbackPhone = `phone-${sessionUser.id.substring(0, 8)}`;
-          const newUser = {
-            id: sessionUser.id,
-            phone: sessionUser.phone || sessionUser.user_metadata?.phone || fallbackPhone,
-            email: sessionUser.email || '',
-            name: sessionUser.user_metadata?.name || sessionUser.email?.split('@')[0] || 'User',
-            created_at: new Date().toISOString()
-          };
-
-          const { data: insertedUser, error: insertError } = await supabase
+        if (session?.user) {
+          const sessionUser = session.user;
+          
+          // Sync user profile in public.users table
+          const { data: existingUser } = await supabase
             .from('users')
-            .insert(newUser)
-            .select()
-            .single();
+            .select('*')
+            .eq('id', sessionUser.id)
+            .maybeSingle();
 
-          finalUser = insertError ? newUser : insertedUser;
+          let finalUser: User;
+          
+          if (existingUser) {
+            finalUser = existingUser;
+          } else {
+            const fallbackPhone = `phone-${sessionUser.id.substring(0, 8)}`;
+            const newUser = {
+              id: sessionUser.id,
+              phone: sessionUser.phone || sessionUser.user_metadata?.phone || fallbackPhone,
+              email: sessionUser.email || '',
+              name: sessionUser.user_metadata?.name || sessionUser.email?.split('@')[0] || 'User',
+              created_at: new Date().toISOString()
+            };
+
+            const { data: insertedUser, error: insertError } = await supabase
+              .from('users')
+              .insert(newUser)
+              .select()
+              .single();
+
+            finalUser = insertError ? newUser : insertedUser;
+          }
+
+          setUser(finalUser);
+          setIsAuthenticated(true);
+          localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+          localStorage.removeItem('keepit_auth');
         }
+      } catch (err) {
+        console.error('Failed to recover session:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-        setUser(finalUser);
-        setIsAuthenticated(true);
-        localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
-      } else {
+    recoverSession();
+
+    // Listen for future auth state changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setIsLoading(true);
         setUser(null);
         setIsAuthenticated(false);
         setProducts([]);
@@ -101,8 +120,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('keepit_products');
         localStorage.removeItem('keepit_family_members');
         localStorage.removeItem('keepit_alerts');
+        setIsLoading(false);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session?.user) {
+          const sessionUser = session.user;
+          const { data: existingUser } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', sessionUser.id)
+            .maybeSingle();
+
+          if (existingUser) {
+            setUser(existingUser);
+            setIsAuthenticated(true);
+            localStorage.setItem('keepit_auth', JSON.stringify(existingUser));
+          }
+        }
       }
-      setIsLoading(false);
     });
 
     return () => {
