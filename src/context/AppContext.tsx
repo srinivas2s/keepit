@@ -130,11 +130,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
             .eq('id', sessionUser.id)
             .maybeSingle();
 
+          let finalUser: User;
+          
           if (existingUser) {
-            setUser(existingUser);
-            setIsAuthenticated(true);
-            localStorage.setItem('keepit_auth', JSON.stringify(existingUser));
+            finalUser = existingUser;
+          } else {
+            const fallbackPhone = `phone-${sessionUser.id.substring(0, 8)}`;
+            const newUser = {
+              id: sessionUser.id,
+              phone: sessionUser.phone || sessionUser.user_metadata?.phone || fallbackPhone,
+              email: sessionUser.email || '',
+              name: sessionUser.user_metadata?.name || sessionUser.email?.split('@')[0] || 'User',
+              created_at: new Date().toISOString()
+            };
+
+            const { data: insertedUser, error: insertError } = await supabase
+              .from('users')
+              .insert(newUser)
+              .select()
+              .single();
+
+            finalUser = insertError ? newUser : insertedUser;
           }
+
+          setUser(finalUser);
+          setIsAuthenticated(true);
+          localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
         }
       }
     });
