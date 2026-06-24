@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, products, isAuthenticated, isLoading, getUnreadAlertCount } = useApp();
   const [filter, setFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'all' | 'personal'>('all');
 
@@ -40,6 +41,9 @@ export default function DashboardPage() {
       r = r.filter(p => !p.owner_name || p.owner_name === 'You');
     }
     if (filter !== 'all') r = r.filter(p => p.status === filter);
+    if (categoryFilter !== 'All') {
+      r = r.filter(p => p.category === categoryFilter || (categoryFilter === 'Other' && !p.category));
+    }
     if (search) {
       const q = search.toLowerCase();
       r = r.filter(p =>
@@ -182,6 +186,21 @@ export default function DashboardPage() {
               <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${filter === f.key ? 'bg-white/20' : 'bg-border dark:bg-dark-border'}`}>
                 {f.count}
               </span>
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Category Filter Pills */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.19 }}
+          className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+          {['All', 'Electronics', 'Appliances', 'Vehicles', 'Furniture', 'Clothing', 'Other'].map(cat => (
+            <button key={cat} onClick={() => setCategoryFilter(cat)}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                categoryFilter === cat
+                  ? 'bg-primary text-white shadow-md shadow-primary/20'
+                  : 'bg-surface dark:bg-dark-surface border border-border dark:border-dark-border text-text-secondary dark:text-dark-text-secondary hover:border-primary/30'
+              }`}>
+              {cat}
             </button>
           ))}
         </motion.div>
