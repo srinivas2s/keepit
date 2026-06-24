@@ -116,7 +116,7 @@ export default function AlertsPage() {
             </div>
             <h3 className="text-lg font-black text-text dark:text-dark-text mb-2">No alerts yet</h3>
             <p className="text-sm text-text-secondary dark:text-dark-text-secondary max-w-xs mx-auto">
-              We'll notify you 90, 30, and 7 days before a warranty expires.
+              We&apos;ll notify you 90, 30, and 7 days before a warranty expires.
             </p>
             <Link href="/dashboard" className="inline-flex items-center gap-2 mt-6 px-5 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-lg shadow-primary/25 hover:bg-primary-dark transition-all">
               <Bell size={16} /> Go to Dashboard
