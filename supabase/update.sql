@@ -1,0 +1,4 @@
+ALTER TABLE products 
+ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Other',
+ADD COLUMN IF NOT EXISTS warranty_document_url TEXT,
+ADD COLUMN IF NOT EXISTS manual_url TEXT;
