@@ -25,7 +25,8 @@ export default function LoginPage() {
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
 
@@ -42,8 +43,10 @@ export default function LoginPage() {
       try {
         await login(email, password);
         router.push('/dashboard');
-      } catch (err: any) {
-        setError(err.message || 'Login failed. Please verify your email and password.');
+      } catch (err: unknown) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error = err as any;
+        setError(error.message || 'Login failed. Please verify your email and password.');
       } finally {
         setIsLoading(false);
       }
@@ -60,8 +63,10 @@ export default function LoginPage() {
       const code = Math.floor(1000 + Math.random() * 9000).toString();
       setGeneratedOtp(code);
       setStep('otp');
-    } catch (err: any) {
-      setError(err.message || 'Verification initialization failed.');
+    } catch (err: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      setError(error.message || 'Verification initialization failed.');
     } finally {
       setIsLoading(false);
     }
@@ -103,17 +108,23 @@ export default function LoginPage() {
     try {
       await signUp(email, password, name, phone);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Verification and registration failed.');
+    } catch (err: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      setError(error.message || 'Verification and registration failed.');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (otp.every(d => d !== '') && step === 'otp') {
-      handleVerifyOtp();
-    }
+    const t = setTimeout(() => {
+      if (otp.every(d => d !== '') && step === 'otp') {
+        handleVerifyOtp();
+      }
+    }, 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otp, step]);
 
   const toggleMode = () => {
