@@ -193,11 +193,13 @@ export default function AddProductPage() {
   const [form, setForm] = useState({
     name: '',
     brand: '',
+    category: 'Electronics',
     retailer: '',
     purchase_date: '',
     warranty_months: 12,
     amount_paid: '',
     receipt_url: '',
+    warranty_document_url: '',
     owner_name: 'You',
   });
 
@@ -312,6 +314,7 @@ export default function AddProductPage() {
   };
 
   const brands = ['Apple', 'Samsung', 'Sony', 'LG', 'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Motorola', 'Dyson', 'HP', 'Dell', 'Logitech'];
+  const categories = ['Electronics', 'Appliances', 'Vehicles', 'Furniture', 'Clothing', 'Other'];
 
   const methods = [
     { id: 'scan' as const, icon: <Camera size={28} />, title: 'Scan Receipt', desc: 'AI reads your bill automatically', color: 'from-blue-500 to-blue-600' },
@@ -506,6 +509,17 @@ export default function AddProductPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider mb-2">Category *</label>
+                  <select
+                    value={form.category}
+                    onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
+                    className="w-full px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  >
+                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider mb-2">Brand *</label>
@@ -586,6 +600,17 @@ export default function AddProductPage() {
                     onChange={e => setForm(p => ({ ...p, amount_paid: e.target.value }))}
                     placeholder="0"
                     min="0"
+                    className="w-full px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider mb-2">Warranty Document URL (Optional)</label>
+                  <input
+                    type="url"
+                    value={form.warranty_document_url}
+                    onChange={e => setForm(p => ({ ...p, warranty_document_url: e.target.value }))}
+                    placeholder="https://..."
                     className="w-full px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   />
                 </div>
