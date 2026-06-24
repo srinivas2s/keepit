@@ -19,12 +19,15 @@ export interface Product {
   user_id: string;
   name: string;
   brand: string;
+  category?: string;
   retailer: string;
   purchase_date: string;
   warranty_months: number;
   expiry_date: string;
   amount_paid: number;
   receipt_url: string;
+  warranty_document_url?: string;
+  manual_url?: string;
   qr_code: string;
   status: 'active' | 'expiring' | 'expired';
   created_at: string;
