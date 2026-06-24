@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
@@ -11,7 +11,7 @@ type InputMethod = 'select' | 'scan' | 'manual' | 'amazon' | 'razorpay';
 function parseReceiptText(text: string) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   let name = '';
-  let brand = 'Other';
+  let brand = '';
   let retailer = 'Retail Store';
   let amount = 0;
   
@@ -41,7 +41,7 @@ function parseReceiptText(text: string) {
 
   // 1. Scan for retailer, brand and amount
   let maxNumericValue = 0;
-  let totalsFound: number[] = [];
+  const totalsFound: number[] = [];
 
   for (const line of lines) {
     const lower = line.toLowerCase();
@@ -122,7 +122,7 @@ function parseReceiptText(text: string) {
 
   // 2. Scan for product name candidate
   // We prefer a line that contains the detected brand name or product category keywords
-  let candidateLines: string[] = [];
+  const candidateLines: string[] = [];
   for (const line of lines) {
     const lower = line.toLowerCase();
     // Exclude payment method lines, headers, addresses, dates, website urls
@@ -138,7 +138,7 @@ function parseReceiptText(text: string) {
 
     // Score lines based on brand and category match
     let score = 0;
-    if (brand !== 'Other' && lower.includes(brand.toLowerCase())) score += 10;
+    if (brand && lower.includes(brand.toLowerCase())) score += 10;
     for (const cat of productCategories) {
       if (lower.includes(cat)) {
         score += 5;
@@ -192,7 +192,7 @@ export default function AddProductPage() {
 
   const [form, setForm] = useState({
     name: '',
-    brand: 'Other',
+    brand: '',
     retailer: '',
     purchase_date: '',
     warranty_months: 12,
@@ -201,10 +201,6 @@ export default function AddProductPage() {
     owner_name: 'You',
   });
 
-  if (!appLoading && !isAuthenticated) {
-    router.push('/login');
-    return null;
-  }
 
   // CLIENT-SIDE ONLY: Tesseract runs in the browser via dynamic import
   const handleScan = async (file: File) => {
@@ -281,32 +277,41 @@ export default function AddProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const purchaseDate = new Date(form.purchase_date);
-    const expiryDate = new Date(purchaseDate);
-    expiryDate.setMonth(expiryDate.getMonth() + form.warranty_months);
-
-    await addProduct({
-      name: form.name,
-      brand: form.brand,
-      retailer: form.retailer,
-      purchase_date: form.purchase_date,
-      warranty_months: form.warranty_months,
-      expiry_date: expiryDate.toISOString().split('T')[0],
-      amount_paid: Number(form.amount_paid),
-      receipt_url: form.receipt_url,
-      owner_name: form.owner_name,
-    });
-
+    setError('');
+    
     try {
-      const confetti = (await import('canvas-confetti')).default;
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#1565C0', '#F59E0B', '#10B981'] });
-    } catch {}
+      const purchaseDate = new Date(form.purchase_date);
+      const expiryDate = new Date(purchaseDate);
+      expiryDate.setMonth(expiryDate.getMonth() + form.warranty_months);
 
-    await new Promise(r => setTimeout(r, 800));
-    router.push('/dashboard');
+      await addProduct({
+        name: form.name,
+        brand: form.brand,
+        retailer: form.retailer,
+        purchase_date: form.purchase_date,
+        warranty_months: form.warranty_months,
+        expiry_date: expiryDate.toISOString().split('T')[0],
+        amount_paid: Number(form.amount_paid),
+        receipt_url: form.receipt_url,
+        owner_name: form.owner_name,
+      });
+
+      try {
+        const confetti = (await import('canvas-confetti')).default;
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#1565C0', '#F59E0B', '#10B981'] });
+      } catch {}
+
+      await new Promise(r => setTimeout(r, 800));
+      router.push('/dashboard');
+    } catch (err: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      console.error('Failed to save product:', error);
+      setError('Failed to save product. Please try again.');
+    }
   };
 
-  const brands = ['Other', 'Apple', 'Samsung', 'Sony', 'LG', 'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Motorola', 'Dyson', 'HP', 'Dell', 'Logitech'];
+  const brands = ['Apple', 'Samsung', 'Sony', 'LG', 'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Motorola', 'Dyson', 'HP', 'Dell', 'Logitech'];
 
   const methods = [
     { id: 'scan' as const, icon: <Camera size={28} />, title: 'Scan Receipt', desc: 'AI reads your bill automatically', color: 'from-blue-500 to-blue-600' },
@@ -314,6 +319,16 @@ export default function AddProductPage() {
     { id: 'amazon' as const, icon: <Package size={28} />, title: 'Amazon Import', desc: 'Sync from order history', color: 'from-orange-500 to-orange-600', soon: true },
     { id: 'razorpay' as const, icon: <CreditCard size={28} />, title: 'Razorpay Sync', desc: 'Import from payment history', color: 'from-purple-500 to-purple-600', soon: true },
   ];
+
+  useEffect(() => {
+    if (!appLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [appLoading, isAuthenticated, router]);
+
+  if (!appLoading && !isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background dark:bg-dark-bg pb-32">
@@ -494,14 +509,18 @@ export default function AddProductPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider mb-2">Brand *</label>
-                    <select
+                    <input
+                      list="brands-list"
+                      type="text"
                       value={form.brand}
                       onChange={e => setForm(p => ({ ...p, brand: e.target.value }))}
                       required
-                      className="w-full px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    >
-                      {brands.map(b => <option key={b} value={b}>{b}</option>)}
-                    </select>
+                      placeholder="e.g. Sony, Apple..."
+                      className="w-full px-4 py-3 bg-background dark:bg-dark-bg rounded-xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    />
+                    <datalist id="brands-list">
+                      {brands.map(b => <option key={b} value={b} />)}
+                    </datalist>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-text-secondary dark:text-dark-text-secondary uppercase tracking-wider mb-2">Retailer *</label>
