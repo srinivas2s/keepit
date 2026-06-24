@@ -41,21 +41,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Theme Setup ───────────────────────────────────────────
   useEffect(() => {
     const savedDark = localStorage.getItem('keepit_dark');
-    if (savedDark === 'true') {
-      setIsDarkMode(true);
+    const isDark = savedDark === 'true';
+    const t = setTimeout(() => setIsDarkMode(isDark), 0);
+    if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
-      setIsDarkMode(false);
       document.documentElement.classList.remove('dark');
     }
+    return () => clearTimeout(t);
   }, []);
 
   // ── Synchronous & Asynchronous Session Recovery ───────────
   useEffect(() => {
+    let mounted = true;
+
     const recoverSession = async () => {
+      if (!mounted) return;
       setIsLoading(true);
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        if (error) {
+          console.error('Supabase getSession error:', error);
+          throw error;
+        }
         
         if (session?.user) {
           const sessionUser = session.user;
@@ -66,6 +76,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             .select('*')
             .eq('id', sessionUser.id)
             .maybeSingle();
+
+          if (!mounted) return;
 
           let finalUser: User;
           
@@ -90,18 +102,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
             finalUser = insertError ? newUser : insertedUser;
           }
 
-          setUser(finalUser);
-          setIsAuthenticated(true);
-          localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+          if (mounted) {
+            setUser(finalUser);
+            setIsAuthenticated(true);
+            localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+          }
         } else {
-          setUser(null);
-          setIsAuthenticated(false);
-          localStorage.removeItem('keepit_auth');
+          if (mounted) {
+            setUser(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem('keepit_auth');
+          }
         }
       } catch (err) {
         console.error('Failed to recover session:', err);
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
 
@@ -109,6 +125,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     // Listen for future auth state changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
       if (event === 'SIGNED_OUT') {
         setIsLoading(true);
         setUser(null);
@@ -130,6 +148,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             .eq('id', sessionUser.id)
             .maybeSingle();
 
+          if (!mounted) return;
+
           let finalUser: User;
           
           if (existingUser) {
@@ -153,14 +173,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
             finalUser = insertError ? newUser : insertedUser;
           }
 
-          setUser(finalUser);
-          setIsAuthenticated(true);
-          localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+          if (mounted) {
+            setUser(finalUser);
+            setIsAuthenticated(true);
+            localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+          }
         }
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -337,11 +360,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .select()
       .single();
 
-    if (!error && data) {
+    if (error) {
+      console.error('Error inserting product to database:', error);
+      throw error;
+    }
+
+    if (data) {
       setProducts(prev => [data, ...prev]);
       localStorage.setItem('keepit_products', JSON.stringify([data, ...products]));
-    } else {
-      console.error('Error inserting product to database:', error);
     }
   };
 
@@ -413,7 +439,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const inviteFamilyMember = async (name: string, email: string, role: string) => {
     if (!user) return;
     const colors = ['#1565C0', '#F59E0B', '#10B981', '#EC4899', '#8B5CF6', '#3B82F6', '#EF4444'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const randomColor = colors.at(Math.floor(Math.random() * colors.length)) || colors[0];
     const newMember = {
       user_id: user.id,
       name,
