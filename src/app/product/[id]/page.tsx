@@ -6,8 +6,10 @@ import { useApp } from '@/context/AppContext';
 import { formatCurrency, formatDate, daysRemaining } from '@/lib/supabase';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ChevronLeft, Search, Smartphone, Tv, Home, Package, Clock, XCircle, CreditCard, ShieldCheck, Calendar, LayoutDashboard, Store, QrCode, Trash2, ArrowRightLeft } from 'lucide-react';
+import { ChevronLeft, Search, Smartphone, Tv, Home, Package, Clock, XCircle, CreditCard, ShieldCheck, Calendar, LayoutDashboard, Store, QrCode, Trash2, ArrowRightLeft, FileDown, Phone, Globe, ExternalLink, IndianRupee, FileText } from 'lucide-react';
 import Skeleton from '@/components/Skeleton';
+import { estimateResaleValue } from '@/lib/utils';
+import { brandSupport } from '@/lib/brandSupport';
 
 function CountdownDigit({ value, label }: { value: number; label: string }) {
   return (
@@ -38,6 +40,26 @@ export default function ProductDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const product = getProduct(params.id as string);
+
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById('product-details-content');
+    if (!element) return;
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Warranty_Claim_${product?.name.replace(/\s+/g, '_')}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF', err);
+    }
+  };
 
   useEffect(() => {
     if (!product) return;
@@ -127,6 +149,7 @@ export default function ProductDetailPage() {
 
         {/* Product Header Card */}
         <motion.div
+          id="product-details-content"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-surface dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-border dark:border-dark-border mb-6 shadow-lg"
@@ -208,6 +231,7 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {[
               { label: 'Amount Paid', value: formatCurrency(product.amount_paid), icon: <CreditCard size={14} /> },
+              { label: 'Est. Value', value: formatCurrency(estimateResaleValue(product.amount_paid, product.purchase_date, product.category)), icon: <IndianRupee size={14} /> },
               { label: 'Warranty', value: `${product.warranty_months} Months`, icon: <ShieldCheck size={14} /> },
               { label: 'Purchase Date', value: formatDate(product.purchase_date), icon: <Calendar size={14} /> },
               { label: 'Expiry Date', value: formatDate(product.expiry_date), icon: <Clock size={14} /> },
@@ -231,6 +255,55 @@ export default function ProductDetailPage() {
           </div>
         </motion.div>
 
+        {/* Support & Documents */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="bg-surface dark:bg-dark-surface rounded-3xl p-6 sm:p-8 border border-border dark:border-dark-border mb-6 shadow-lg"
+        >
+          <h2 className="font-black text-text dark:text-dark-text text-sm uppercase tracking-wider mb-4">Support & Documents</h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Brand Support */}
+            {brandSupport[product.brand] ? (
+              <div className="p-4 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border">
+                <p className="text-xs font-bold text-text-secondary dark:text-dark-text-secondary mb-3 uppercase tracking-wider">{product.brand} Support</p>
+                <div className="space-y-2">
+                  <a href={`tel:${brandSupport[product.brand].phone.replace(/\s/g, '')}`} className="flex items-center gap-2 text-sm font-semibold text-text dark:text-dark-text hover:text-primary transition-colors">
+                    <Phone size={16} className="text-primary" /> {brandSupport[product.brand].phone}
+                  </a>
+                  <a href={brandSupport[product.brand].url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold text-text dark:text-dark-text hover:text-primary transition-colors">
+                    <Globe size={16} className="text-primary" /> Support Portal <ExternalLink size={12} className="opacity-50" />
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border">
+                <p className="text-xs font-bold text-text-secondary dark:text-dark-text-secondary mb-3 uppercase tracking-wider">Web Search</p>
+                <a href={`https://www.google.com/search?q=${encodeURIComponent(product.brand + ' customer care support')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold text-text dark:text-dark-text hover:text-primary transition-colors">
+                  <Globe size={16} className="text-primary" /> Search Support Online <ExternalLink size={12} className="opacity-50" />
+                </a>
+              </div>
+            )}
+
+            {/* Documents */}
+            <div className="p-4 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border">
+              <p className="text-xs font-bold text-text-secondary dark:text-dark-text-secondary mb-3 uppercase tracking-wider">Documents</p>
+              <div className="space-y-2">
+                <a href={`https://www.google.com/search?q=${encodeURIComponent(product.brand + ' ' + product.name + ' user manual filetype:pdf')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold text-text dark:text-dark-text hover:text-primary transition-colors">
+                  <FileText size={16} className="text-primary" /> Find User Manual <ExternalLink size={12} className="opacity-50" />
+                </a>
+                {product.warranty_document_url && (
+                  <a href={product.warranty_document_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold text-text dark:text-dark-text hover:text-primary transition-colors">
+                    <FileText size={16} className="text-primary" /> View Warranty Card <ExternalLink size={12} className="opacity-50" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -238,6 +311,13 @@ export default function ProductDetailPage() {
           transition={{ delay: 0.3 }}
           className="space-y-3"
         >
+          <button
+            onClick={handleDownloadPDF}
+            className="w-full flex items-center justify-center gap-2 py-3.5 bg-surface dark:bg-dark-surface border border-primary text-primary rounded-xl font-bold text-sm hover:bg-primary/5 transition-colors shadow-lg shadow-primary/10"
+          >
+            <FileDown size={18} /> Download Warranty Claim PDF
+          </button>
+
           <Link
             href={`/product/${product.id}/qr`}
             className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
