@@ -189,7 +189,7 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS trigger_update_product_status ON products;
 
@@ -249,7 +249,7 @@ BEGIN
     END IF;
   END LOOP;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- Schedule this function to run daily via Supabase pg_cron:
 -- SELECT cron.schedule('generate-alerts', '0 8 * * *', 'SELECT generate_warranty_alerts()');
