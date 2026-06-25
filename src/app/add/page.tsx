@@ -300,12 +300,14 @@ export default function AddProductPage() {
       await addProduct({
         name: form.name,
         brand: form.brand,
+        category: form.category,
         retailer: form.retailer,
         purchase_date: form.purchase_date,
         warranty_months: form.warranty_months,
         expiry_date: expiryDate.toISOString().split('T')[0],
         amount_paid: Number(form.amount_paid),
         receipt_url: form.receipt_url,
+        warranty_document_url: form.warranty_document_url,
         owner_name: form.owner_name,
       });
 
