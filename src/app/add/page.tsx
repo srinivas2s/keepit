@@ -197,6 +197,7 @@ export default function AddProductPage() {
   const [scanProgress, setScanProgress] = useState(0);
   const [scanComplete, setScanComplete] = useState(false);
   const [error, setError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -291,6 +292,7 @@ export default function AddProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSaving(true);
     
     try {
       const purchaseDate = new Date(form.purchase_date);
@@ -320,9 +322,19 @@ export default function AddProductPage() {
       router.push('/dashboard');
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const error = err as any;
-      console.error('Failed to save product:', error);
-      setError('Failed to save product. Please try again.');
+      const e = err as any;
+      console.error('Failed to save product:', e);
+      // Show specific Supabase error if available
+      const msg = e?.message || e?.error_description || 'Failed to save product.';
+      if (msg.includes('column') || msg.includes('schema')) {
+        setError('Database not set up yet. Please run the update.sql script in your Supabase SQL Editor first.');
+      } else if (msg.includes('JWT') || msg.includes('auth') || msg.includes('row-level')) {
+        setError('Session expired. Please sign out and sign back in, then try again.');
+      } else {
+        setError(msg);
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -619,11 +631,18 @@ export default function AddProductPage() {
                 </div>
               </div>
 
+              {error && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-danger/8 dark:bg-danger/15 rounded-2xl border border-danger/20 flex items-start gap-3">
+                  <AlertCircle size={18} className="text-danger flex-shrink-0 mt-0.5" />
+                  <p className="text-danger font-semibold text-sm">{error}</p>
+                </motion.div>
+              )}
               <button
                 type="submit"
-                className="w-full py-4 bg-primary text-white rounded-2xl font-black text-base hover:bg-primary-dark transition-all shadow-xl shadow-primary/25 hover:-translate-y-0.5 active:scale-[0.98]"
+                disabled={isSaving}
+                className="w-full py-4 bg-primary text-white rounded-2xl font-black text-base hover:bg-primary-dark transition-all shadow-xl shadow-primary/25 hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
-                Save Product
+                {isSaving ? 'Saving...' : 'Save Product'}
               </button>
             </motion.form>
           )}
