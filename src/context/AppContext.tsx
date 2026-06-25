@@ -281,35 +281,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
         email,
         password,
         options: {
-          data: {
-            name,
-            phone,
-          }
+          data: { name, phone },
+          // Don't redirect — we handle session manually
+          emailRedirectTo: undefined,
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        // Provide friendlier error messages
+        if (error.message?.includes('rate limit') || error.message?.includes('email')) {
+          throw new Error('Too many signup attempts. Please wait a few minutes and try again, or go to Sign In if you already have an account.');
+        }
+        throw error;
+      }
+
+      // If identities array is empty, the email already exists in Supabase
+      if (data?.user && data.user.identities?.length === 0) {
+        throw new Error('An account with this email already exists. Please Sign In instead.');
+      }
 
       if (data?.user) {
-        const fallbackPhone = `phone-${data.user.id.substring(0, 8)}`;
-        const newUserProfile = {
-          id: data.user.id,
-          phone: phone || fallbackPhone,
-          name,
-          email,
-          created_at: new Date().toISOString()
-        };
+        // If email confirmation is disabled, user is immediately active
+        // Try signing in right away
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (!signInError && signInData?.user) {
+          const fallbackPhone = `phone-${signInData.user.id.substring(0, 8)}`;
+          const newUserProfile = {
+            id: signInData.user.id,
+            phone: phone || fallbackPhone,
+            name,
+            email,
+            created_at: new Date().toISOString()
+          };
 
-        const { data: insertedUser, error: insertError } = await supabase
-          .from('users')
-          .insert(newUserProfile)
-          .select()
-          .single();
-          
-        const finalUser = insertError ? newUserProfile : insertedUser;
-        setUser(finalUser);
-        setIsAuthenticated(true);
-        localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+          // Upsert user profile (handles both new and existing)
+          const { data: upsertedUser } = await supabase
+            .from('users')
+            .upsert(newUserProfile, { onConflict: 'id' })
+            .select()
+            .single();
+
+          const finalUser = upsertedUser || newUserProfile;
+          setUser(finalUser);
+          setIsAuthenticated(true);
+          localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
+        } else {
+          // Email confirmation is ON — user needs to confirm email first
+          throw new Error('Almost there! Please check your email and click the confirmation link, then come back to Sign In.');
+        }
       }
     } finally {
       setIsLoading(false);
