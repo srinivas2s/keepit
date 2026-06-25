@@ -179,6 +179,16 @@ function parseReceiptText(text: string) {
   };
 }
 
+const brands = ['Apple', 'Samsung', 'Sony', 'LG', 'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Motorola', 'Dyson', 'HP', 'Dell', 'Logitech'];
+const categories = ['Electronics', 'Appliances', 'Vehicles', 'Furniture', 'Clothing', 'Other'];
+
+const methods = [
+  { id: 'scan' as const, icon: <Camera size={28} />, title: 'Scan Receipt', desc: 'AI reads your bill automatically', color: 'from-blue-500 to-blue-600' },
+  { id: 'manual' as const, icon: <PenTool size={28} />, title: 'Manual Entry', desc: 'Type in your product details', color: 'from-emerald-500 to-emerald-600' },
+  { id: 'amazon' as const, icon: <Package size={28} />, title: 'Amazon Import', desc: 'Sync from order history', color: 'from-orange-500 to-orange-600', soon: true },
+  { id: 'razorpay' as const, icon: <CreditCard size={28} />, title: 'Razorpay Sync', desc: 'Import from payment history', color: 'from-purple-500 to-purple-600', soon: true },
+];
+
 export default function AddProductPage() {
   const router = useRouter();
   const { addProduct, familyMembers, isAuthenticated, isLoading: appLoading } = useApp();
@@ -242,7 +252,8 @@ export default function AddProductPage() {
         return;
       }
 
-      setForm({
+      setForm(prev => ({
+        ...prev,
         name: extracted.name,
         brand: extracted.brand,
         retailer: extracted.retailer,
@@ -251,7 +262,7 @@ export default function AddProductPage() {
         amount_paid: extracted.amount_paid ? String(extracted.amount_paid) : '',
         receipt_url: '',
         owner_name: 'You',
-      });
+      }));
       setScanComplete(true);
       setScanProgress(100);
       await new Promise(r => setTimeout(r, 700));
@@ -313,21 +324,11 @@ export default function AddProductPage() {
     }
   };
 
-  const brands = ['Apple', 'Samsung', 'Sony', 'LG', 'OnePlus', 'Xiaomi', 'Realme', 'Oppo', 'Motorola', 'Dyson', 'HP', 'Dell', 'Logitech'];
-  const categories = ['Electronics', 'Appliances', 'Vehicles', 'Furniture', 'Clothing', 'Other'];
-
-  const methods = [
-    { id: 'scan' as const, icon: <Camera size={28} />, title: 'Scan Receipt', desc: 'AI reads your bill automatically', color: 'from-blue-500 to-blue-600' },
-    { id: 'manual' as const, icon: <PenTool size={28} />, title: 'Manual Entry', desc: 'Type in your product details', color: 'from-emerald-500 to-emerald-600' },
-    { id: 'amazon' as const, icon: <Package size={28} />, title: 'Amazon Import', desc: 'Sync from order history', color: 'from-orange-500 to-orange-600', soon: true },
-    { id: 'razorpay' as const, icon: <CreditCard size={28} />, title: 'Razorpay Sync', desc: 'Import from payment history', color: 'from-purple-500 to-purple-600', soon: true },
-  ];
-
   useEffect(() => {
     if (!appLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [appLoading, isAuthenticated, router]);
+  }, [appLoading, isAuthenticated]);
 
   if (!appLoading && !isAuthenticated) {
     return null;
