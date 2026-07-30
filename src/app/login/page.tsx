@@ -12,17 +12,13 @@ export default function LoginPage() {
   const { login, signUp } = useApp();
   const [mounted, setMounted] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [otp, setOtp] = useState(['', '', '', '']);
   const [name, setName] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 0);
@@ -30,7 +26,8 @@ export default function LoginPage() {
   }, []);
 
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -53,85 +50,26 @@ export default function LoginPage() {
       return;
     }
 
-    if (!name || !email || !phone || !password) {
-      setError('Please fill in all details');
+    if (!name || !email || !password) {
+      setError('Please fill in Name, Email, and Password');
       return;
     }
     setIsLoading(true);
     try {
-      // Generate random 4-digit code
-      const code = Math.floor(1000 + Math.random() * 9000).toString();
-      setGeneratedOtp(code);
-      setStep('otp');
-    } catch (err: unknown) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const error = err as any;
-      setError(error.message || 'Verification initialization failed.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) value = value.slice(-1);
-    if (!/^\d*$/.test(value)) return;
-
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    if (value && index < 3) {
-      otpRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleVerifyOtp = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    setError('');
-    const otpValue = otp.join('');
-    if (otpValue.length !== 4) {
-      setError('Please enter the 4-digit OTP');
-      return;
-    }
-    if (otpValue !== generatedOtp) {
-      setError('Invalid OTP code. Please enter the verification code shown below.');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await signUp(email, password, name, phone);
+      await signUp(email, password, name, phone || `phone-${Math.floor(100000 + Math.random() * 900000)}`);
       router.push('/dashboard');
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error = err as any;
-      setError(error.message || 'Verification and registration failed.');
+      setError(error.message || 'Registration failed.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      if (otp.every(d => d !== '') && step === 'otp') {
-        handleVerifyOtp();
-      }
-    }, 0);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [otp, step]);
-
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
-    setStep('phone');
     setPhone('');
-    setOtp(['', '', '', '']);
     setName('');
     setError('');
   };
@@ -193,164 +131,104 @@ export default function LoginPage() {
               {isSignUp ? 'Sign Up' : 'Sign In'}
             </h1>
             <p className="text-sm text-text-secondary dark:text-dark-text-secondary mb-6">
-              {step === 'phone' && (isSignUp ? 'Create your secure account to start.' : 'Access your warranties instantly.')}
-              {step === 'otp' && 'Enter the 4-digit code sent to your phone.'}
+              {isSignUp ? 'Create your secure account to start.' : 'Access your warranties instantly.'}
             </p>
 
             <AnimatePresence mode="wait">
-              {step === 'phone' && (
-                <motion.form
-                  key="phone"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  onSubmit={handleSendOtp}
-                  className="space-y-4"
-                >
-                  {isSignUp && (
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Full Name</label>
-                      <div className="relative flex items-center group">
-                        <User size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className="w-full pl-11 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
-                          placeholder="John Doe"
-                          required={isSignUp}
-                        />
-                      </div>
-                    </div>
-                  )}
-
+              <motion.form
+                key="auth"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                onSubmit={handleAuth}
+                className="space-y-4"
+              >
+                {isSignUp && (
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Email Address</label>
+                    <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Full Name</label>
                     <div className="relative flex items-center group">
-                      <Mail size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
+                      <User size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
                       <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
-                        placeholder="john@example.com"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {isSignUp && (
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Phone Number</label>
-                      <div className="relative flex items-center group">
-                        <Phone size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
-                        <span className="absolute left-11 font-black text-text dark:text-dark-text text-sm border-r border-border dark:border-dark-border pr-2.5">+91</span>
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          className="w-full pl-22 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
-                          placeholder="98765 43210"
-                          required={isSignUp}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Password</label>
-                    <div className="relative flex items-center group">
-                      <Lock size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-11 pr-10 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
-                        placeholder="••••••••"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 text-text-muted dark:text-dark-text-secondary hover:text-primary transition-colors"
-                      >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    disabled={isLoading}
-                    type="submit"
-                    className="w-full py-3.5 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark shadow-lg shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
-                  >
-                    {isLoading ? (
-                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        {isSignUp ? 'Send OTP Verification' : 'Sign In'}
-                        <ArrowRight size={16} />
-                      </>
-                    )}
-                  </button>
-                </motion.form>
-              )}
-
-              {step === 'otp' && (
-                <motion.form
-                  key="otp"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }}
-                  className="space-y-6"
-                >
-                  {generatedOtp && (
-                    <motion.div 
-                      initial={{ scale: 0.95, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="p-4 bg-primary/10 dark:bg-primary/20 border border-primary/20 rounded-2xl flex items-center justify-between gap-3"
-                    >
-                      <div className="text-left">
-                        <p className="text-[10px] font-black text-primary uppercase tracking-wider">KeepIt Verification OTP</p>
-                        <p className="text-xs text-text-secondary dark:text-dark-text-secondary mt-0.5">Use this security code to verify:</p>
-                      </div>
-                      <span className="text-xl font-black tracking-widest text-primary bg-primary/10 dark:bg-primary/20 px-3.5 py-1.5 rounded-xl border border-primary/20">{generatedOtp}</span>
-                    </motion.div>
-                  )}
-                  <div className="flex justify-between gap-3">
-                    {otp.map((digit, i) => (
-                      <input
-                        key={i}
-                        ref={(el) => { otpRefs.current[i] = el; }}
                         type="text"
-                        value={digit}
-                        onChange={(e) => handleOtpChange(i, e.target.value)}
-                        onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                        className="w-full h-14 bg-background dark:bg-dark-bg border border-border dark:border-dark-border rounded-2xl text-center text-2xl font-black text-text dark:text-dark-text focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
-                        maxLength={1}
-                        autoFocus={i === 0}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full pl-11 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
+                        placeholder="John Doe"
+                        required={isSignUp}
                       />
-                    ))}
+                    </div>
                   </div>
-                  <button
-                    disabled={isLoading}
-                    type="submit"
-                    className="w-full py-3.5 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center"
-                  >
-                    {isLoading ? (
-                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : 'Verify & Sign In'}
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setStep('phone')}
-                    className="w-full text-center text-xs font-bold text-text-muted hover:text-primary transition-colors"
-                  >
-                    Go Back & Edit details
-                  </button>
-                </motion.form>
-              )}
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Email Address</label>
+                  <div className="relative flex items-center group">
+                    <Mail size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="text"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-11 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {isSignUp && (
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Phone Number</label>
+                    <div className="relative flex items-center group">
+                      <Phone size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
+                      <span className="absolute left-11 font-black text-text dark:text-dark-text text-sm border-r border-border dark:border-dark-border pr-2.5">+91</span>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        className="w-full pl-22 pr-4 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
+                        placeholder="98765 43210"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-text-muted dark:text-dark-text-secondary uppercase tracking-wider ml-1">Password</label>
+                  <div className="relative flex items-center group">
+                    <Lock size={16} className="absolute left-4 text-text-muted dark:text-dark-text-secondary group-focus-within:text-primary transition-colors" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-11 pr-10 py-3 bg-background dark:bg-dark-bg rounded-2xl border border-border dark:border-dark-border text-sm text-text dark:text-dark-text placeholder:text-text-muted focus:border-primary outline-none transition-all font-semibold"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 text-text-muted dark:text-dark-text-secondary hover:text-primary transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  disabled={isLoading}
+                  type="submit"
+                  className="w-full py-3.5 bg-primary text-white rounded-2xl font-black text-sm hover:bg-primary-dark shadow-lg shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                >
+                  {isLoading ? (
+                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      {isSignUp ? 'Sign Up' : 'Sign In'}
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+              </motion.form>
             </AnimatePresence>
 
             {error && (
@@ -375,3 +253,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

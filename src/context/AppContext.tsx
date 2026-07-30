@@ -29,6 +29,106 @@ interface AppState {
 
 const AppContext = createContext<AppState | undefined>(undefined);
 
+const MOCK_PRODUCTS: Product[] = [
+  {
+    id: 'mock-iphone15',
+    user_id: '00000000-0000-0000-0000-000000000000',
+    name: 'iPhone 15 Pro',
+    brand: 'Apple',
+    category: 'Electronics',
+    retailer: 'Apple Store',
+    purchase_date: new Date(Date.now() - 290 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    warranty_months: 12,
+    expiry_date: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    amount_paid: 999.00,
+    receipt_url: '',
+    warranty_document_url: '',
+    manual_url: '',
+    qr_code: 'keepit-iphone15',
+    status: 'active',
+    created_at: new Date().toISOString(),
+    owner_name: 'You'
+  },
+  {
+    id: 'mock-macbook',
+    user_id: '00000000-0000-0000-0000-000000000000',
+    name: 'MacBook Pro M3',
+    brand: 'Apple',
+    category: 'Electronics',
+    retailer: 'Amazon',
+    purchase_date: new Date(Date.now() - 360 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    warranty_months: 12,
+    expiry_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    amount_paid: 1999.00,
+    receipt_url: '',
+    warranty_document_url: '',
+    manual_url: '',
+    qr_code: 'keepit-macbook',
+    status: 'expiring',
+    created_at: new Date().toISOString(),
+    owner_name: 'You'
+  },
+  {
+    id: 'mock-headphones',
+    user_id: '00000000-0000-0000-0000-000000000000',
+    name: 'WH-1000XM5 Headphones',
+    brand: 'Sony',
+    category: 'Audio',
+    retailer: 'Best Buy',
+    purchase_date: new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    warranty_months: 12,
+    expiry_date: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    amount_paid: 349.99,
+    receipt_url: '',
+    warranty_document_url: '',
+    manual_url: '',
+    qr_code: 'keepit-headphones',
+    status: 'expired',
+    created_at: new Date().toISOString(),
+    owner_name: 'You'
+  }
+];
+
+const MOCK_FAMILY: FamilyMember[] = [
+  {
+    id: 'mock-fam-1',
+    name: 'Sarah Doe',
+    email: 'sarah@example.com',
+    role: 'Spouse',
+    avatarColor: '#EC4899',
+    joinedAt: new Date().toISOString()
+  },
+  {
+    id: 'mock-fam-2',
+    name: 'Alex Doe',
+    email: 'alex@example.com',
+    role: 'Child',
+    avatarColor: '#8B5CF6',
+    joinedAt: new Date().toISOString()
+  }
+];
+
+const MOCK_ALERTS: Alert[] = [
+  {
+    id: 'mock-alert-1',
+    user_id: '00000000-0000-0000-0000-000000000000',
+    product_id: 'mock-macbook',
+    alert_type: '7day',
+    is_read: false,
+    created_at: new Date().toISOString(),
+    product: MOCK_PRODUCTS[1]
+  },
+  {
+    id: 'mock-alert-2',
+    user_id: '00000000-0000-0000-0000-000000000000',
+    product_id: 'mock-headphones',
+    alert_type: 'expired',
+    is_read: true,
+    created_at: new Date().toISOString(),
+    product: MOCK_PRODUCTS[2]
+  }
+];
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -59,6 +159,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!mounted) return;
       setIsLoading(true);
       try {
+        const storedAuth = localStorage.getItem('keepit_auth');
+        if (storedAuth) {
+          const parsed = JSON.parse(storedAuth);
+          if (parsed && parsed.id === '00000000-0000-0000-0000-000000000000') {
+            setUser(parsed);
+            setIsAuthenticated(true);
+            
+            const storedProds = localStorage.getItem('keepit_products');
+            if (storedProds) {
+              setProducts(JSON.parse(storedProds));
+            } else {
+              setProducts(MOCK_PRODUCTS);
+            }
+            
+            const storedFam = localStorage.getItem('keepit_family_members');
+            if (storedFam) {
+              setFamilyMembers(JSON.parse(storedFam));
+            } else {
+              setFamilyMembers(MOCK_FAMILY);
+            }
+            
+            const storedAl = localStorage.getItem('keepit_alerts');
+            if (storedAl) {
+              setAlerts(JSON.parse(storedAl));
+            } else {
+              setAlerts(MOCK_ALERTS);
+            }
+            
+            setIsLoading(false);
+            return;
+          }
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
@@ -127,6 +260,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
+      const storedAuth = localStorage.getItem('keepit_auth');
+      if (storedAuth) {
+        const parsed = JSON.parse(storedAuth);
+        if (parsed && parsed.id === '00000000-0000-0000-0000-000000000000') {
+          return;
+        }
+      }
+
       if (event === 'SIGNED_OUT') {
         setIsLoading(true);
         setUser(null);
@@ -188,9 +329,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+
   // ── Database Sync Effect when Authenticated User Changes ──
   useEffect(() => {
     if (!user) return;
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      return;
+    }
 
     const loadData = async () => {
       try {
@@ -250,6 +395,62 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password?: string) => {
     setIsLoading(true);
     try {
+      const trimmedEmail = email.trim().toLowerCase();
+      if (trimmedEmail.startsWith('test') && password === '121212') {
+        const mockUser: User = {
+          id: '00000000-0000-0000-0000-000000000000',
+          phone: '9876543210',
+          name: 'Test Account',
+          email: trimmedEmail.includes('@') ? trimmedEmail : 'test@example.com',
+          created_at: new Date().toISOString()
+        };
+        setUser(mockUser);
+        setIsAuthenticated(true);
+        localStorage.setItem('keepit_auth', JSON.stringify(mockUser));
+        
+        let initialProducts = MOCK_PRODUCTS;
+        const storedProducts = localStorage.getItem('keepit_products');
+        if (storedProducts) {
+          try {
+            initialProducts = JSON.parse(storedProducts);
+          } catch (e) {
+            initialProducts = MOCK_PRODUCTS;
+          }
+        } else {
+          localStorage.setItem('keepit_products', JSON.stringify(MOCK_PRODUCTS));
+        }
+        setProducts(initialProducts);
+
+        let initialFamily = MOCK_FAMILY;
+        const storedFamily = localStorage.getItem('keepit_family_members');
+        if (storedFamily) {
+          try {
+            initialFamily = JSON.parse(storedFamily);
+          } catch (e) {
+            initialFamily = MOCK_FAMILY;
+          }
+        } else {
+          localStorage.setItem('keepit_family_members', JSON.stringify(MOCK_FAMILY));
+        }
+        setFamilyMembers(initialFamily);
+
+        let initialAlerts = MOCK_ALERTS;
+        const storedAlerts = localStorage.getItem('keepit_alerts');
+        if (storedAlerts) {
+          try {
+            initialAlerts = JSON.parse(storedAlerts);
+          } catch (e) {
+            initialAlerts = MOCK_ALERTS;
+          }
+        } else {
+          localStorage.setItem('keepit_alerts', JSON.stringify(MOCK_ALERTS));
+        }
+        setAlerts(initialAlerts);
+        
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password: password || 'KeepItPassword123!',
@@ -277,32 +478,52 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, name: string, phone: string) => {
     setIsLoading(true);
     try {
+      const trimmedEmail = email.trim().toLowerCase();
+      if (trimmedEmail.startsWith('test') || name.toLowerCase().trim() === 'test') {
+        const mockUser: User = {
+          id: '00000000-0000-0000-0000-000000000000',
+          phone: phone || '9876543210',
+          name: name || 'Test Account',
+          email: trimmedEmail.includes('@') ? trimmedEmail : 'test@example.com',
+          created_at: new Date().toISOString()
+        };
+        setUser(mockUser);
+        setIsAuthenticated(true);
+        localStorage.setItem('keepit_auth', JSON.stringify(mockUser));
+        
+        localStorage.setItem('keepit_products', JSON.stringify(MOCK_PRODUCTS));
+        localStorage.setItem('keepit_family_members', JSON.stringify(MOCK_FAMILY));
+        localStorage.setItem('keepit_alerts', JSON.stringify(MOCK_ALERTS));
+
+        setProducts(MOCK_PRODUCTS);
+        setFamilyMembers(MOCK_FAMILY);
+        setAlerts(MOCK_ALERTS);
+        
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { name, phone },
-          // Don't redirect — we handle session manually
           emailRedirectTo: undefined,
         }
       });
       
       if (error) {
-        // Provide friendlier error messages
         if (error.message?.includes('rate limit') || error.message?.includes('email')) {
           throw new Error('Too many signup attempts. Please wait a few minutes and try again, or go to Sign In if you already have an account.');
         }
         throw error;
       }
 
-      // If identities array is empty, the email already exists in Supabase
       if (data?.user && data.user.identities?.length === 0) {
         throw new Error('An account with this email already exists. Please Sign In instead.');
       }
 
       if (data?.user) {
-        // If email confirmation is disabled, user is immediately active
-        // Try signing in right away
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         
         if (!signInError && signInData?.user) {
@@ -315,7 +536,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
             created_at: new Date().toISOString()
           };
 
-          // Upsert user profile (handles both new and existing)
           const { data: upsertedUser } = await supabase
             .from('users')
             .upsert(newUserProfile, { onConflict: 'id' })
@@ -327,7 +547,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setIsAuthenticated(true);
           localStorage.setItem('keepit_auth', JSON.stringify(finalUser));
         } else {
-          // Email confirmation is ON — user needs to confirm email first
           throw new Error('Almost there! Please check your email and click the confirmation link, then come back to Sign In.');
         }
       }
@@ -339,6 +558,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setIsLoading(true);
     try {
+      if (user && user.id === '00000000-0000-0000-0000-000000000000') {
+        setUser(null);
+        setIsAuthenticated(false);
+        setProducts([]);
+        setAlerts([]);
+        setFamilyMembers([]);
+        localStorage.removeItem('keepit_auth');
+        localStorage.removeItem('keepit_products');
+        localStorage.removeItem('keepit_family_members');
+        localStorage.removeItem('keepit_alerts');
+        return;
+      }
       await supabase.auth.signOut();
     } finally {
       setIsLoading(false);
@@ -359,6 +590,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Products API ─────────────────────────────────────────
   const addProduct = async (product: Omit<Product, 'id' | 'user_id' | 'created_at' | 'qr_code' | 'status'> & { owner_name?: string }) => {
     if (!user) return;
+
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      const mockProduct: Product = {
+        id: `mock-product-${Date.now()}`,
+        user_id: user.id,
+        name: product.name,
+        brand: product.brand,
+        category: product.category || 'Other',
+        retailer: product.retailer,
+        purchase_date: product.purchase_date,
+        warranty_months: product.warranty_months,
+        expiry_date: product.expiry_date,
+        amount_paid: product.amount_paid,
+        receipt_url: product.receipt_url || '',
+        warranty_document_url: product.warranty_document_url || '',
+        manual_url: product.manual_url || '',
+        qr_code: `keepit-${Date.now()}`,
+        status: calculateStatus(product.expiry_date),
+        created_at: new Date().toISOString(),
+        owner_name: product.owner_name || 'You',
+      };
+      const updated = [mockProduct, ...products];
+      setProducts(updated);
+      localStorage.setItem('keepit_products', JSON.stringify(updated));
+      return;
+    }
+
     const newProduct = {
       user_id: user.id,
       name: product.name,
@@ -396,6 +654,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteProduct = async (id: string) => {
     if (!user) return;
+
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      const updated = products.filter(p => p.id !== id);
+      setProducts(updated);
+      localStorage.setItem('keepit_products', JSON.stringify(updated));
+      return;
+    }
+
     const { error } = await supabase
       .from('products')
       .delete()
@@ -412,6 +678,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Alerts API ───────────────────────────────────────────
   const markAlertRead = async (id: string) => {
     if (!user) return;
+
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      const updated = alerts.map(a => a.id === id ? { ...a, is_read: true } : a);
+      setAlerts(updated);
+      localStorage.setItem('keepit_alerts', JSON.stringify(updated));
+      return;
+    }
+
     const { error } = await supabase
       .from('alerts')
       .update({ is_read: true })
@@ -427,6 +701,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const markAllAlertsRead = async () => {
     if (!user) return;
+
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      const updated = alerts.map(a => ({ ...a, is_read: true }));
+      setAlerts(updated);
+      localStorage.setItem('keepit_alerts', JSON.stringify(updated));
+      return;
+    }
+
     const { error } = await supabase
       .from('alerts')
       .update({ is_read: true })
@@ -461,6 +743,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Family Members API ───────────────────────────────────
   const inviteFamilyMember = async (name: string, email: string, role: string) => {
     if (!user) return;
+
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      const colors = ['#1565C0', '#F59E0B', '#10B981', '#EC4899', '#8B5CF6', '#3B82F6', '#EF4444'];
+      const randomColor = colors.at(Math.floor(Math.random() * colors.length)) || colors[0];
+      const formatted: FamilyMember = {
+        id: `mock-member-${Date.now()}`,
+        name,
+        email,
+        role,
+        avatarColor: randomColor,
+        joinedAt: new Date().toISOString(),
+      };
+      const updated = [...familyMembers, formatted];
+      setFamilyMembers(updated);
+      localStorage.setItem('keepit_family_members', JSON.stringify(updated));
+      return;
+    }
+
     const colors = ['#1565C0', '#F59E0B', '#10B981', '#EC4899', '#8B5CF6', '#3B82F6', '#EF4444'];
     const randomColor = colors.at(Math.floor(Math.random() * colors.length)) || colors[0];
     const newMember = {
@@ -496,6 +796,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const removeFamilyMember = async (id: string) => {
     if (!user) return;
+
+    if (user.id === '00000000-0000-0000-0000-000000000000') {
+      const updated = familyMembers.filter(m => m.id !== id);
+      setFamilyMembers(updated);
+      localStorage.setItem('keepit_family_members', JSON.stringify(updated));
+      return;
+    }
+
     const { error } = await supabase
       .from('family_members')
       .delete()
